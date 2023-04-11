@@ -47,21 +47,6 @@ export class SbtItem implements Contract {
         })
     }
 
-
-    async sendDestroy(provider: ContractProvider, via: Sender, params: {
-        value: bigint
-        queryId: bigint
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(0x1f04537a, 32)
-                .storeUint(params.queryId, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
     async sendRevoke(provider: ContractProvider, via: Sender, params: {
         value: bigint
         queryId: bigint
