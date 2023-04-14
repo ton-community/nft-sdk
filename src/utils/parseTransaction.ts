@@ -1,8 +1,8 @@
 import { loadTransaction, Slice, Address } from "ton-core";
 
 export type Info = {
-    type: "transfer" | "unknown" | null;
-    info: NftTransferInfo | null;
+    type: "transfer" | "royalty_params" | "unknown" | null;
+    info: NftTransferInfo | RoyaltyInfo | null;
 };
 
 export type NftTransferInfo = {
@@ -14,6 +14,13 @@ export type NftTransferInfo = {
     customPayload: any | undefined;
     forwardAmount: bigint | undefined;
     forwardPayload: any | undefined;
+};
+
+export type RoyaltyInfo = {
+    queryId: number | undefined;
+    from: Address | undefined;
+    nftItem: Address | undefined;
+    value: bigint | undefined;
 };
 
 export function parseTransactionData(transaction: Slice): Info {
@@ -52,6 +59,22 @@ export function parseTransactionData(transaction: Slice): Info {
                 type: "transfer",
                 info: nftTransfer,
             };
+        } else if (
+            op === 0x693d3950 &&
+            tx.description.type === "generic" &&
+            tx.description.computePhase.type === "vm"
+        ) {
+            const royaltyInfo: RoyaltyInfo = {
+                queryId: body.loadUint(64),
+                from: tx.inMessage.info.src,
+                nftItem: body.loadAddress(),
+                value: tx.inMessage.info.value.coins,
+            };
+
+            return {
+                type: "royalty_params",
+                info: royaltyInfo,
+            };
         } else {
             return {
                 type: "unknown",
@@ -86,6 +109,30 @@ export function parseNftTransferInfo(
             customPayload: body?.loadBit(),
             forwardAmount: body?.loadCoins(),
             forwardPayload: body?.loadBit(),
+        };
+
+        return nftTransfer;
+    }
+
+    return null;
+}
+
+export function parseRoyaltyInfo(
+    transaction: Slice,
+): RoyaltyInfo | null {
+    const tx = loadTransaction(transaction);
+    const body = tx.inMessage?.body.beginParse();
+    
+    if (
+        tx.inMessage?.info.type == "internal" 
+        && tx.description.type == "generic" 
+        && tx.description.computePhase.type == "vm"
+    ) {
+        const nftTransfer: RoyaltyInfo = {
+            queryId: body?.loadUint(64),
+            from: tx.inMessage?.info.src,
+            nftItem: tx.inMessage?.info.dest,
+            value: tx.inMessage?.info.value.coins,
         };
 
         return nftTransfer;
