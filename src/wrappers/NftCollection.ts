@@ -1,10 +1,75 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, Dictionary } from 'ton-core';
+import { serializeDict } from 'ton';
+// BN
+import BN from 'bn.js';
+
+export type CollectionMintItemInput = {
+    passAmount: bigint
+    index: number
+    ownerAddress: Address
+    content: string
+}
+
+export const OperationCodes = {
+    Mint: 1,
+    BatchMint: 2,
+    ChangeOwner: 3,
+    EditContent: 4,
+    GetRoyaltyParams: 0x693d3950,
+    GetRoyaltyParamsResponse: 0xa8cb00ad
+}
 
 export class NftCollection implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(address: Address) {
         return new NftCollection(address);
+    }
+
+    async sendMint(provider: ContractProvider, via: Sender, params: { 
+        queryId?: number, 
+        value: bigint,
+        passAmount: bigint, 
+        itemIndex: number, 
+        itemOwnerAddress: Address, 
+        itemContent: string 
+    }) {
+        let itemContent = beginCell()
+        // itemContent.bits.writeString(params.itemContent)
+        itemContent.storeBuffer(Buffer.from(params.itemContent)).endCell()
+
+        let nftItemMessage = beginCell()
+
+        nftItemMessage.storeAddress(params.itemOwnerAddress)
+        nftItemMessage.storeRef(itemContent).endCell()
+
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(1, 32)
+                .storeUint(params.queryId || 0, 64)
+                .storeUint(params.itemIndex, 64)
+                .storeCoins(params.passAmount)
+                .storeRef(nftItemMessage)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
+
+    async sendChangeOwner(provider: ContractProvider, via: Sender, params: { 
+        queryId?: number, 
+        value: bigint,
+        newOwner: Address
+    }) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(OperationCodes.ChangeOwner, 32)
+                .storeUint(params.queryId || 0, 64)
+                .storeAddress(params.newOwner)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY
+        })
     }
 
     // const { stack } = await provider.get('get_nft_address_by_index', [
