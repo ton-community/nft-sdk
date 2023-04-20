@@ -20,7 +20,4 @@ export class NftFixedPriceV3 implements Contract {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
-
-
-    // deploySigned
 }
