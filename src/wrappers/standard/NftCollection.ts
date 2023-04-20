@@ -1,10 +1,10 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
 
-export class NftCollectionEditable implements Contract {
+export class NftCollection implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(address: Address) {
-        return new NftCollectionEditable(address);
+        return new NftCollection(address);
     }
 
     // const { stack } = await provider.get('get_nft_address_by_index', [
@@ -55,14 +55,4 @@ export class NftCollectionEditable implements Contract {
         }
     }
 
-    async getRoyaltyParams(
-        provider: ContractProvider
-    ) {
-        const { stack } = await provider.get('royalty_params', [])
-        return {
-            numerator: stack.readBigNumber(),
-            denominator: stack.readBigNumber(),
-            destination: stack.readAddressOpt()
-        }
-    }
 }

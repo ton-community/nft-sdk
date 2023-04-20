@@ -1,10 +1,10 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
 
-export class NftAuctionV2 implements Contract {
+export class NftAuction implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(address: Address) {
-        return new NftAuctionV2(address);
+        return new NftAuction(address);
     }
 
     async sendCancel(provider: ContractProvider, via: Sender, params: { 
@@ -33,11 +33,53 @@ export class NftAuctionV2 implements Contract {
         })
     }
 
+    async sendRepeatEndAuction(provider: ContractProvider, via: Sender, params: { 
+        value: bigint
+    }) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(0,32)
+                .storeBuffer(Buffer.from('repeat_end_auction'))
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
+
+    async sendEmergencyMessage(provider: ContractProvider, via: Sender, params: { 
+        value: bigint,
+        marketplaceAddress: Address,
+        coins: bigint
+    }) {
+        const transfer = beginCell();
+        transfer.storeUint(0x18, 6)
+        transfer.storeAddress(params.marketplaceAddress)
+        transfer.storeCoins(params.coins)
+        transfer.storeUint(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+        transfer.storeRef(beginCell().storeUint(555,32).endCell())
+
+        const transferBox = beginCell()
+        transferBox.storeUint(2, 8)
+        transferBox.storeRef(transfer.endCell())
+
+        const msgResend = beginCell().storeUint(0, 32).storeBuffer(Buffer.from("emergency_message")).storeRef(transferBox.endCell()).endCell()
+
+        await provider.internal(via, {
+            value: params.value,
+            body: msgResend,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
+
     async getSaleData(provider: ContractProvider) {
         const { stack } = await provider.get('get_sale_data', [])
+        
+        // pops out saleType
+        stack.pop()
+        
         return {
-            saleType: stack.readBigNumber(),
-            end: stack.readBigNumber(),
+            // saleType: stack.readBigNumber(),
+            end: stack.readBoolean(),
             endTimestamp: stack.readBigNumber(),
             marketplaceAddress: stack.readAddressOpt(),
             nftAddress: stack.readAddressOpt(),

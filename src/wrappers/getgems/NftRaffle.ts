@@ -1,7 +1,6 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
 
 export const OperationCodes = {
-    ownershipAssigned: 0x05138d91,
     cancel: 2001,
     addCoins: 2002,
     // maintain: 2003,
@@ -13,22 +12,6 @@ export class NftRaffle implements Contract {
 
     static createFromAddress(address: Address) {
         return new NftRaffle(address);
-    }
-
-    async sendOwnershipAssigned(provider: ContractProvider, via: Sender, params: { 
-        value: bigint, 
-        queryId?: number,
-        prevOwner: Address
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.ownershipAssigned, 32)
-                .storeUint(params.queryId || 0, 64)
-                .storeAddress(params.prevOwner)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
     }
 
     async sendCancel(provider: ContractProvider, via: Sender, params: { 

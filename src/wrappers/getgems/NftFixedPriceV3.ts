@@ -1,10 +1,10 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
 
-export class NftFixedPriceV2 implements Contract {
+export class NftFixedPriceV3 implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(address: Address) {
-        return new NftFixedPriceV2(address);
+        return new NftFixedPriceV3(address);
     }
 
     async sendCoins(provider: ContractProvider, via: Sender, params: {
@@ -41,17 +41,19 @@ export class NftFixedPriceV2 implements Contract {
     }) {
         await provider.internal(via, {
             value: params.value,
-            body: beginCell().
-                storeUint(params.queryId || 0, 32).
-                endCell(),
+            body: beginCell().endCell(),
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
     async getSaleData(provider: ContractProvider) {
         const { stack } = await provider.get('get_sale_data', [])
+
+        // pops out saleType
+        stack.pop()
+
         return {
-            saleType: stack.readBigNumber(),
+            // saleType: stack.readBigNumber(),
             isComplete: stack.readBigNumber(),
             createdAt: stack.readBigNumber(),
             marketplaceAddress: stack.readAddressOpt(),
