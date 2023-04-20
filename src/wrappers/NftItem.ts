@@ -31,9 +31,63 @@ export class NftItem implements Contract {
         })
     }
 
-    // const { stack } = await provider.get('get_nft_address_by_index', [
-    //     { type: 'int', value: index }
-    // ])
+    async sendGetStaticData(
+        provider: ContractProvider,
+        via: Sender,
+        params: {
+            value: bigint
+            queryId: bigint
+        }
+    ) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(0x2fcb26a2, 32)
+                .storeUint(params.queryId || 0, 64)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
+
+    async sendGetRoyaltyParams(
+        provider: ContractProvider,
+        via: Sender,
+        params: {
+            value: bigint
+            queryId: bigint
+        }
+    ) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(0x693d3950, 32)
+                .storeUint(params.queryId, 64)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
+
+    async sendTransferEditorship(provider: ContractProvider, via: Sender, params: { 
+        value: bigint, 
+        queryId?: number,
+        newEditor: Address, 
+        responseTo: Address|null,
+        forwardAmount?: bigint 
+    }) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(0x1c04412a, 32)
+                .storeUint(params.queryId || 0, 64)
+                .storeAddress(params.newEditor)
+                .storeAddress(params.responseTo)
+                .storeBit(false)
+                .storeCoins(params.forwardAmount || 0)
+                .storeBit(false)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
 
     async getNftData(provider: ContractProvider) {
         const { stack } = await provider.get('get_nft_data', [])

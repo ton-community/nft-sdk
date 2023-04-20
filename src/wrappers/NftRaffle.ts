@@ -1,10 +1,58 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
 
-export class NftFixedPriceV3 implements Contract {
+export const OperationCodes = {
+    ownershipAssigned: 0x05138d91,
+    cancel: 2001,
+    addCoins: 2002,
+    // maintain: 2003,
+    // sendAgain: 2004,
+}
+
+export class NftRaffle implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(address: Address) {
-        return new NftFixedPriceV3(address);
+        return new NftRaffle(address);
+    }
+
+    async sendOwnershipAssigned(provider: ContractProvider, via: Sender, params: { 
+        value: bigint, 
+        queryId?: number,
+        prevOwner: Address
+    }) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(OperationCodes.ownershipAssigned, 32)
+                .storeUint(params.queryId || 0, 64)
+                .storeAddress(params.prevOwner)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
+
+    async sendCancel(provider: ContractProvider, via: Sender, params: { 
+        value: bigint
+    }) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(OperationCodes.cancel, 32)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
+
+    async sendAddCoins(provider: ContractProvider, via: Sender, params: { 
+        value: bigint
+    }) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(OperationCodes.addCoins, 32)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
     }
 
     async getRaffleState(
@@ -29,21 +77,4 @@ export class NftFixedPriceV3 implements Contract {
             raffledNfts: stack.readCell()
         }
     }
-
-    async sendCoins(provider: ContractProvider, via: Sender, params: {
-        value: bigint
-        queryId: bigint
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(1, 32)
-                .storeUint(params.queryId, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
-
-    // deploySigned
 }

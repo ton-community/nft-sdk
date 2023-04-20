@@ -27,7 +27,7 @@ export class AmazonS3 {
             }
         };
         
-        this.s3.createBucket(params, function(err, data) {
+        this.s3.createBucket(params, (err, data) => {
             if (err) console.log(err, err.stack);
             else console.log('Bucket Created Successfully', data.Location);
 
@@ -45,7 +45,7 @@ export class AmazonS3 {
             Body: file.data
         };
 
-        this.s3.upload(params, function(err: any, data: { Location: any; }) {
+        this.s3.upload(params, (err: any, data: { Location: any; }) => {
             if (err) {
                 throw err;
             }
@@ -64,7 +64,7 @@ export class AmazonS3 {
             Key: fileName
         };
 
-        this.s3.deleteObject(params, function(err: any, data: any) {
+        this.s3.deleteObject(params, (err: any, data: any) => {
             if (err) {
                 throw err;
             }
@@ -79,7 +79,7 @@ export class AmazonS3 {
             Bucket: bucketName
         };
 
-        this.s3.deleteBucket(params, function(err: any, data: any) {
+        this.s3.deleteBucket(params, (err: any, data: any) => {
             if (err) {
                 throw err;
             }
@@ -100,7 +100,7 @@ export class AmazonS3 {
             }
         };
 
-        this.s3.createBucket(params, function(err, data) {
+        this.s3.createBucket(params, (err, data) => {
             if (err) {
                 throw err;
             }
@@ -122,7 +122,7 @@ export class AmazonS3 {
             ContentType: 'application/json'
         };
 
-        this.s3.upload(params, function(err: any, data: { Location: any; }) {
+        this.s3.upload(params, (err: any, data: { Location: any; }) => {
             if (err) {
                 throw err;
             }
@@ -133,7 +133,7 @@ export class AmazonS3 {
     }
 
     async listBuckets() {
-        this.s3.listBuckets(function(err, data) {
+        this.s3.listBuckets((err, data) => {
             if (err) {
                 throw err;
             }
@@ -150,7 +150,7 @@ export class AmazonS3 {
             Bucket: bucketName
         };
 
-        this.s3.listObjects(params, function(err, data) {
+        this.s3.listObjects(params, (err, data) => {
             if (err) {
                 throw err;
             }
@@ -169,7 +169,7 @@ export class AmazonS3 {
             Key: fileName
         };
 
-        this.s3.getObject(params, function(err, data) {
+        this.s3.getObject(params, (err, data) => {
             if (err) {
                 throw err;
             }
@@ -189,7 +189,7 @@ export class AmazonS3 {
             Expires: 60
         };
 
-        this.s3.getSignedUrl('getObject', params, function(err, url) {
+        this.s3.getSignedUrl('getObject', params, (err, url) => {
             if (err) {
                 throw err;
             }
@@ -209,7 +209,7 @@ export class AmazonS3 {
             Expires: 60
         };
 
-        this.s3.getSignedUrl('putObject', params, function(err, url) {
+        this.s3.getSignedUrl('putObject', params, (err, url) => {
             if (err) {
                 throw err;
             }
@@ -229,7 +229,7 @@ export class AmazonS3 {
             Expires: 60
         };
 
-        this.s3.getSignedUrl('deleteObject', params, function(err, url) {
+        this.s3.getSignedUrl('deleteObject', params, (err, url) => {
             if (err) {
                 throw err;
             }
@@ -245,7 +245,7 @@ export class AmazonS3 {
             Expires: 60
         };
 
-        this.s3.getSignedUrl('deleteBucket', params, function(err, url) {
+        this.s3.getSignedUrl('deleteBucket', params, (err, url) => {
             if (err) {
                 throw err;
             }
