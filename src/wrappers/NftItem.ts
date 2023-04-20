@@ -7,29 +7,7 @@ export class NftItem implements Contract {
         return new NftItem(address);
     }
 
-    async sendTransfer(provider: ContractProvider, via: Sender, params: {
-        value: bigint
-        queryId: bigint
-        newOwner: Address
-        responseDestination: Address
-        customPayload?: Cell
-        forwardAmount: bigint
-        forwardPayload?: Cell
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(0x5fcc3d14, 32)
-                .storeUint(params.queryId, 64)
-                .storeAddress(params.newOwner)
-                .storeAddress(params.responseDestination)
-                .storeMaybeRef(params.customPayload)
-                .storeCoins(params.forwardAmount)
-                .storeMaybeRef(params.forwardPayload)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
+    async sendTrans 
 
     // const { stack } = await provider.get('get_nft_address_by_index', [
     //     { type: 'int', value: index }
