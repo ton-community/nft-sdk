@@ -1,5 +1,5 @@
 import { beginCell, Builder } from "ton";
-import { Cell } from "ton";
+import { Cell } from "ton-core";
 import { Slice } from "ton";
 
 // offchain#01 uri:Text = FullContent;
@@ -76,4 +76,11 @@ export function storeOffchainContent(content: Offchain) {
             makeSnakeCell(data)
         );
     };
+}
+
+export function encodeOffChainContent(content: string) {
+    let data = Buffer.from(content)
+    let offChainPrefix = Buffer.from([OFF_CHAIN_CONTENT_PREFIX])
+    data = Buffer.concat([offChainPrefix, data])
+    return makeSnakeCell(data)
 }

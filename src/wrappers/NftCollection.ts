@@ -10,6 +10,12 @@ export type CollectionMintItemInput = {
     content: string
 }
 
+export type RoyaltyParams = {
+    royaltyFactor: number
+    royaltyBase: number
+    royaltyAddress: Address
+}
+
 export const OperationCodes = {
     Mint: 1,
     BatchMint: 2,
@@ -67,6 +73,20 @@ export class NftCollection implements Contract {
                 .storeUint(OperationCodes.ChangeOwner, 32)
                 .storeUint(params.queryId || 0, 64)
                 .storeAddress(params.newOwner)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY
+        })
+    }
+
+    async sendRoyaltyParams(provider: ContractProvider, via: Sender, params: { 
+        queryId?: number, 
+        value: bigint
+    }) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(OperationCodes.GetRoyaltyParams, 32)
+                .storeUint(params.queryId || 0, 64)
                 .endCell(),
             sendMode: SendMode.PAY_GAS_SEPARATELY
         })
