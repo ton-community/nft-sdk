@@ -1,10 +1,10 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode } from 'ton-core';
 
-export class NftItem implements Contract {
+export class NftOffer implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(address: Address) {
-        return new NftItem(address);
+        return new NftOffer(address);
     }
 
     async sendCancelOffer(provider: ContractProvider, via: Sender, params: { 
