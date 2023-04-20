@@ -37,7 +37,7 @@ export class NftRaffle implements Contract {
         await provider.internal(via, {
             value: params.value,
             body: beginCell()
-                .storeUint(OperationCodes.addCoins, 32)
+                .storeUint(OperationCodes.cancel, 32)
                 .endCell(),
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
@@ -49,7 +49,7 @@ export class NftRaffle implements Contract {
         await provider.internal(via, {
             value: params.value,
             body: beginCell()
-                .storeUint(OperationCodes.cancel, 32)
+                .storeUint(OperationCodes.addCoins, 32)
                 .endCell(),
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
@@ -76,19 +76,5 @@ export class NftRaffle implements Contract {
             nfts: stack.readCell(), 
             raffledNfts: stack.readCell()
         }
-    }
-
-    async sendCoins(provider: ContractProvider, via: Sender, params: {
-        value: bigint
-        queryId: bigint
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(1, 32)
-                .storeUint(params.queryId, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
     }
 }
