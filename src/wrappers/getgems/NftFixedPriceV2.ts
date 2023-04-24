@@ -1,10 +1,34 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
 export class NftFixedPriceV2 implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+    readonly address: Address;
+    readonly init: { code: Cell, data: Cell };
 
-    static createFromAddress(address: Address) {
-        return new NftFixedPriceV2(address);
+    constructor(
+        address: Address, 
+        workchain: number, 
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        this.init = init;
+        this.address = contractAddress(workchain, this.init);
+    }
+
+    static createFromAddress(
+        address: Address,
+        workchain: number,
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        return new NftFixedPriceV2(
+            address,
+            workchain,
+            init
+            );
     }
 
     async sendCoins(provider: ContractProvider, via: Sender, params: {

@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, Dictionary } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
 import { serializeDict } from 'ton';
 // BN
 import BN from 'bn.js';
@@ -26,10 +26,34 @@ export const OperationCodes = {
 }
 
 export class NftCollection implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+    readonly address: Address;
+    readonly init: { code: Cell, data: Cell };
 
-    static createFromAddress(address: Address) {
-        return new NftCollection(address);
+    constructor(
+        address: Address, 
+        workchain: number, 
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        this.init = init;
+        this.address = contractAddress(workchain, this.init);
+    }
+
+    static createFromAddress(
+        address: Address,
+        workchain: number,
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        return new NftCollection(
+            address,
+            workchain,
+            init
+            );
     }
 
     async sendMint(provider: ContractProvider, via: Sender, params: { 

@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
 
 export type CollectionMintItemInput = {
     passAmount: bigint
@@ -23,10 +23,34 @@ export const OperationCodes = {
 }
 
 export class NftCollectionEditable implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+    readonly address: Address;
+    readonly init: { code: Cell, data: Cell };
 
-    static createFromAddress(address: Address) {
-        return new NftCollectionEditable(address);
+    constructor(
+        address: Address, 
+        workchain: number, 
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        this.init = init;
+        this.address = contractAddress(workchain, this.init);
+    }
+
+    static createFromAddress(
+        address: Address,
+        workchain: number,
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        return new NftCollectionEditable(
+            address,
+            workchain,
+            init
+            );
     }
 
     async sendMint(provider: ContractProvider, via: Sender, params: { 

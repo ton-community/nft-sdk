@@ -1,10 +1,34 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
 
 export class NftCollection implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+    readonly address: Address;
+    readonly init: { code: Cell, data: Cell };
 
-    static createFromAddress(address: Address) {
-        return new NftCollection(address);
+    constructor(
+        address: Address, 
+        workchain: number, 
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        this.init = init;
+        this.address = contractAddress(workchain, this.init);
+    }
+
+    static createFromAddress(
+        address: Address,
+        workchain: number,
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        return new NftCollection(
+            address,
+            workchain,
+            init
+            );
     }
 
     // const { stack } = await provider.get('get_nft_address_by_index', [
