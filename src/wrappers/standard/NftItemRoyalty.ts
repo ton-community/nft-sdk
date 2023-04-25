@@ -31,6 +31,15 @@ export class NftItemRoyalty implements Contract {
             );
     }
 
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
+
+
     async sendTransfer(provider: ContractProvider, via: Sender, params: {
         value: bigint
         queryId: bigint

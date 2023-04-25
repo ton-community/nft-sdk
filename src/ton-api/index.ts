@@ -1,4 +1,4 @@
-export class TonClient {
+export class TonAPI {
     private url: string;
 
     constructor(url?: string) {

@@ -1,4 +1,6 @@
 import { S3 } from 'aws-sdk';
+import fs from 'fs';
+import path from 'path';
 
 export class AmazonS3 {
     public s3: S3;
@@ -13,6 +15,54 @@ export class AmazonS3 {
                 secretAccessKey: secretAccessKey
             }
         );
+    }
+
+    // Function to upload images in bulk to Amazon S3
+    async uploadImagesBulk(
+        assetsFolderPath: string, 
+        s3BucketName: string,
+        options?: {
+            type: string
+        }
+    ): Promise<String[]> {
+        try {
+            // Read the directory
+            const files = fs.readdirSync(assetsFolderPath);
+        
+            // Filter and sort image files
+            const imageFiles = files
+              .filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file))
+              .sort((a, b) => parseInt(a) - parseInt(b));
+        
+            // Process image uploads in ascending order and collect their URLs
+            const imageUrls: string[] = [];
+        
+            for (const imageFile of imageFiles) {
+              // Read image file
+              const imagePath = path.join(assetsFolderPath, imageFile);
+              const imageData = fs.readFileSync(imagePath);
+        
+              // Prepare S3 upload parameters
+              const params: AWS.S3.PutObjectRequest = {
+                Bucket: s3BucketName,
+                Key: imageFile,
+                Body: imageData,
+                ContentType: options?.type ?? 'image/jpeg' // Adjust this if you are handling multiple image formats
+              };
+        
+              // Upload the image to S3
+              await this.s3.upload(params).promise();
+        
+              // Add the image URL to the array
+              imageUrls.push(`https://${s3BucketName}.s3.amazonaws.com/${imageFile}`);
+            }
+        
+            console.log('All images uploaded successfully!');
+            return imageUrls;
+        } catch (error) {
+            console.error('Error uploading images to S3:', error);
+            throw error;
+        }
     }
 
     async createBucket(

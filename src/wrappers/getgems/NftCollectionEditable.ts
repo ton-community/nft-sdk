@@ -53,6 +53,15 @@ export class NftCollectionEditable implements Contract {
             );
     }
 
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
+
+
     async sendMint(provider: ContractProvider, via: Sender, params: { 
         queryId?: number, 
         value: bigint,

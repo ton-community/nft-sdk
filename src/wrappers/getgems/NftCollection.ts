@@ -2,6 +2,7 @@ import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode,
 import { serializeDict } from 'ton';
 // BN
 import BN from 'bn.js';
+import { encodeOffChainContent } from '../../types/OffchainContent';
 
 export type CollectionMintItemInput = {
     passAmount: bigint
@@ -55,6 +56,15 @@ export class NftCollection implements Contract {
             init
             );
     }
+
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
+
 
     async sendMint(provider: ContractProvider, via: Sender, params: { 
         queryId?: number, 
@@ -164,4 +174,51 @@ export class NftCollection implements Contract {
         }
     }
 
+}
+
+// Utils
+
+export type NftCollectionData = {
+    ownerAddress: Address,
+    nextItemIndex: number | bigint
+    collectionContent: string
+    commonContent: string
+    nftItemCode: Cell
+    royaltyParams: RoyaltyParams
+}
+
+// default#_ royalty_factor:uint16 royalty_base:uint16 royalty_address:MsgAddress = RoyaltyParams;
+// storage#_ owner_address:MsgAddress next_item_index:uint64
+//           ^[collection_content:^Cell common_content:^Cell]
+//           nft_item_code:^Cell
+//           royalty_params:^RoyaltyParams
+//           = Storage;
+
+export function buildNftCollectionDataCell(data: NftCollectionData) {
+    let dataCell = beginCell()
+
+    dataCell.storeAddress(data.ownerAddress)
+    dataCell.storeUint(data.nextItemIndex, 64)
+
+    let contentCell = beginCell()
+
+    let collectionContent = encodeOffChainContent(data.collectionContent)
+
+    let commonContent = beginCell()
+    commonContent.storeBuffer(Buffer.from(data.commonContent))
+    // commonContent.bits.writeString(data.commonContent)
+
+    contentCell.storeRef(collectionContent)
+    contentCell.storeRef(commonContent)
+    dataCell.storeRef(contentCell)
+
+    dataCell.storeRef(data.nftItemCode)
+
+    let royaltyCell = beginCell()
+    royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
+    royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
+    royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
+    dataCell.storeRef(royaltyCell)
+
+    return dataCell.endCell()
 }

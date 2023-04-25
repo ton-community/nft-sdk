@@ -31,6 +31,15 @@ export class NftFixedPriceV2 implements Contract {
             );
     }
 
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
+
+
     async sendCoins(provider: ContractProvider, via: Sender, params: {
         value: bigint
         queryId: bigint
@@ -92,4 +101,41 @@ export class NftFixedPriceV2 implements Contract {
             royaltyAmount:  stack.readBigNumber()
         }
     }
+}
+
+// Utils
+
+export type NftFixPriceSaleV2Data = {
+    isComplete: boolean
+    createdAt: number
+    marketplaceAddress: Address
+    nftAddress: Address
+    nftOwnerAddress: Address|null
+    fullPrice: bigint
+    marketplaceFeeAddress: Address
+    marketplaceFee: bigint
+    royaltyAddress: Address
+    royaltyAmount: bigint
+}
+
+export function buildNftFixPriceSaleV2DataCell(data: NftFixPriceSaleV2Data) {
+
+    let feesCell = beginCell()
+
+    feesCell.storeAddress(data.marketplaceFeeAddress)
+    feesCell.storeCoins(data.marketplaceFee)
+    feesCell.storeAddress(data.royaltyAddress)
+    feesCell.storeCoins(data.royaltyAmount)
+
+    let dataCell = beginCell()
+
+    dataCell.storeUint(data.isComplete ? 1 : 0, 1)
+    dataCell.storeUint(data.createdAt, 32)
+    dataCell.storeAddress(data.marketplaceAddress)
+    dataCell.storeAddress(data.nftAddress)
+    dataCell.storeAddress(data.nftOwnerAddress)
+    dataCell.storeCoins(data.fullPrice)
+    dataCell.storeRef(feesCell)
+
+    return dataCell.endCell()
 }

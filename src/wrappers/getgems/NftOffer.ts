@@ -31,6 +31,15 @@ export class NftOffer implements Contract {
             );
     }
 
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
+
+
     async sendCancelOffer(provider: ContractProvider, via: Sender, params: { 
         message?: string,
         value: bigint

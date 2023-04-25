@@ -31,6 +31,15 @@ export class NftItem implements Contract {
         );
     }
 
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
+
+
     async sendTransfer(provider: ContractProvider, via: Sender, params: {
         value: bigint
         queryId: bigint
@@ -123,4 +132,28 @@ export class NftItem implements Contract {
             individualContent: stack.readCellOpt(),
         }
     }
+}
+
+// Utils
+
+export type NftItemData = {
+    index: number
+    collectionAddress: Address | null
+    ownerAddress: Address
+    content: string
+}
+
+export function buildNftItemDataCell(data: NftItemData) {
+    let dataCell = beginCell()
+
+    let contentCell = beginCell()
+    // contentCell.bits.writeString(data.content)
+    contentCell.storeBuffer(Buffer.from(data.content))
+
+    dataCell.storeUint(data.index, 64)
+    dataCell.storeAddress(data.collectionAddress)
+    dataCell.storeAddress(data.ownerAddress)
+    dataCell.storeRef(contentCell)
+
+    return dataCell.endCell()
 }

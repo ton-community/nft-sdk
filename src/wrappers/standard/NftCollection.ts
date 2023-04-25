@@ -40,7 +40,6 @@ export class NftCollection implements Contract {
             );
     }
 
-
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
