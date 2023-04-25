@@ -1,6 +1,6 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
-export class NftItem implements Contract {
+export class NftItemRoyalty implements Contract {
     readonly address: Address;
     readonly init: { code: Cell, data: Cell };
 
@@ -24,7 +24,7 @@ export class NftItem implements Contract {
             data: Cell 
         }
     ) {
-        return new NftItem(
+        return new NftItemRoyalty(
             address,
             workchain,
             init
@@ -100,3 +100,4 @@ export class NftItem implements Contract {
         }
     }
 }
+
