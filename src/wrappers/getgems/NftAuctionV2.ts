@@ -1,11 +1,44 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
 export class NftAuctionV2 implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+    readonly address: Address;
+    readonly init: { code: Cell, data: Cell };
 
-    static createFromAddress(address: Address) {
-        return new NftAuctionV2(address);
+    constructor(
+        address: Address, 
+        workchain: number, 
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        this.init = init;
+        this.address = contractAddress(workchain, this.init);
     }
+
+    static createFromAddress(
+        address: Address,
+        workchain: number,
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        return new NftAuctionV2(
+            address,
+            workchain,
+            init
+            );
+    }
+
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
+
 
     async sendCancel(provider: ContractProvider, via: Sender, params: { 
         value: bigint
@@ -35,8 +68,12 @@ export class NftAuctionV2 implements Contract {
 
     async getSaleData(provider: ContractProvider) {
         const { stack } = await provider.get('get_sale_data', [])
+
+        // pops out saleType
+        stack.pop()
+
         return {
-            saleType: stack.readBigNumber(),
+            // saleType: stack.readBigNumber(),
             end: stack.readBigNumber(),
             endTimestamp: stack.readBigNumber(),
             marketplaceAddress: stack.readAddressOpt(),

@@ -1,7 +1,6 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
 export const OperationCodes = {
-    ownershipAssigned: 0x05138d91,
     cancel: 2001,
     addCoins: 2002,
     // maintain: 2003,
@@ -9,27 +8,44 @@ export const OperationCodes = {
 }
 
 export class NftRaffle implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+    readonly address: Address;
+    readonly init: { code: Cell, data: Cell };
 
-    static createFromAddress(address: Address) {
-        return new NftRaffle(address);
+    constructor(
+        address: Address, 
+        workchain: number, 
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        this.init = init;
+        this.address = contractAddress(workchain, this.init);
     }
 
-    async sendOwnershipAssigned(provider: ContractProvider, via: Sender, params: { 
-        value: bigint, 
-        queryId?: number,
-        prevOwner: Address
-    }) {
+    static createFromAddress(
+        address: Address,
+        workchain: number,
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        return new NftRaffle(
+            address,
+            workchain,
+            init
+            );
+    }
+
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.ownershipAssigned, 32)
-                .storeUint(params.queryId || 0, 64)
-                .storeAddress(params.prevOwner)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            value,
+            body: beginCell().endCell(),
         })
     }
+
 
     async sendCancel(provider: ContractProvider, via: Sender, params: { 
         value: bigint

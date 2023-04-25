@@ -1,11 +1,44 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
-export class NftFixedPriceV2 implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+export class NftFixedPriceV3 implements Contract {
+    readonly address: Address;
+    readonly init: { code: Cell, data: Cell };
 
-    static createFromAddress(address: Address) {
-        return new NftFixedPriceV2(address);
+    constructor(
+        address: Address, 
+        workchain: number, 
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        this.init = init;
+        this.address = contractAddress(workchain, this.init);
     }
+
+    static createFromAddress(
+        address: Address,
+        workchain: number,
+        init: { 
+            code: Cell; 
+            data: Cell 
+        }
+    ) {
+        return new NftFixedPriceV3(
+            address,
+            workchain,
+            init
+            );
+    }
+
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
+
 
     async sendCoins(provider: ContractProvider, via: Sender, params: {
         value: bigint
@@ -41,17 +74,19 @@ export class NftFixedPriceV2 implements Contract {
     }) {
         await provider.internal(via, {
             value: params.value,
-            body: beginCell().
-                storeUint(params.queryId || 0, 32).
-                endCell(),
+            body: beginCell().endCell(),
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
     async getSaleData(provider: ContractProvider) {
         const { stack } = await provider.get('get_sale_data', [])
+
+        // pops out saleType
+        stack.pop()
+
         return {
-            saleType: stack.readBigNumber(),
+            // saleType: stack.readBigNumber(),
             isComplete: stack.readBigNumber(),
             createdAt: stack.readBigNumber(),
             marketplaceAddress: stack.readAddressOpt(),
