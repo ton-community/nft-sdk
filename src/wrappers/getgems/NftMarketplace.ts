@@ -32,6 +32,30 @@ export class NftMarketplace implements Contract {
             );
     }
 
+
+    static async createFromConfig(
+        config: NftMarketplaceData
+    ) {
+
+        let data = buildNftMarketplaceDataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: NftMarketplaceCodeCell,
+                data: data
+            }
+        )
+
+        return new NftMarketplace(
+            address,
+            0,
+            {
+                code: NftMarketplaceCodeCell,
+                data: data
+            }
+        )
+    }
+
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {

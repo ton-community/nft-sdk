@@ -31,6 +31,29 @@ export class NftFixedPrice implements Contract {
             );
     }
 
+    static async createFromConfig(
+        config: NftFixPriceSaleData
+    ) {
+
+        let data = buildNftFixPriceSaleDataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: NftFixPriceSaleCodeCell,
+                data: data
+            }
+        )
+
+        return new NftFixedPrice(
+            address,
+            0,
+            {
+                code: NftFixPriceSaleCodeCell,
+                data: data
+            }
+        )
+    }
+
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {

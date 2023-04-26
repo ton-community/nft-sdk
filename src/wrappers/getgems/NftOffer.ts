@@ -31,6 +31,29 @@ export class NftOffer implements Contract {
             );
     }
 
+    static async createFromConfig(
+        config: NftOfferData
+    ) {
+
+        let data = buildNftOfferDataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: NftOfferCodeCell,
+                data: data
+            }
+        )
+
+        return new NftOffer(
+            address,
+            0,
+            {
+                code: NftOfferCodeCell,
+                data: data
+            }
+        )
+    }
+
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {

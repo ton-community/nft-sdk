@@ -31,6 +31,29 @@ export class NftAuctionV2 implements Contract {
             );
     }
 
+    // createFromConfig
+    static createFromConfig(
+        config: NftAuctionV2Data
+    ) {
+        let data = buildNftAuctionV2DataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: NftAuctionV2CodeCell,
+                data: data
+            }
+        )
+
+        return new NftAuctionV2(
+            address,
+            0,
+            {
+                code: NftAuctionV2CodeCell,
+                data: data
+            }
+        );
+    }
+
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {

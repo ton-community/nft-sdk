@@ -31,6 +31,30 @@ export class NftItem implements Contract {
         );
     }
 
+
+    static async createFromConfig(
+        config: NftItemData
+    ) {
+
+        let data = buildNftItemDataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: NftItemCodeCell,
+                data: data
+            }
+        )
+
+        return new NftItem(
+            address,
+            0,
+            {
+                code: NftItemCodeCell,
+                data: data
+            }
+        )
+    }
+
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {

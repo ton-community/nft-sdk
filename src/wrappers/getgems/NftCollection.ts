@@ -57,6 +57,29 @@ export class NftCollection implements Contract {
             );
     }
 
+    static async createFromConfig(
+        config: NftCollectionData
+    ) {
+
+        let data = buildNftCollectionDataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: NftCollectionCodeCell,
+                data: data
+            }
+        )
+
+        return new NftCollection(
+            address,
+            0,
+            {
+                code: NftCollectionCodeCell,
+                data: data
+            }
+        )
+    }
+
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
