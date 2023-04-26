@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, Dictionary, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
 export const OperationCodes = {
     ownershipAssigned: 0x05138d91,
@@ -223,3 +223,81 @@ export class NftSwap implements Contract {
         }
     }
 }
+
+// Utils
+
+// export const SwapState = {
+//     Active: 1,
+//     Cancelled: 2,
+//     Completed: 3,
+// }
+
+// interface NFTItem {
+//     addr: Address
+//     sent: boolean
+// }
+
+// export type SwapData = {
+//     state: number,
+//     leftAddress: Address
+//     rightAddress: Address
+//     rightNft: NFTItem[]
+//     leftNft: NFTItem[]
+//     supervisorAddress: Address
+//     commissionAddress: Address
+//     leftCommission: bigint
+//     leftAmount: bigint
+//     leftCoinsGot: bigint
+//     rightCommission: bigint
+//     rightAmount: bigint
+//     rightCoinsGot: bigint
+// }
+
+// export function buildSwapDataCell(data: SwapData) {
+//     let dataCell = beginCell()
+//     dataCell.storeUint(data.state, 2)
+//     dataCell.storeAddress(data.leftAddress)
+//     dataCell.storeAddress(data.rightAddress)
+
+//     dataCell.storeCoins(data.leftCommission)
+//     dataCell.storeCoins(data.leftAmount)
+//     dataCell.storeCoins(data.leftCoinsGot)
+//     dataCell.storeBit(data.leftNft.length > 0)
+
+//     if (data.leftNft.length > 0) {
+//         let leftNft = Dictionary.empty(256)
+//         for (const leftNftKey in data.leftNft) {
+//             let bitCell = beginCell();
+//             bitCell.storeBit(data.leftNft[leftNftKey].sent);
+
+//             leftNft.storeCell(data.leftNft[leftNftKey].addr.hash, bitCell)
+//         }
+//         dataCell.storeRef(leftNft.endCell())
+//     }
+
+//     dataCell.storeCoins(data.rightCommission)
+//     dataCell.storeCoins(data.rightAmount)
+//     dataCell.storeCoins(data.rightCoinsGot)
+//     dataCell.storeBit(data.rightNft.length > 0)
+
+//     if (data.rightNft.length > 0) {
+//         let rightNft = new DictBuilder(256)
+//         for (const rightNftKey in data.rightNft) {
+//             let bitCell = beginCell();
+//             bitCell.storeBit(data.rightNft[rightNftKey].sent);
+
+//             rightNft.storeCell(data.rightNft[rightNftKey].addr.hash, bitCell)
+//         }
+//         dataCell.storeRef(rightNft.endCell())
+//     }
+
+//     let marketCell = beginCell()
+//     marketCell.storeAddress(data.commissionAddress)
+//     marketCell.storeAddress(data.supervisorAddress)
+//     dataCell.storeRef(marketCell)
+
+//     return dataCell
+// }
+
+// Data
+

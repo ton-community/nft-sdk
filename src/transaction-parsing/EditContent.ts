@@ -1,4 +1,5 @@
 import { loadTransaction, Slice, Address, Cell } from "ton-core";
+import { isEligibleTransaction } from "../utils/EligibleInternalTx";
 
 export type EditContentInfo = {
     queryId: number | undefined;
@@ -7,6 +8,17 @@ export type EditContentInfo = {
     payload: Cell | undefined;
     value: bigint | undefined;
 };
+
+
+function extractEditContentInfo(body: any): EditContentInfo {
+    return {
+        queryId: body?.loadUint(64),
+        from: body.inMessage?.info.src,
+        nftItem: body.inMessage?.info.dest,
+        payload: body?.loadRef(), // TODO: get exact info
+        value: body.inMessage?.info.value.coins,
+    };
+  }
 
 export function parseEditContentInfo(
     transaction: Slice,
@@ -22,20 +34,8 @@ export function parseEditContentInfo(
         return null;
     }
     
-    if (
-        tx.inMessage?.info.type == "internal" 
-        && tx.description.type == "generic" 
-        && tx.description.computePhase.type == "vm"
-    ) {
-        const editContentInfo: EditContentInfo = {
-            queryId: body?.loadUint(64),
-            from: tx.inMessage?.info.src,
-            nftItem: tx.inMessage?.info.dest,
-            payload: body?.loadRef(), // TODO: get exact info
-            value: tx.inMessage?.info.value.coins,
-        };
-
-        return editContentInfo;
+    if (isEligibleTransaction(tx)) {
+        return extractEditContentInfo(body)
     }
 
     return null;
