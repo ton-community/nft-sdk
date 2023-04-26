@@ -31,6 +31,30 @@ export class NftItem implements Contract {
         );
     }
 
+
+    static async createFromConfig(
+        config: NftItemData
+    ) {
+
+        let data = buildNftItemDataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: NftItemCodeCell,
+                data: data
+            }
+        )
+
+        return new NftItem(
+            address,
+            0,
+            {
+                code: NftItemCodeCell,
+                data: data
+            }
+        )
+    }
+
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
@@ -157,3 +181,9 @@ export function buildNftItemDataCell(data: NftItemData) {
 
     return dataCell.endCell()
 }
+
+// Data
+
+export const NftItemCodeBoc = 'te6cckECDQEAAdAAART/APSkE/S88sgLAQIBYgMCAAmhH5/gBQICzgcEAgEgBgUAHQDyMs/WM8WAc8WzMntVIAA7O1E0NM/+kAg10nCAJp/AfpA1DAQJBAj4DBwWW1tgAgEgCQgAET6RDBwuvLhTYALXDIhxwCSXwPg0NMDAXGwkl8D4PpA+kAx+gAxcdch+gAx+gAw8AIEs44UMGwiNFIyxwXy4ZUB+kDUMBAj8APgBtMf0z+CEF/MPRRSMLqOhzIQN14yQBPgMDQ0NTWCEC/LJqISuuMCXwSED/LwgCwoAcnCCEIt3FzUFyMv/UATPFhAkgEBwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7AAH2UTXHBfLhkfpAIfAB+kDSADH6AIIK+vCAG6EhlFMVoKHeItcLAcMAIJIGoZE24iDC//LhkiGOPoIQBRONkchQCc8WUAvPFnEkSRRURqBwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7ABBHlBAqN1viDACCAo41JvABghDVMnbbEDdEAG1xcIAQyMsFUAfPFlAF+gIVy2oSyx/LPyJus5RYzxcBkTLiAckB+wCTMDI04lUC8ANqhGIu'
+
+export const NftItemCodeCell = Cell.fromBoc(Buffer.from(NftItemCodeBoc, 'base64'))[0]

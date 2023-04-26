@@ -1,4 +1,5 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { encodeOffChainContent } from '../../types/OffchainContent';
 
 export class SbtItem implements Contract {
     readonly address: Address;
@@ -111,3 +112,29 @@ export class SbtItem implements Contract {
         }
     }
 }
+
+// Utils
+
+
+export type SbtItemData = {
+    ownerAddress: Address
+    editorAddress: Address
+    content: string
+    authorityAddress: Address
+    revokedAt?: number
+}
+
+export function buildSingleSbtDataCell(data: SbtItemData) {
+    let dataCell = beginCell()
+
+    let contentCell = encodeOffChainContent(data.content)
+
+    dataCell.storeAddress(data.ownerAddress)
+    dataCell.storeAddress(data.editorAddress)
+    dataCell.storeRef(contentCell)
+    dataCell.storeAddress(data.authorityAddress)
+    dataCell.storeUint(data.revokedAt ? data.revokedAt : 0, 64)
+
+    return dataCell
+}
+

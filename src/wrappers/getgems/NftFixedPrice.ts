@@ -31,6 +31,29 @@ export class NftFixedPrice implements Contract {
             );
     }
 
+    static async createFromConfig(
+        config: NftFixPriceSaleData
+    ) {
+
+        let data = buildNftFixPriceSaleDataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: NftFixPriceSaleCodeCell,
+                data: data
+            }
+        )
+
+        return new NftFixedPrice(
+            address,
+            0,
+            {
+                code: NftFixPriceSaleCodeCell,
+                data: data
+            }
+        )
+    }
+
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
@@ -87,3 +110,9 @@ export function buildNftFixPriceSaleDataCell(data: NftFixPriceSaleData) {
 
     return dataCell.endCell()
 }
+
+// Data
+
+export const NftFixPriceSaleCodeBoc = 'te6cckECCgEAAbIAART/APSkE/S88sgLAQIBIAMCAATyMAIBSAUEADegOFnaiaH0gfSB9IH0AahhofQB9IH0gfQAYCBHAgLNCAYB99G8EIHc1lACkgUCkQX3lw4QFofQB9IH0gfQAYOEAIZGWCqATniyi6UJDQqFrQilAK/QEK5bVkuP2AOEAIZGWCrGeLKAP9AQtltWS4/YA4QAhkZYKsZ4ssfQFltWS4/YA4EEEIL+YeihDADGRlgqgC54sRfQEKZbUJ5Y+JwHAC7LPyPPFlADzxYSygAh+gLKAMmBAKD7AAH30A6GmBgLjYSS+CcH0gGHaiaH0gfSB9IH0AahgRa6ThAVnHHZkbGymQ44LJL4NwKJFjgvlw+gFpj8EIAonGyIldeXD66Z+Y/SAYIBpkKALniygB54sA54sA/QFmZPaqcBNjgEybCBsimYI4eAJwA2mP6Z+YEOAAyS+FcBDAkAtsACmjEQRxA2RUAS8ATgMjQ0NDXAA449ghA7msoAE77y4clwIIIQX8w9FCGAEMjLBVAHzxYi+gIWy2oVyx8Tyz8hzxYBzxYSygAh+gLKAMmBAKD7AOBfBIQP8vCVeDe4'
+
+export const NftFixPriceSaleCodeCell = Cell.fromBoc(Buffer.from(NftFixPriceSaleCodeBoc, 'base64'))[0]
