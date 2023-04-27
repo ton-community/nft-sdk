@@ -32,6 +32,31 @@ export class SbtItem implements Contract {
             );
     }
 
+
+    // static async createFromConfig(
+    //     config: SbtItemData
+    // ) {
+
+    //     let data = buildSbtItemDataCell(config);
+    //     let address = contractAddress(
+    //         0,
+    //         {
+    //             code: SbtItemCodeCell,
+    //             data: data
+    //         }
+    //     )
+
+    //     return new SbtItem(
+    //         address,
+    //         0,
+    //         {
+    //             code: SbtItemCodeCell,
+    //             data: data
+    //         }
+    //     )
+    // }
+    
+
     async sendProveOwnership(provider: ContractProvider, via: Sender, params: {
         value: bigint
         queryId: bigint
@@ -124,7 +149,7 @@ export type SbtItemData = {
     revokedAt?: number
 }
 
-export function buildSingleSbtDataCell(data: SbtItemData) {
+export function buildSbtItemDataCell(data: SbtItemData) {
     let dataCell = beginCell()
 
     let contentCell = encodeOffChainContent(data.content)
@@ -135,6 +160,7 @@ export function buildSingleSbtDataCell(data: SbtItemData) {
     dataCell.storeAddress(data.authorityAddress)
     dataCell.storeUint(data.revokedAt ? data.revokedAt : 0, 64)
 
-    return dataCell
+    return dataCell.endCell()
 }
 
+// Data

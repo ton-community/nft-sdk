@@ -22,10 +22,14 @@ export class NftItem implements Contract {
     }
 
     static createFromConfig(
-        config: NftItemData, code: Cell, workchain = 0
+        config: NftItemData, 
+        workchain = 0
     ) {
         const data = buildNftItemDataCell(config)
-        const init = { code, data }
+        const init = { 
+            code: NftItemCodeCell, 
+            data: data 
+        };
         return new NftItem(contractAddress(workchain, init), workchain, init)
     }
 
