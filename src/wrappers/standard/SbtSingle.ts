@@ -1,7 +1,8 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 import { encodeOffChainContent } from '../../types/OffchainContent';
+import { combineFunc } from '../../utils/combineFunc';
 
-export class SbtItem implements Contract {
+export class SbtSingle implements Contract {
     readonly address: Address;
     readonly init: { code: Cell, data: Cell };
 
@@ -25,7 +26,7 @@ export class SbtItem implements Contract {
             data: Cell 
         }
     ) {
-        return new SbtItem(
+        return new SbtSingle(
             address,
             workchain,
             init
@@ -141,7 +142,7 @@ export class SbtItem implements Contract {
 // Utils
 
 
-export type SbtItemData = {
+export type SbtSingleData = {
     ownerAddress: Address
     editorAddress: Address
     content: string
@@ -149,7 +150,7 @@ export type SbtItemData = {
     revokedAt?: number
 }
 
-export function buildSbtItemDataCell(data: SbtItemData) {
+export function buildSingleSbtDataCell(data: SbtSingleData) {
     let dataCell = beginCell()
 
     let contentCell = encodeOffChainContent(data.content)
@@ -164,3 +165,10 @@ export function buildSbtItemDataCell(data: SbtItemData) {
 }
 
 // Data
+
+export const SbtSingleSource = combineFunc(__dirname, [
+    '../sources/stdlib.fc',
+    '../sources/op-codes.fc',
+    '../sources/params.fc',
+    '../sources/sbt-single.fc',
+])

@@ -1,39 +1,39 @@
-import {Blockchain} from '@ton-community/sandbox'
-import {beginCell, Cell, SendMode, toNano} from 'ton-core'
-import {NftItem, NftItemSource} from '../../wrappers/standard/NftItem'
-import {compileFunc} from 'ton-compiler';
-import {randomAddress} from "../../utils/randomAddress";
+// import {Blockchain} from '@ton-community/sandbox'
+// import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
+// import {NftItem, NftItemSource} from '../../wrappers/standard/NftItem'
+// import {randomAddress} from "../../utils/randomAddress";
+// import { compileFunc } from '@ton-community/func-js';
 
-function commentBody(comment: string) {
-    return beginCell()
-        .storeUint(0, 32)
-        .storeStringTail(comment)
-        .endCell()
-}
+// function commentBody(comment: string) {
+//     return beginCell()
+//         .storeUint(0, 32)
+//         .storeStringTail(comment)
+//         .endCell()
+// }
 
-async function main() {
-    const blockchain = await Blockchain.create()
+// async function main() {
+//     const blockchain = await Blockchain.create()
 
-    let ownerAddress = randomAddress()
-    let editorAddress = randomAddress()
+//     let ownerAddress = randomAddress()
+//     let editorAddress = randomAddress()
 
-    const nftItem = blockchain.openContract(
-        NftItem.createFromConfig({
-            ownerAddress: ownerAddress,
-            editorAddress: editorAddress,
-            content: ""
-        })
-    )
+//     const nftItem = blockchain.openContract(
+//         NftItem.createFromConfig({
+//             ownerAddress: ownerAddress,
+//             editorAddress: editorAddress,
+//             content: ""
+//         })
+//     )
 
-    const deployer = await blockchain.treasury('deployer')
+//     const deployer = await blockchain.treasury('deployer')
 
-    const deployResult = await nftItem.sendDeploy(deployer.getSender(), toNano('0.05'))
+//     const deployResult = await nftItem.sendDeploy(deployer.getSender(), toNano('0.05'))
 
-    console.log(deployResult);
+//     console.log(deployResult);
 
-    const nftData = await nftItem.getNftData()
+//     const nftData = await nftItem.getNftData()
 
-    console.log(nftData);
-}
+//     console.log(nftData);
+// }
 
-main();
+// main();
