@@ -2,6 +2,7 @@ import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
 import {NftSingle} from '../../wrappers/getgems/NftSingle'
 import {randomAddress} from "../../utils/randomAddress";
+import {BN} from 'bn.js'
 
 async function main() {
     // Creates Local Test Blockchain
@@ -10,6 +11,8 @@ async function main() {
     // Generates Random Addresses
     let ownerAddress = randomAddress()
     let editorAddress = randomAddress()
+
+    let newOwnerAddress = randomAddress()
 
     // Creates NFT Single
     const nftSingle = blockchain.openContract(

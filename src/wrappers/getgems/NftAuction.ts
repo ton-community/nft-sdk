@@ -186,7 +186,6 @@ export type NftAuctionData = {
     end: boolean,
     marketplaceAddress: Address,
     activated: boolean,
-
 }
 
 export function buildNftAuctionDataCell(data: NftAuctionData) {
