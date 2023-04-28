@@ -34,29 +34,36 @@ export class SbtSingle implements Contract {
     }
 
 
-    // static async createFromConfig(
-    //     config: SbtItemData
-    // ) {
+    static async createFromConfig(
+        config: SbtSingleData
+    ) {
 
-    //     let data = buildSbtItemDataCell(config);
-    //     let address = contractAddress(
-    //         0,
-    //         {
-    //             code: SbtItemCodeCell,
-    //             data: data
-    //         }
-    //     )
+        let data = buildSingleSbtDataCell(config);
+        let address = contractAddress(
+            0,
+            {
+                code: SbtSingleCodeCell,
+                data: data
+            }
+        )
 
-    //     return new SbtItem(
-    //         address,
-    //         0,
-    //         {
-    //             code: SbtItemCodeCell,
-    //             data: data
-    //         }
-    //     )
-    // }
-    
+        return new SbtSingle(
+            address,
+            0,
+            {
+                code: SbtSingleCodeCell,
+                data: data
+            }
+        )
+    }
+
+    // Deployment
+    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
+        await provider.internal(via, {
+            value,
+            body: beginCell().endCell(),
+        })
+    }
 
     async sendProveOwnership(provider: ContractProvider, via: Sender, params: {
         value: bigint
@@ -167,8 +174,12 @@ export function buildSingleSbtDataCell(data: SbtSingleData) {
 // Data
 
 export const SbtSingleSource = combineFunc(__dirname, [
-    '../sources/stdlib.fc',
-    '../sources/op-codes.fc',
-    '../sources/params.fc',
-    '../sources/sbt-single.fc',
+    '../../sources/stdlib.fc',
+    '../../sources/op-codes.fc',
+    '../../sources/params.fc',
+    '../../sources/sbt-single.fc',
 ])
+
+export const SbtSingleCodeBoC = 'te6ccgECGQEABBgAART/APSkE/S88sgLAQIBYgIDAgLOBAUCASATFAIBIAYHAgEgERIB7QyIccAkl8D4NDTA/pA+kAx+gAxcdch+gAx+gAw8AID0x8DcbCOTBAkXwTTH4IQBSTHrhK6jjnTPzCAEPhCcIIQwY6G0lUDbYBAA8jLHxLLPyFus5MBzxeRMeLJcQXIywVQBM8WWPoCE8tqzMkB+wCRMOLgAtM/gCAARPpEMHC68uFNgBPyCEC/LJqJSQLqOQDBsIjJwyMv/iwLPFoAQcIIQi3cXNUBVA4BAA8jLHxLLPyFus5MBzxeRMeLJcQXIywVQBM8WWPoCE8tqzMkB+wDgghDQw7/qUkC64wKCEATe0UhSQLrjAoIQHARBKlJAuo6FM0AD2zzgNDSCEBoLnVFSILoJCgsMAMBsM/pA1NMAMPhFcMjL/1AGzxb4Qs8WEswUyz9SMMsAA8MAlvhDUAPMAt6AEHixcIIQDdYH40A1FIBAA8jLHxLLPyFus5MBzxeRMeLJcQXIywVQBM8WWPoCE8tqzMkB+wAAyGwz+EJQA8cF8uGRAfpA1NMAMPhFcMjL//hCzxYTzBLLP1IQywABwwCU+EMBzN6AEHixcIIQBSTHrkBVA4BAA8jLHxLLPyFus5MBzxeRMeLJcQXIywVQBM8WWPoCE8tqzMkB+wAB9PhBFMcF8uGR+kAh8AH6QNIAMfoAggr68IAXoSGUUxWgod4i1wsBwwAgkgahkTbiIML/8uGSIY49yPhBzxZQB88WgBCCEFEaRGMTcSZUSFADyMsfEss/IW6zkwHPF5Ex4slxBcjLBVAEzxZY+gITy2rMyQH7AJI2MOIDDQP+jhAxMvhBEscF8uGa1DD4Y/AD4DKCEB8EU3pSELqORzD4QiHHBfLhkYAQcIIQ1TJ220EEbYMGA8jLHxLLPyFus5MBzxeRMeLJcQXIywVQBM8WWPoCE8tqzMkB+wCLAvhiiwL4ZPAD4IIQb4n141IQuuMCghDRNtOzUhC64wJsIQ4PEACAjjYi8AGAEIIQ1TJ22xRFA21xA8jLHxLLPyFus5MBzxeRMeLJcQXIywVQBM8WWPoCE8tqzMkB+wCSbDHi+GHwAwAuMDH4RAHHBfLhkfhFwADy4ZP4I/hl8AMAijD4QiHHBfLhkYIK+vCAcPsCgBBwghDVMnbbQQRtgwYDyMsfEss/IW6zkwHPF5Ex4slxBcjLBVAEzxZY+gITy2rMyQH7AAAgghBfzD0UupPywZ3ehA/y8AA3O1E0PpAAfhi+kAB+GHUAfhj+kAB+GTTPzD4ZYAAvPhF+EPI+ELPFvhBzxbM+ETPFss/ye1UgAgFYFRYAGbx+f4AT+4RYF8IXwhwADbVjHgBfCJACASAXGAANsB08AL4QYAANs2D8AL4RYA=='
+
+export const SbtSingleCodeCell = Cell.fromBoc(Buffer.from(SbtSingleCodeBoC, 'base64'))[0];
