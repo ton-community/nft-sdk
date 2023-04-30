@@ -1,6 +1,6 @@
 import { Address, Dictionary, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
-export const OperationCodes = {
+const OperationCodes = {
     ownershipAssigned: 0x05138d91,
     addCoins: 1,
     cancel: 2,

@@ -13,7 +13,7 @@ export type RoyaltyParams = {
     royaltyAddress: Address
 }
 
-export const OperationCodes = {
+const OperationCodes = {
     Mint: 1,
     BatchMint: 2,
     ChangeOwner: 3,
