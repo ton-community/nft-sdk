@@ -1,6 +1,8 @@
+// Storage
 import {AmazonS3} from "./storage/AmazonS3";
 import {Pinata} from "./storage/Pinata";
 
+// Wrappers
 export * from "./wrappers/getgems/NftCollection";
 export * from "./wrappers/getgems/NftItem";
 export * from "./wrappers/getgems/SbtSingle";
@@ -14,7 +16,19 @@ export * from "./wrappers/getgems/NftMarketplace";
 export * from "./wrappers/getgems/NftOffer";
 export * from "./wrappers/getgems/NftSwap";
 
+// Utils
+export * from "./utils";
+
+// Data Encoders & Decoders
+export * from "./types/OffchainContent"
+
+// Transaction Parsing
+export * as TransactionParsing from "./transaction-parsing/"
+
 export {
     AmazonS3, 
     Pinata
 };
+
+// TON API
+export * from "./ton-api";
