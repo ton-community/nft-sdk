@@ -1,5 +1,5 @@
 import { Address } from "ton-core";
-import { fetchAndParseTransactionData } from "../utils/FetchAndParseTransaction";
+import { fetchAndParseTransactionData } from "../src/utils/FetchAndParseTransaction";
 
 async function main() {
     const transactions = await fetchAndParseTransactionData(

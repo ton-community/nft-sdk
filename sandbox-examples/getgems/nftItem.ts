@@ -1,7 +1,7 @@
 import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
-import {NftItem} from '../../wrappers/getgems/NftItem'
-import {randomAddress} from "../../utils/randomAddress";
+import {NftItem} from '../../src/wrappers/getgems/NftItem'
+import {randomAddress} from "../../src/utils/randomAddress";
 import { compileFunc } from '@ton-community/func-js';
 
 function commentBody(comment: string) {
