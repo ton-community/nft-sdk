@@ -1,3 +1,5 @@
+import { Address } from "ton-core";
+
 export class TonAPI {
     private url: string;
 
@@ -65,6 +67,26 @@ export class TonAPI {
     ) {
         const response = await request(
             `${this.url}/v2/nfts/${itemAddress}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+
+        return response;
+    }
+
+    // Get Transactions By Address - /v1/blockchain/getTransactions
+    async getTransactionsByAddress(
+        address: Address,
+        limit: number,
+        // maxLt?: number,
+        // minLt?: number
+    ) {
+        const response = await request(
+            `${this.url}/v1/blockchain/getTransactions?account=${address.toString()}&limit=${limit}`,
             {
                 method: 'GET',
                 headers: {
