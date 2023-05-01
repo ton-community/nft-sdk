@@ -52,6 +52,7 @@ export function parseTransactionData(transaction: Slice): Info {
 
         try {
             op = body.loadUint(32);
+            console.log(op)
         } catch {
             return {
                 type: "unknown",
