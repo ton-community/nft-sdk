@@ -14,7 +14,7 @@
     "yargs": "^17.7.2"
   },
   "bin": {
-    "ton-nft-cli": "./dist/index.js"
+    "ton-nft-cli": "./dist/cli/src/index.js"
   },
   "scripts": {
     "build": "tsc",

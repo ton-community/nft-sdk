@@ -35,7 +35,11 @@ export class Pinata {
                 const imageData = fs.createReadStream(imagePath);
         
                 // Upload the image to IPFS using Pinata SDK
-                const result = await this.pinata.pinFileToIPFS(imageData);
+                const result = await this.pinata.pinFileToIPFS(imageData, {
+                    pinataMetadata: {
+                        name: imageFile
+                    }
+                });
         
                 // Add the image URL to the array
                 const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`;
