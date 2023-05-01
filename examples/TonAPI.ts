@@ -1,4 +1,4 @@
-import {TonAPI} from '../ton-api'
+import {TonAPI} from '../src/ton-api'
 
 async function main() {
     const tonApi = new TonAPI();

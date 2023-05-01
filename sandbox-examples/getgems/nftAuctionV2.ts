@@ -1,14 +1,14 @@
 import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
-import {NftAuction, NftAuctionData} from '../../wrappers/getgems/NftAuction'
-import {randomAddress} from "../../utils/randomAddress";
+import {NftAuctionV2, NftAuctionV2Data} from '../../src/wrappers/getgems/NftAuctionV2'
+import {randomAddress} from "../../src/utils/randomAddress";
 import {BN} from 'bn.js'
 
 async function main() {
     // Creates Local Test Blockchain
     const blockchain = await Blockchain.create()
 
-    let defaultConfig: NftAuctionData = {
+    let defaultConfig: NftAuctionV2Data = {
         marketplaceFeeAddress: randomAddress(),
         marketplaceFeeFactor: BigInt(5),
         marketplaceFeeBase: BigInt(100),
@@ -37,21 +37,21 @@ async function main() {
     }
 
     // Creates NFT Auction
-    const nftAuction = blockchain.openContract(
-        await NftAuction.createFromConfig(defaultConfig)
+    const nftAuctionV2 = blockchain.openContract(
+        await NftAuctionV2.createFromConfig(defaultConfig)
     )
     
     // Gets a deployer
     const deployer = await blockchain.treasury('deployer')
 
     // Deploys Nft Item
-    const deployResult = await nftAuction.sendDeploy(deployer.getSender(), toNano('0.05'))
+    const deployResult = await nftAuctionV2.sendDeploy(deployer.getSender(), toNano('0.05'))
 
     // Prints Result
     console.log(deployResult);
 
     // Fetches Nft Data
-    const data = await nftAuction.getSaleData()
+    const data = await nftAuctionV2.getSaleData()
 
     // Prints Nft Data
     console.log(data);

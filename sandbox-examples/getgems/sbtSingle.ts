@@ -1,7 +1,7 @@
 import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
-import {SbtSingle} from '../../wrappers/getgems/SbtSingle'
-import {randomAddress} from "../../utils/randomAddress";
+import {SbtSingle} from '../../src/wrappers/getgems/SbtSingle'
+import {randomAddress} from "../../src/utils/randomAddress";
 import {BN} from 'bn.js'
 
 async function main() {
