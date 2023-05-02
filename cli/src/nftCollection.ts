@@ -64,9 +64,7 @@ export async function importExistingNftCollection(
 
         const nftCollection = client.open(
             await NftCollection.createFromAddress(
-                config.address,
-                0,
-                config.init
+                config.address
             )
         );
 
@@ -76,9 +74,7 @@ export async function importExistingNftCollection(
 
         const nftCollection = client.open(
             await NftCollection.createFromAddress(
-                config.address,
-                0,
-                config.init
+                config.address
             )
         );
 

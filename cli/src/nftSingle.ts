@@ -64,9 +64,7 @@ export async function importExistingNftSingle(
 
         const nftSingle = client.open(
             await NftSingle.createFromAddress(
-                config.address,
-                0,
-                config.init
+                config.address
             )
         );
 
@@ -76,9 +74,7 @@ export async function importExistingNftSingle(
 
         const nftSingle = client.open(
             await NftSingle.createFromAddress(
-                config.address,
-                0,
-                config.init
+                config.address
             )
         );
 
