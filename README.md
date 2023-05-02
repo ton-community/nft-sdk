@@ -16,6 +16,6 @@ In summary, the NFT SDK is an essential tool for developers looking to create an
 - [x]  Deploy NFT Collections
 - [x]  Put NFTs on Sale
 - [x]  Fetch Information on NFTs, collections and sales using TonClient
-- [ ]  Rarity Calculation (TBD)
 - [x]  Transfer NFTs
 - [x]  Work with Decentralized Storage
+- [x]  CLI
