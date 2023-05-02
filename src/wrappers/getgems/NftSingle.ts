@@ -70,7 +70,7 @@ export class NftSingle implements Contract {
         value: bigint
         queryId: bigint
         newOwner: Address
-        responseDestination: Address
+        responseDestination?: Address
         customPayload?: Cell
         forwardAmount: bigint
         forwardPayload?: Cell

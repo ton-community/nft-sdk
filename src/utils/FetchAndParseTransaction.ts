@@ -1,6 +1,6 @@
 import { Address, Cell, Slice } from "ton-core";
 import {TonAPI} from "../ton-api"
-import { parseTransactionData } from "./parseTransaction";
+import { Info, parseTransactionData } from "./parseTransaction";
 
 export async function fetchAndParseTransactionData(
     account: Address,
@@ -13,7 +13,7 @@ export async function fetchAndParseTransactionData(
         limit
     );
 
-    let transactions_data: Array<any> = [];
+    let transactions_data: Array<Info> = [];
     for (let i = 0; i < transactions.transactions.length; i++) {
         const transaction = transactions.transactions[i];
 

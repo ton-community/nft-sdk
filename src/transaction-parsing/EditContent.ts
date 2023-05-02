@@ -2,11 +2,11 @@ import { loadTransaction, Slice, Address, Cell } from "ton-core";
 import { isEligibleTransaction } from "../utils/EligibleInternalTx";
 
 export type EditContentInfo = {
-    queryId: number | undefined;
-    from: Address | undefined;
-    nftItem: Address | undefined;
-    payload: Cell | undefined;
-    value: bigint | undefined;
+    queryId: number;
+    from: Address;
+    nftItem: Address;
+    payload: Cell;
+    value: bigint;
 };
 
 

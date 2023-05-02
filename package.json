@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "NFT SDK for TON",
   "main": "index.js",
-  "repository": "https://github.com/Gajesh2007/nft-sdk",
+  "repository": "https://github.com/ton-community/nft-sdk",
   "author": "Gajesh Naik @Gajesh2007",
   "license": "MIT",
   "dependencies": {
@@ -16,7 +16,6 @@
     "@types/node": "^18.15.10",
     "@types/uuid": "^8.3.4",
     "aws-sdk": "^2.1356.0",
-    "bn.js": "^5.2.1",
     "buffer": "^6.0.3",
     "chai": "^4.3.6",
     "commander": "^10.0.1",

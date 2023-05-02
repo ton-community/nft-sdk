@@ -1,7 +1,5 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
 import { serializeDict } from 'ton';
-// BN
-import BN from 'bn.js';
 import { encodeOffChainContent } from '../../types/OffchainContent';
 
 export type CollectionMintItemInput = {
@@ -27,20 +25,7 @@ export const OperationCodes = {
 }
 
 export class NftCollection implements Contract {
-    readonly address: Address;
-    readonly init: { code: Cell, data: Cell };
-
-    constructor(
-        address: Address, 
-        workchain: number, 
-        init: { 
-            code: Cell; 
-            data: Cell 
-        }
-    ) {
-        this.init = init;
-        this.address = contractAddress(workchain, this.init);
-    }
+    constructor(readonly address: Address, readonly workchain: number, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address,
@@ -155,18 +140,18 @@ export class NftCollection implements Contract {
 
     async getCollectionData(
         provider: ContractProvider, 
-        next_item_index: bigint, 
-        collection_content: Cell,
-        owner_address: Slice
+        nextItemIndex: bigint, 
+        collectionContent: Cell,
+        ownerAddress: Slice
     ) {
         const { stack } = await provider.get('get_collection_data', [
-            { type: 'int', value: next_item_index },
-            { type: 'cell', cell: collection_content },
-            { type: 'slice', cell: owner_address.asCell() }
+            { type: 'int', value: nextItemIndex },
+            { type: 'cell', cell: collectionContent },
+            { type: 'slice', cell: ownerAddress.asCell() }
         ])
         return {
             next_item_index: stack.readBigNumber(),
-            collection_content: stack.readCellOpt(),
+            collectionContent: stack.readCellOpt(),
             owner_address: stack.readAddressOpt(),
         }
     }
@@ -179,21 +164,21 @@ export class NftCollection implements Contract {
             { type: 'int', value: index }
         ])
         return {
-            nft_address: stack.readAddressOpt(),
+            nftAddress: stack.readAddressOpt(),
         }
     }
 
     async getNftContent(
         provider: ContractProvider,
         index: bigint,
-        individual_content: Cell
+        individualContent: Cell
     ) {
         const { stack } = await provider.get('get_nft_content', [
             { type: 'int', value: index },
-            { type: 'cell', cell: individual_content }
+            { type: 'cell', cell: individualContent }
         ])
         return {
-            full_content: stack.readCellOpt(),
+            fullContent: stack.readCellOpt(),
         }
     }
 

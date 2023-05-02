@@ -2,14 +2,14 @@ import { loadTransaction, Slice, Address, Cell } from "ton-core";
 import { isEligibleTransaction } from "../utils/EligibleInternalTx";
 
 export type NftTransferInfo = {
-  queryId: number | undefined;
-  from: Address | undefined;
-  to: Address | undefined;
-  value: bigint | undefined;
-  responseTo?: Address | null;
-  customPayload: any | undefined;
-  forwardAmount: bigint | undefined;
-  forwardPayload: any | undefined;
+  queryId: number;
+  from: Address;
+  to: Address;
+  value: bigint;
+  responseTo?: Address;
+  customPayload: any;
+  forwardAmount: bigint;
+  forwardPayload: any;
 };
 
 function extractNftTransferInfo(body: any): NftTransferInfo {

@@ -2,7 +2,7 @@ import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
 import {NftCollection, NftCollectionData} from '../../src/wrappers/getgems/NftCollection'
 import {randomAddress} from "../../src/utils/randomAddress";
-import {BN} from 'bn.js'
+
 
 async function main() {
     // Creates Local Test Blockchain

@@ -1,4 +1,6 @@
-export function isEligibleTransaction(tx: any): boolean {
+import { Transaction } from "ton-core";
+
+export function isEligibleTransaction(tx: Transaction): boolean {
     return (
       tx.inMessage?.info.type == "internal" &&
       tx.description.type == "generic" &&
