@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "NFT SDK for TON",
   "main": "index.js",
-  "repository": "https://github.com/Gajesh2007/nft-sdk",
+  "repository": "https://github.com/ton-community/nft-sdk",
   "author": "Gajesh Naik @Gajesh2007",
   "license": "MIT",
   "dependencies": {
