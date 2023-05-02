@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Pinata = void 0;
 const sdk_1 = __importDefault(require("@pinata/sdk"));
+const console_1 = require("console");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 // Pinata - For IPFS Integration
@@ -29,7 +30,7 @@ class Pinata {
                 const files = fs_1.default.readdirSync(assetsFolderPath);
                 // Filter and sort image files
                 const imageFiles = files
-                    .filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file))
+                    .filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file))
                     .sort((a, b) => parseInt(a) - parseInt(b));
                 // Process image uploads in ascending order and collect their URLs
                 const imageUrls = [];
@@ -40,12 +41,34 @@ class Pinata {
                     // Upload the image to IPFS using Pinata SDK
                     const result = yield this.pinata.pinFileToIPFS(imageData, {
                         pinataMetadata: {
-                            name: imageFile
-                        }
+                            name: imageFile,
+                        },
                     });
                     // Add the image URL to the array
                     const ipfsUrl = `https://gateway.pinata.cloud/ipfs/${result.IpfsHash}`;
                     imageUrls.push(ipfsUrl);
+                    // Read the JSON file with the same filename as the image
+                    const jsonFilePath = path_1.default.join(assetsFolderPath, `${path_1.default.parse(imageFile).name}.json`);
+                    if (fs_1.default.existsSync(jsonFilePath)) {
+                        const jsonFile = fs_1.default.readFileSync(jsonFilePath, 'utf8');
+                        const jsonData = JSON.parse(jsonFile);
+                        // Add the IPFS URL to the JSON data
+                        jsonData.image = ipfsUrl;
+                        // Write the updated JSON data to the file
+                        fs_1.default.writeFileSync(jsonFilePath, JSON.stringify(jsonData));
+                        // Upload the JSON file to IPFS using Pinata SDK
+                        const jsonFileData = fs_1.default.createReadStream(jsonFilePath);
+                        const jsonResult = yield this.pinata.pinFileToIPFS(jsonFileData, {
+                            pinataMetadata: {
+                                name: `${path_1.default.parse(imageFile).name}.json`,
+                            },
+                        });
+                        const jsonUrl = `https://gateway.pinata.cloud/ipfs/${jsonResult.IpfsHash}`;
+                        console.log(`JSON file uploaded to IPFS: ${jsonUrl}`);
+                    }
+                    else {
+                        (0, console_1.error)("Metadata not found for", path_1.default.parse(imageFile).name);
+                    }
                 }
                 console.log('All images uploaded successfully!');
                 return imageUrls;
