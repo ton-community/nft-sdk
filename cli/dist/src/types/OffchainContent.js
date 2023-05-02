@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.encodeOffChainContent = exports.makeSnakeCell = void 0;
+exports.encodeOffChainContent = exports.storeOffchainContent = exports.makeSnakeCell = void 0;
 const ton_core_1 = require("ton-core");
 // offchain#01 uri:Text = FullContent;
 const OFF_CHAIN_CONTENT_PREFIX = 0x01;
@@ -9,7 +9,7 @@ const OFF_CHAIN_CONTENT_PREFIX = 0x01;
 //     let res = Buffer.alloc(0)
 //     while (c) {
 //         let cs = c.beginParse()
-//         let data = cs.remainingBits()
+//         let data = cs.readRemainingBytes()
 //         res = Buffer.concat([res, data])
 //         c = c.refs[0]
 //     }
@@ -49,16 +49,15 @@ exports.makeSnakeCell = makeSnakeCell;
 //         uri: data.slice(1).toString()
 //     }
 // }
-// export function storeOffchainContent(content: Offchain) {
-//     let data = Buffer.from(content.uri)
-//     let offChainPrefix = Buffer.from([OFF_CHAIN_CONTENT_PREFIX])
-//     data = Buffer.concat([offChainPrefix, data])
-//     return (builder: Builder) => {
-//         builder.storeRef(
-//             makeSnakeCell(data)
-//         );
-//     };
-// }
+function storeOffchainContent(content) {
+    let data = Buffer.from(content.uri);
+    let offChainPrefix = Buffer.from([OFF_CHAIN_CONTENT_PREFIX]);
+    data = Buffer.concat([offChainPrefix, data]);
+    return (builder) => {
+        builder.storeRef(makeSnakeCell(data));
+    };
+}
+exports.storeOffchainContent = storeOffchainContent;
 function encodeOffChainContent(content) {
     let data = Buffer.from(content);
     let offChainPrefix = Buffer.from([OFF_CHAIN_CONTENT_PREFIX]);

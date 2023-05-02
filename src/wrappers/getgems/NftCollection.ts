@@ -1,5 +1,4 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
-import { serializeDict } from 'ton';
 import { encodeOffChainContent } from '../../types/OffchainContent';
 
 export type CollectionMintItemInput = {

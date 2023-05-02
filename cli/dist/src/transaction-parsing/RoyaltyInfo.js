@@ -1,0 +1,31 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.parseRoyaltyInfo = void 0;
+const ton_core_1 = require("ton-core");
+const EligibleInternalTx_1 = require("../utils/EligibleInternalTx");
+function extractRoyaltyInfo(body) {
+    return {
+        queryId: body === null || body === void 0 ? void 0 : body.loadUint(64),
+        from: body === null || body === void 0 ? void 0 : body.info.src,
+        nftItem: body === null || body === void 0 ? void 0 : body.info.dest,
+        value: body === null || body === void 0 ? void 0 : body.info.value.coins,
+    };
+}
+function parseRoyaltyInfo(transaction) {
+    var _a;
+    const tx = (0, ton_core_1.loadTransaction)(transaction);
+    const body = (_a = tx.inMessage) === null || _a === void 0 ? void 0 : _a.body.beginParse();
+    let op;
+    try {
+        op = body === null || body === void 0 ? void 0 : body.loadUint(32);
+    }
+    catch (_b) {
+        return null;
+    }
+    if ((0, EligibleInternalTx_1.isEligibleTransaction)(tx)) {
+        return extractRoyaltyInfo(body);
+    }
+    return null;
+}
+exports.parseRoyaltyInfo = parseRoyaltyInfo;
+//# sourceMappingURL=RoyaltyInfo.js.map

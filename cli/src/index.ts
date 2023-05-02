@@ -8,6 +8,7 @@ import {fetchAndParseTransactionData} from '../../src/utils/FetchAndParseTransac
 import { Address } from 'ton-core';
 import { createNetworkProvider } from '@ton-community/blueprint';
 import {createNftSingle, transfer} from "./nftSingle"
+import {createNftCollection} from "./nftCollection"
 import { TonClient4 } from 'ton';
 import createKeyPair from './utils/createKeyPair';
 
@@ -231,6 +232,33 @@ yargs(hideBin(process.argv))
 
         const options = { configPath: argv.configPath, secretKey: argv.secretKey };
         await transfer(client, argv.destination, options);
+      }
+    }
+  )
+
+  .command(
+    'create nft-collection <configPath> [secretKey]',
+    'Create a NFT Collection',
+    (yargs) => {
+      return yargs
+       .positional('configPath', {
+          describe: 'Path to the NFT collection data config JSON file',
+          type:'string',
+        })
+       .positional('secretKey', {
+          describe: 'Secret key for creating the NFT',
+          type:'string',
+          default: undefined,
+        });
+        },
+    async (argv) => {
+      if (typeof argv.configPath ==='string') {
+        const client = new TonClient4({
+          endpoint: "https://toncenter.com/api/v2/jsonRPC"
+        });
+        const config = require(argv.configPath);
+        const options = { secretKey: argv.secretKey };
+        await createNftCollection(client, config, options);
       }
     }
   )
