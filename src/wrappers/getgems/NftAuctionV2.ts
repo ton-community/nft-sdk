@@ -1,20 +1,8 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
 export class NftAuctionV2 implements Contract {
-    readonly address: Address;
-    readonly init: { code: Cell, data: Cell };
+    constructor(readonly address: Address, readonly workchain: number, readonly init?: { code: Cell; data: Cell }) {}
 
-    constructor(
-        address: Address, 
-        workchain: number, 
-        init: { 
-            code: Cell; 
-            data: Cell 
-        }
-    ) {
-        this.init = init;
-        this.address = contractAddress(workchain, this.init);
-    }
 
     static createFromAddress(
         address: Address,

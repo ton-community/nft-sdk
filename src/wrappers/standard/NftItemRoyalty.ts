@@ -1,20 +1,8 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { NftItem } from './NftItem';
 
-export class NftItemRoyalty implements Contract {
-    readonly address: Address;
-    readonly init: { code: Cell, data: Cell };
-
-    constructor(
-        address: Address, 
-        workchain: number, 
-        init: { 
-            code: Cell; 
-            data: Cell 
-        }
-    ) {
-        this.init = init;
-        this.address = contractAddress(workchain, this.init);
-    }
+export class NftItemRoyalty implements NftItem {
+    constructor(readonly address: Address, readonly workchain: number, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address,
@@ -38,7 +26,6 @@ export class NftItemRoyalty implements Contract {
             body: beginCell().endCell(),
         })
     }
-
 
     async sendTransfer(provider: ContractProvider, via: Sender, params: {
         value: bigint
