@@ -17,6 +17,11 @@ const yargs_1 = __importDefault(require("yargs"));
 const helpers_1 = require("yargs/helpers");
 const Pinata_1 = require("../../src/storage/Pinata");
 const ton_api_1 = require("../../src/ton-api");
+const FetchAndParseTransaction_1 = require("../../src/utils/FetchAndParseTransaction");
+const ton_core_1 = require("ton-core");
+const nftSingle_1 = require("./nftSingle");
+const ton_1 = require("ton");
+const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
 (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
     .command('upload [path]', 'Upload an NFT via Pinata', (yargs) => {
     return yargs
@@ -114,6 +119,75 @@ const ton_api_1 = require("../../src/ton-api");
         const tonApi = new ton_api_1.TonAPI();
         const item = yield tonApi.getNftItemByAddress(argv.address);
         console.log(item);
+    }
+}))
+    // Command to fetch transactions and parse data
+    .command('transactions <address> [limit]', 'Fetch and parse transaction data', (yargs) => {
+    return yargs
+        .positional('address', {
+        describe: 'Address to fetch transactions from',
+        type: 'string',
+    })
+        .positional('limit', {
+        describe: 'Maximum number of transactions to return',
+        type: 'number',
+        default: 10,
+    });
+}, (argv) => __awaiter(void 0, void 0, void 0, function* () {
+    if (typeof argv.address === 'string') {
+        const parsedAddress = ton_core_1.Address.parse(argv.address);
+        const transactions = yield (0, FetchAndParseTransaction_1.fetchAndParseTransactionData)(parsedAddress, argv.limit);
+        console.log(transactions);
+    }
+}))
+    .command('create keypair', 'Creates Keypair', (yargs) => {
+}, (argv) => __awaiter(void 0, void 0, void 0, function* () {
+    yield (0, createKeyPair_1.default)();
+}))
+    .command('create nft-single <configPath> [secretKey]', 'Create a single NFT', (yargs) => {
+    return yargs
+        .positional('configPath', {
+        describe: 'Path to the NFT single data config JSON file',
+        type: 'string',
+    })
+        .positional('secretKey', {
+        describe: 'Secret key for creating the NFT',
+        type: 'string',
+        default: undefined,
+    });
+}, (argv) => __awaiter(void 0, void 0, void 0, function* () {
+    if (typeof argv.configPath === 'string') {
+        const client = new ton_1.TonClient4({
+            endpoint: "https://toncenter.com/api/v2/jsonRPC"
+        });
+        const config = require(argv.configPath);
+        const options = { secretKey: argv.secretKey };
+        yield (0, nftSingle_1.createNftSingle)(client, config, options);
+    }
+}))
+    .command('nft-single transfer <destination> [configPath] [secretKey]', 'Transfer an NFT Single', (yargs) => {
+    return yargs
+        .positional('destination', {
+        describe: 'Destination address',
+        type: 'string',
+    })
+        .positional('configPath', {
+        describe: 'Path to the transfer configuration JSON file',
+        type: 'string',
+        default: undefined,
+    })
+        .positional('secretKey', {
+        describe: 'Secret key of the Sender',
+        type: 'string',
+        default: undefined,
+    });
+}, (argv) => __awaiter(void 0, void 0, void 0, function* () {
+    if (typeof argv.destination === 'string') {
+        const client = new ton_1.TonClient4({
+            endpoint: "https://toncenter.com/api/v2/jsonRPC"
+        });
+        const options = { configPath: argv.configPath, secretKey: argv.secretKey };
+        yield (0, nftSingle_1.transfer)(client, argv.destination, options);
     }
 }))
     .demandCommand(1, 'You need at least one command before moving on')

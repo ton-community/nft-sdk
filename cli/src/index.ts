@@ -4,6 +4,12 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {Pinata} from "../../src/storage/Pinata"
 import {TonAPI} from '../../src/ton-api'
+import {fetchAndParseTransactionData} from '../../src/utils/FetchAndParseTransaction'
+import { Address } from 'ton-core';
+import { createNetworkProvider } from '@ton-community/blueprint';
+import {createNftSingle, transfer} from "./nftSingle"
+import { TonClient4 } from 'ton';
+import createKeyPair from './utils/createKeyPair';
 
 yargs(hideBin(process.argv))
   .command(
@@ -130,6 +136,101 @@ yargs(hideBin(process.argv))
         const tonApi = new TonAPI();
         const item = await tonApi.getNftItemByAddress(argv.address);
         console.log(item);
+      }
+    }
+  )
+
+
+  // Command to fetch transactions and parse data
+  .command(
+    'transactions <address> [limit]',
+    'Fetch and parse transaction data',
+    (yargs) => {
+      return yargs
+        .positional('address', {
+          describe: 'Address to fetch transactions from',
+          type: 'string',
+        })
+        .positional('limit', {
+          describe: 'Maximum number of transactions to return',
+          type: 'number',
+          default: 10,
+        });
+    },
+    async (argv) => {
+      if (typeof argv.address === 'string') {
+        const parsedAddress = Address.parse(argv.address);
+        const transactions = await fetchAndParseTransactionData(parsedAddress, argv.limit);
+        console.log(transactions);
+      }
+    }
+  )
+
+  .command(
+    'create keypair',
+    'Creates Keypair',
+    (yargs) => {
+      
+    },
+    async (argv) => {
+      await createKeyPair();
+  })
+
+  .command(
+    'create nft-single <configPath> [secretKey]',
+    'Create a single NFT',
+    (yargs) => {
+      return yargs
+        .positional('configPath', {
+          describe: 'Path to the NFT single data config JSON file',
+          type: 'string',
+        })
+        .positional('secretKey', {
+          describe: 'Secret key for creating the NFT',
+          type: 'string',
+          default: undefined,
+        });
+    },
+    async (argv) => {
+      if (typeof argv.configPath === 'string') {
+        const client = new TonClient4({
+          endpoint: "https://toncenter.com/api/v2/jsonRPC"
+        });
+        const config = require(argv.configPath);
+        const options = { secretKey: argv.secretKey };
+        await createNftSingle(client, config, options);
+      }
+    }
+  )
+
+  .command(
+    'nft-single transfer <destination> [configPath] [secretKey]',
+    'Transfer an NFT Single',
+    (yargs) => {
+      return yargs
+        .positional('destination', {
+          describe: 'Destination address',
+          type: 'string',
+        })
+        .positional('configPath', {
+          describe: 'Path to the transfer configuration JSON file',
+          type: 'string',
+          default: undefined,
+        })
+        .positional('secretKey', {
+          describe: 'Secret key of the Sender',
+          type: 'string',
+          default: undefined,
+        });
+    },
+    async (argv) => {
+      if (typeof argv.destination === 'string') {
+        const client = new TonClient4({
+          endpoint: "https://toncenter.com/api/v2/jsonRPC"
+        });
+
+        const options = { configPath: argv.configPath, secretKey: argv.secretKey };
+        await transfer(client, argv.destination, options);
       }
     }
   )
