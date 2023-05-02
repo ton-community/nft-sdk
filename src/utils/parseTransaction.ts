@@ -1,46 +1,9 @@
 import { loadTransaction, Slice, Address, Cell } from "ton-core";
+import {NftTransferInfo, RoyaltyInfo} from "../transaction-parsing"
 
 export type Info = {
     type: "transfer" | "royalty_params" | "unknown" | null;
     info: NftTransferInfo | RoyaltyInfo | null;
-};
-
-export type NftTransferInfo = {
-    queryId: number | undefined;
-    from: Address | undefined;
-    to: Address | undefined;
-    value: bigint | undefined;
-    responseTo?: Address | null;
-    customPayload: any | undefined;
-    forwardAmount: bigint | undefined;
-    forwardPayload: any | undefined;
-};
-
-export type RoyaltyInfo = {
-    queryId: number | undefined;
-    from: Address | undefined;
-    nftItem: Address | undefined;
-    value: bigint | undefined;
-};
-
-export type EditContentInfo = {
-    queryId: number | undefined;
-    from: Address | undefined;
-    nftItem: Address | undefined;
-    payload: Cell | undefined;
-    value: bigint | undefined;
-};
-
-export type TransferEditorshipInfo = {
-    queryId: number | undefined;
-    from: Address | undefined;
-    nftItem: Address | undefined;
-    newEditor: Address | undefined;
-    responseDestination: Address | undefined;
-    customPayload?: Cell | null;
-    forwardAmount?: bigint;
-    forwardPayload?: Cell | null;
-    value: bigint | undefined;
 };
 
 export function parseTransactionData(transaction: Slice): Info {

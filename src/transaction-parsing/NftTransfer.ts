@@ -6,7 +6,7 @@ export type NftTransferInfo = {
   from: Address;
   to: Address;
   value: bigint;
-  responseTo?: Address | null;
+  responseTo?: Address;
   customPayload: any;
   forwardAmount: bigint;
   forwardPayload: any;
