@@ -51,9 +51,9 @@ export class NftCollection implements Contract {
             { type: 'slice', cell: owner_address.asCell() }
         ])
         return {
-            next_item_index: stack.readBigNumber(),
-            collection_content: stack.readCellOpt(),
-            owner_address: stack.readAddressOpt(),
+            nextItemIndex: stack.readBigNumber(),
+            collectionContent: stack.readCellOpt(),
+            ownerAddress: stack.readAddressOpt(),
         }
     }
 
@@ -65,21 +65,21 @@ export class NftCollection implements Contract {
             { type: 'int', value: index }
         ])
         return {
-            nft_address: stack.readAddressOpt(),
+            nftAddress: stack.readAddressOpt(),
         }
     }
 
     async getNftContent(
         provider: ContractProvider,
         index: bigint,
-        individual_content: Cell
+        individualContent: Cell
     ) {
         const { stack } = await provider.get('get_nft_content', [
             { type: 'int', value: index },
-            { type: 'cell', cell: individual_content }
+            { type: 'cell', cell: individualContent }
         ])
         return {
-            full_content: stack.readCellOpt(),
+            fullContent: stack.readCellOpt(),
         }
     }
 
