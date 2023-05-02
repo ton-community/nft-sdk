@@ -2,20 +2,13 @@ import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode,
 import { NftItem } from './NftItem';
 
 export class NftItemRoyalty implements NftItem {
-    constructor(readonly address: Address, readonly workchain: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
-        address: Address,
-        workchain: number,
-        init: { 
-            code: Cell; 
-            data: Cell 
-        }
+        address: Address
     ) {
         return new NftItemRoyalty(
-            address,
-            workchain,
-            init
+            address
             );
     }
 
