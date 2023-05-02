@@ -2,7 +2,7 @@ import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode,
 import { encodeOffChainContent } from '../../types/OffchainContent';
 
 export class NftCollection implements Contract {
-    constructor(readonly address: Address, readonly workchain: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromConfig(
         config: NftCollectionData, code: Cell, workchain = 0
@@ -13,17 +13,10 @@ export class NftCollection implements Contract {
     }
 
     static createFromAddress(
-        address: Address,
-        workchain: number,
-        init: { 
-            code: Cell; 
-            data: Cell 
-        }
+        address: Address
     ) {
         return new NftCollection(
-            address,
-            workchain,
-            init
+            address
             );
     }
 

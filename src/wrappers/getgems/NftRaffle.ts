@@ -8,20 +8,13 @@ export const OperationCodes = {
 }
 
 export class NftRaffle implements Contract {
-    constructor(readonly address: Address, readonly workchain: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
-        address: Address,
-        workchain: number,
-        init: { 
-            code: Cell; 
-            data: Cell 
-        }
+        address: Address
     ) {
         return new NftRaffle(
-            address,
-            workchain,
-            init
+            address
             );
     }
 

@@ -24,21 +24,14 @@ export const OperationCodes = {
 }
 
 export class NftCollection implements Contract {
-    constructor(readonly address: Address, readonly workchain: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
-        address: Address,
-        workchain: number,
-        init: { 
-            code: Cell; 
-            data: Cell 
-        }
+        address: Address
     ) {
         return new NftCollection(
-            address,
-            workchain,
-            init
-            );
+            address
+        );
     }
 
     static async createFromConfig(
