@@ -7,15 +7,15 @@ import {
 import { isEligibleTransaction } from "../utils/EligibleInternalTx";
   
   export type TransferEditorshipInfo = {
-    queryId: number | undefined;
-    from: Address | undefined;
-    nftItem: Address | undefined;
-    newEditor: Address | undefined;
-    responseDestination: Address | undefined;
-    customPayload?: Cell | null;
+    queryId: number;
+    from: Address;
+    nftItem: Address;
+    newEditor: Address;
+    responseDestination: Address;
+    customPayload?: Cell;
     forwardAmount?: bigint;
-    forwardPayload?: Cell | null;
-    value: bigint | undefined;
+    forwardPayload?: Cell;
+    value: bigint;
   };
   
   function extractTransferEditorshipInfo(body: any): TransferEditorshipInfo {
