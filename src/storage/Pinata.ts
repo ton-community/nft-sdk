@@ -15,7 +15,7 @@ export class Pinata {
     }
 
     // Function to upload images in bulk to IPFS using Pinata SDK in ascending order of file names and return their URLs
-    async uploadImagesBulk(
+    async uploadBulk(
         assetsFolderPath: string
         ): Promise<string[]> {
             try {

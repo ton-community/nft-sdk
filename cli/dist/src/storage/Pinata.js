@@ -23,7 +23,7 @@ class Pinata {
         this.pinata = new sdk_1.default(apiKey, secretApiKey);
     }
     // Function to upload images in bulk to IPFS using Pinata SDK in ascending order of file names and return their URLs
-    uploadImagesBulk(assetsFolderPath) {
+    uploadBulk(assetsFolderPath) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 // Read the directory

@@ -40,12 +40,12 @@ function importExistingNftCollection(client, options) {
     return __awaiter(this, void 0, void 0, function* () {
         if (options === null || options === void 0 ? void 0 : options.configPath) {
             const config = JSON.parse((0, fs_1.readFileSync)(options === null || options === void 0 ? void 0 : options.configPath, 'utf-8'));
-            const nftCollection = client.open(yield NftCollection_1.NftCollection.createFromAddress(config.address, 0, config.init));
+            const nftCollection = client.open(yield NftCollection_1.NftCollection.createFromAddress(config.address));
             return nftCollection;
         }
         else {
             const config = JSON.parse((0, fs_1.readFileSync)(String(process_1.env.PATH_TO_CONFIG), 'utf-8'));
-            const nftCollection = client.open(yield NftCollection_1.NftCollection.createFromAddress(config.address, 0, config.init));
+            const nftCollection = client.open(yield NftCollection_1.NftCollection.createFromAddress(config.address));
             return nftCollection;
         }
     });

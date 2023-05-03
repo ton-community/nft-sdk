@@ -41,12 +41,12 @@ function importExistingNftSingle(client, options) {
     return __awaiter(this, void 0, void 0, function* () {
         if (options === null || options === void 0 ? void 0 : options.configPath) {
             const config = JSON.parse((0, fs_1.readFileSync)(options === null || options === void 0 ? void 0 : options.configPath, 'utf-8'));
-            const nftSingle = client.open(yield NftSingle_1.NftSingle.createFromAddress(config.address, 0, config.init));
+            const nftSingle = client.open(yield NftSingle_1.NftSingle.createFromAddress(config.address));
             return nftSingle;
         }
         else {
             const config = JSON.parse((0, fs_1.readFileSync)(String(process_1.env.PATH_TO_CONFIG), 'utf-8'));
-            const nftSingle = client.open(yield NftSingle_1.NftSingle.createFromAddress(config.address, 0, config.init));
+            const nftSingle = client.open(yield NftSingle_1.NftSingle.createFromAddress(config.address));
             return nftSingle;
         }
     });

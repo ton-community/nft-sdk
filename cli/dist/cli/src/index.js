@@ -16,14 +16,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const yargs_1 = __importDefault(require("yargs"));
 const helpers_1 = require("yargs/helpers");
 const Pinata_1 = require("../../src/storage/Pinata");
+const AmazonS3_1 = require("../../src/storage/AmazonS3");
 const ton_api_1 = require("../../src/ton-api");
 const FetchAndParseTransaction_1 = require("../../src/utils/FetchAndParseTransaction");
 const ton_core_1 = require("ton-core");
 const nftSingle_1 = require("./nftSingle");
+const nftCollection_1 = require("./nftCollection");
 const ton_1 = require("ton");
 const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
 (0, yargs_1.default)((0, helpers_1.hideBin)(process.argv))
-    .command('upload [path]', 'Upload an NFT via Pinata', (yargs) => {
+    .command('upload pinata [path]', 'Upload an NFT via Pinata', (yargs) => {
     return yargs
         .positional('path', {
         describe: 'Path to the file to be uploaded',
@@ -49,7 +51,46 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
         console.log(`Using API key: ${argv.apiKey}`);
         console.log(`Using secret API key: ${argv.secretApiKey}`);
         let pinata = new Pinata_1.Pinata(argv.apiKey, argv.secretApiKey);
-        let imagesUrls = yield pinata.uploadImagesBulk(argv.path);
+        let imagesUrls = yield pinata.uploadBulk(argv.path);
+        console.log(`URLs: ${imagesUrls}`);
+    }
+}))
+    .command('upload s3 [path]', 'Upload an NFT via Amazon S3', (yargs) => {
+    return yargs
+        .positional('path', {
+        describe: 'Path to the file to be uploaded',
+        type: 'string',
+        default: './assets',
+    })
+        .option('accessKey', {
+        alias: 'k',
+        describe: 'Access key for authentication',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('secretAccessKey', {
+        alias: 's',
+        describe: 'Secret access key for authentication',
+        type: 'string',
+        demandOption: true,
+    })
+        .option('fileType', {
+        alias: 'f',
+        describe: 'File type of the image',
+        type: 'string',
+        demandOption: true,
+        default: "image/jpeg"
+    });
+}, (argv) => __awaiter(void 0, void 0, void 0, function* () {
+    if (typeof argv.path === 'string'
+        && typeof argv.apiKey === 'string'
+        && typeof argv.secretApiKey == 'string') {
+        console.log(`Using API key: ${argv.apiKey}`);
+        console.log(`Using secret API key: ${argv.secretApiKey}`);
+        let s3 = new AmazonS3_1.AmazonS3(argv.apiKey, argv.secretApiKey);
+        let imagesUrls = yield s3.uploadBulk(argv.path, "nft_collection", {
+            type: `image/${argv.fileType}`
+        });
         console.log(`URLs: ${imagesUrls}`);
     }
 }))
@@ -188,6 +229,27 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
         });
         const options = { configPath: argv.configPath, secretKey: argv.secretKey };
         yield (0, nftSingle_1.transfer)(client, argv.destination, options);
+    }
+}))
+    .command('create nft-collection <configPath> [secretKey]', 'Create a NFT Collection', (yargs) => {
+    return yargs
+        .positional('configPath', {
+        describe: 'Path to the NFT collection data config JSON file',
+        type: 'string',
+    })
+        .positional('secretKey', {
+        describe: 'Secret key for creating the NFT',
+        type: 'string',
+        default: undefined,
+    });
+}, (argv) => __awaiter(void 0, void 0, void 0, function* () {
+    if (typeof argv.configPath === 'string') {
+        const client = new ton_1.TonClient4({
+            endpoint: "https://toncenter.com/api/v2/jsonRPC"
+        });
+        const config = require(argv.configPath);
+        const options = { secretKey: argv.secretKey };
+        yield (0, nftCollection_1.createNftCollection)(client, config, options);
     }
 }))
     .demandCommand(1, 'You need at least one command before moving on')

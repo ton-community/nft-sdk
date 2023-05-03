@@ -1,4 +1,4 @@
-import { loadTransaction, Slice, Address, Cell } from "ton-core";
+import { loadTransaction, Slice, Address, Cell, Transaction } from "ton-core";
 import { isEligibleTransaction } from "../utils/EligibleInternalTx";
 
 export type RoyaltyInfo = {

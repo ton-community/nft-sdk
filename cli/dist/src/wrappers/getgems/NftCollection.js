@@ -26,8 +26,8 @@ class NftCollection {
         this.workchain = workchain;
         this.init = init;
     }
-    static createFromAddress(address, workchain, init) {
-        return new NftCollection(address, workchain, init);
+    static createFromAddress(address) {
+        return new NftCollection(address);
     }
     static createFromConfig(config) {
         return __awaiter(this, void 0, void 0, function* () {

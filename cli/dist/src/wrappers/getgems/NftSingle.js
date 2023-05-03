@@ -15,11 +15,12 @@ const OffchainContent_1 = require("../../types/OffchainContent");
 const combineFunc_1 = require("../../utils/combineFunc");
 class NftSingle {
     constructor(address, workchain, init) {
+        this.address = address;
+        this.workchain = workchain;
         this.init = init;
-        this.address = (0, ton_core_1.contractAddress)(workchain, this.init);
     }
-    static createFromAddress(address, workchain, init) {
-        return new NftSingle(address, workchain, init);
+    static createFromAddress(address) {
+        return new NftSingle(address);
     }
     static createFromConfig(config) {
         return __awaiter(this, void 0, void 0, function* () {
