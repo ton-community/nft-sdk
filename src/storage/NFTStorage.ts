@@ -12,7 +12,7 @@ export class NFTStorageWrapper {
     }
 
     // Function to upload images in bulk to IPFS using NFT.Storage SDK in ascending order of file names and return their URLs
-    async uploadImagesBulk(assetsFolderPath: string): Promise<string[]> {
+    async uploadBulk(assetsFolderPath: string): Promise<string[]> {
         try {
             // Read the directory
             const files = fs.readdirSync(assetsFolderPath);

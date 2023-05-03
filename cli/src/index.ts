@@ -45,7 +45,7 @@ yargs(hideBin(process.argv))
         console.log(`Using secret API key: ${argv.secretApiKey}`);
 
         let pinata = new Pinata(argv.apiKey, argv.secretApiKey);
-        let imagesUrls = await pinata.uploadImagesBulk(argv.path)
+        let imagesUrls = await pinata.uploadBulk(argv.path)
 
         console.log(`URLs: ${imagesUrls}`)
       }
@@ -62,17 +62,24 @@ yargs(hideBin(process.argv))
           type: 'string',
           default: './assets',
         })
-        .option('apiKey', {
+        .option('accessKey', {
           alias: 'k',
-          describe: 'API key for authentication',
+          describe: 'Access key for authentication',
           type: 'string',
           demandOption: true,
         })
-        .option('secretApiKey', {
+        .option('secretAccessKey', {
           alias: 's',
-          describe: 'Secret API key for authentication',
+          describe: 'Secret access key for authentication',
           type: 'string',
           demandOption: true,
+        })
+        .option('fileType', {
+          alias: 'f',
+          describe: 'File type of the image',
+          type: 'string',
+          demandOption: true,
+          default: "image/jpeg"
         });
     },
     async (argv) => {
@@ -84,7 +91,9 @@ yargs(hideBin(process.argv))
         console.log(`Using secret API key: ${argv.secretApiKey}`);
 
         let s3 = new AmazonS3(argv.apiKey, argv.secretApiKey);
-        let imagesUrls = await s3.uploadImagesBulk(argv.path, "nft_collection")
+        let imagesUrls = await s3.uploadBulk(argv.path, "nft_collection", {
+          type: `image/${argv.fileType}`
+        })
 
         console.log(`URLs: ${imagesUrls}`)
       }

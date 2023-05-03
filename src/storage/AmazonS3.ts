@@ -19,7 +19,7 @@ export class AmazonS3 {
     }
 
     // Function to upload images in bulk to Amazon S3
-    async uploadImagesBulk(
+    async uploadBulk(
         assetsFolderPath: string, 
         s3BucketName: string = "nft-collection",
         options?: {
