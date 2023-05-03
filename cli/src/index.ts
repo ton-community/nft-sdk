@@ -3,10 +3,10 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {Pinata} from "../../src/storage/Pinata"
+import {AmazonS3} from "../../src/storage/AmazonS3"
 import {TonAPI} from '../../src/ton-api'
 import {fetchAndParseTransactionData} from '../../src/utils/FetchAndParseTransaction'
 import { Address } from 'ton-core';
-import { createNetworkProvider } from '@ton-community/blueprint';
 import {createNftSingle, transfer} from "./nftSingle"
 import {createNftCollection} from "./nftCollection"
 import { TonClient4 } from 'ton';
@@ -14,7 +14,7 @@ import createKeyPair from './utils/createKeyPair';
 
 yargs(hideBin(process.argv))
   .command(
-    'upload [path]',
+    'upload pinata [path]',
     'Upload an NFT via Pinata',
     (yargs) => {
       return yargs
@@ -51,6 +51,46 @@ yargs(hideBin(process.argv))
       }
     }
   )
+
+  .command(
+    'upload s3 [path]',
+    'Upload an NFT via Amazon S3',
+    (yargs) => {
+      return yargs
+        .positional('path', {
+          describe: 'Path to the file to be uploaded',
+          type: 'string',
+          default: './assets',
+        })
+        .option('apiKey', {
+          alias: 'k',
+          describe: 'API key for authentication',
+          type: 'string',
+          demandOption: true,
+        })
+        .option('secretApiKey', {
+          alias: 's',
+          describe: 'Secret API key for authentication',
+          type: 'string',
+          demandOption: true,
+        });
+    },
+    async (argv) => {
+      if (typeof argv.path === 'string' 
+          && typeof argv.apiKey === 'string' 
+          && typeof argv.secretApiKey == 'string'
+      ) {
+        console.log(`Using API key: ${argv.apiKey}`);
+        console.log(`Using secret API key: ${argv.secretApiKey}`);
+
+        let s3 = new AmazonS3(argv.apiKey, argv.secretApiKey);
+        let imagesUrls = await s3.uploadImagesBulk(argv.path, "nft_collection")
+
+        console.log(`URLs: ${imagesUrls}`)
+      }
+    }
+  )
+
   // New command for getNftCollections
   .command(
     'collections [limit] [offset]',
