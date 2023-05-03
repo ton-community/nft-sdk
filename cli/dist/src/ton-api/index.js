@@ -9,10 +9,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TonAPI = void 0;
-class TonAPI {
+exports.TonClient = void 0;
+class TonClient {
     constructor(url) {
-        this.url = url ? url : "https://tonapi.io";
+        this.url = url ? url : "https://TonClient.io";
     }
     // Get NFT collections - /v2/nfts/collections
     getNftCollections(limit, offset) {
@@ -75,7 +75,7 @@ class TonAPI {
         });
     }
 }
-exports.TonAPI = TonAPI;
+exports.TonClient = TonClient;
 function request(url, config) {
     return __awaiter(this, void 0, void 0, function* () {
         const response = yield fetch(url, config);

@@ -10,7 +10,7 @@ export class SbtSingle implements Contract {
     ) {
         return new SbtSingle(
             address
-            );
+        );
     }
 
 

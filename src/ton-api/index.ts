@@ -1,10 +1,10 @@
 import { Address } from "ton-core";
 
-export class TonAPI {
+export class TonClient {
     private url: string;
 
     constructor(url?: string) {
-        this.url = url ? url : "https://tonapi.io";
+        this.url = url ? url : "https://TonClient.io";
     }
 
     // Get NFT collections - /v2/nfts/collections

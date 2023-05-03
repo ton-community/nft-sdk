@@ -4,7 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {Pinata} from "../../src/storage/Pinata"
 import {AmazonS3} from "../../src/storage/AmazonS3"
-import {TonAPI} from '../../src/ton-api'
+import {TonClient} from '../../src/ton-api'
 import {fetchAndParseTransactionData} from '../../src/utils/FetchAndParseTransaction'
 import { Address } from 'ton-core';
 import {createNftSingle, transfer} from "./nftSingle"
@@ -118,8 +118,8 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
-      const tonApi = new TonAPI();
-      const collections = await tonApi.getNftCollections(argv.limit, argv.offset);
+      const tonClient = new TonClient();
+      const collections = await tonClient.getNftCollections(argv.limit, argv.offset);
       console.log(collections);
     }
   )
@@ -135,8 +135,8 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       if (typeof argv.address === 'string') {
-        const tonApi = new TonAPI();
-        const collection = await tonApi.getNftCollectionByAddress(argv.address);
+        const tonClient = new TonClient();
+        const collection = await tonClient.getNftCollectionByAddress(argv.address);
         console.log(collection);
       }
     }
@@ -164,8 +164,8 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       if (typeof argv.address === 'string') {
-        const tonApi = new TonAPI();
-        const items = await tonApi.getNftItemsFromCollectionByAddress(argv.address, argv.limit, argv.offset);
+        const tonClient = new TonClient();
+        const items = await tonClient.getNftItemsFromCollectionByAddress(argv.address, argv.limit, argv.offset);
         console.log(items);
       }
     }
@@ -183,8 +183,8 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       if (typeof argv.address === 'string') {
-        const tonApi = new TonAPI();
-        const item = await tonApi.getNftItemByAddress(argv.address);
+        const tonClient = new TonClient();
+        const item = await tonClient.getNftItemByAddress(argv.address);
         console.log(item);
       }
     }
