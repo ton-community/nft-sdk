@@ -15,8 +15,8 @@ const ton_api_1 = require("../ton-api");
 const parseTransaction_1 = require("./parseTransaction");
 function fetchAndParseTransactionData(account, limit) {
     return __awaiter(this, void 0, void 0, function* () {
-        const tonApi = new ton_api_1.TonAPI();
-        const transactions = yield tonApi.getTransactionsByAddress(account, limit);
+        const tonClient = new ton_api_1.TonClient();
+        const transactions = yield tonClient.getTransactionsByAddress(account, limit);
         let transactions_data = [];
         for (let i = 0; i < transactions.transactions.length; i++) {
             const transaction = transactions.transactions[i];

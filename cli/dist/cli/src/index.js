@@ -108,8 +108,8 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
         default: 0,
     });
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
-    const tonApi = new ton_api_1.TonAPI();
-    const collections = yield tonApi.getNftCollections(argv.limit, argv.offset);
+    const tonClient = new ton_api_1.TonClient();
+    const collections = yield tonClient.getNftCollections(argv.limit, argv.offset);
     console.log(collections);
 }))
     // New command for getNftCollectionByAddress
@@ -120,8 +120,8 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
     });
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
     if (typeof argv.address === 'string') {
-        const tonApi = new ton_api_1.TonAPI();
-        const collection = yield tonApi.getNftCollectionByAddress(argv.address);
+        const tonClient = new ton_api_1.TonClient();
+        const collection = yield tonClient.getNftCollectionByAddress(argv.address);
         console.log(collection);
     }
 }))
@@ -144,8 +144,8 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
     });
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
     if (typeof argv.address === 'string') {
-        const tonApi = new ton_api_1.TonAPI();
-        const items = yield tonApi.getNftItemsFromCollectionByAddress(argv.address, argv.limit, argv.offset);
+        const tonClient = new ton_api_1.TonClient();
+        const items = yield tonClient.getNftItemsFromCollectionByAddress(argv.address, argv.limit, argv.offset);
         console.log(items);
     }
 }))
@@ -157,8 +157,8 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
     });
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
     if (typeof argv.address === 'string') {
-        const tonApi = new ton_api_1.TonAPI();
-        const item = yield tonApi.getNftItemByAddress(argv.address);
+        const tonClient = new ton_api_1.TonClient();
+        const item = yield tonClient.getNftItemByAddress(argv.address);
         console.log(item);
     }
 }))
