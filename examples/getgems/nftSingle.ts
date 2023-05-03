@@ -4,7 +4,7 @@ import {NftSingle} from '../../src/wrappers/getgems/NftSingle'
 import {randomAddress} from "../../src/utils/randomAddress";
 import {importKeyPair} from "../../src/utils/importKeyPair"
 import {createSender} from "../../src/utils/createSender"
-import {ENDPOINT} from "../../src"
+import {ENDPOINT, Pinata} from "../../src"
 import { TonClient4 } from 'ton';
 
 async function main() {
@@ -14,12 +14,16 @@ async function main() {
     let wallet = await createSender(keypair, client)
     let address = wallet.address ?? randomAddress();
 
+    // Deploying Assets
+    let pinata = new Pinata('<apiKey>', '<secretApiKey>');
+    let data: [string[], string[]] = await pinata.uploadBulk("./assets")
+
     // Creates NFT Single
     const nftSingle = client.open(
         await NftSingle.createFromConfig({
             ownerAddress: address,
             editorAddress: address,
-            content: "",
+            content: data[1][0],
             royaltyParams: {
                 // ~10% Royalty
                 royaltyFactor: 100,

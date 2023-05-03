@@ -17,7 +17,7 @@ export class Pinata {
     // Function to upload images in bulk to IPFS using Pinata SDK in ascending order of file names and return their URLs
     async uploadBulk(
         assetsFolderPath: string
-        ): Promise<string[]> {
+        ): Promise<[string[], string[]]> {
             try {
                 // Read the directory
                 const files = fs.readdirSync(assetsFolderPath);
@@ -28,7 +28,9 @@ export class Pinata {
                   .sort((a, b) => parseInt(a) - parseInt(b));
             
                 // Process image uploads in ascending order and collect their URLs
-                const imageUrls = [];
+                const imageUrls: string[] = [];
+
+                const jsonUrls: string[] = [];
             
                 for (const imageFile of imageFiles) {
                   // Read image file
@@ -74,6 +76,7 @@ export class Pinata {
                     });
                 
                     const jsonUrl = `https://gateway.pinata.cloud/ipfs/${jsonResult.IpfsHash}`;
+                    jsonUrls.push(jsonUrl);
                     console.log(`JSON file uploaded to IPFS: ${jsonUrl}`);
                   } else {
                     error("Metadata not found for", path.parse(imageFile).name)
@@ -81,7 +84,7 @@ export class Pinata {
                 }
             
                 console.log('All images uploaded successfully!');
-                return imageUrls;
+                return [imageUrls, jsonUrls];
             } catch (error) {
                 console.error('Error uploading images to IPFS:', error);
                 throw error;

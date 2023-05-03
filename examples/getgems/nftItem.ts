@@ -1,11 +1,10 @@
 import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
 import {NftItem} from '../../src/wrappers/getgems/NftItem'
-import {randomAddress} from "../../src/utils/randomAddress";
-import {importKeyPair} from "../../src/utils/importKeyPair"
-import {createSender} from "../../src/utils/createSender"
-import {ENDPOINT} from "../../src"
+import {randomAddress, importKeyPair, createSender} from "../../src/utils/";
+import {encodeOffChainContent, ENDPOINT} from "../../src"
 import { TonClient4 } from 'ton';
+import { Pinata } from '../../src'
 
 async function main() {
     // Config
@@ -18,13 +17,17 @@ async function main() {
     let ownerAddress = address
     let collectionAddress = randomAddress()
 
+    // Deploying Assets
+    let pinata = new Pinata('<apiKey>', '<secretApiKey>');
+    let data: [string[], string[]] = await pinata.uploadBulk("./assets")
+
     // Creates NFT Item
     const nftItem = client.open(
         await NftItem.createFromConfig({
             index: 1,
             ownerAddress: ownerAddress,
             collectionAddress: collectionAddress,
-            content: ""
+            content: data[1][0]
         })
     )
 
