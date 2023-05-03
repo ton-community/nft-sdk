@@ -21,7 +21,7 @@
     "commander": "^10.0.1",
     "mocha": "^10.2.0",
     "nft.storage": "^7.0.3",
-    "ton": "^11.18.2",
+    "ton": "latest",
     "ton-compiler": "^2.3.0",
     "ton-contract-executor": "^0.5.2",
     "ton-core": "^0.49.0",

@@ -1,14 +1,14 @@
 import { Address, Cell, Slice } from "ton-core";
-import {TonAPI} from "../ton-api"
+import {TonClient} from "../ton-api"
 import { Info, parseTransactionData } from "./parseTransaction";
 
 export async function fetchAndParseTransactionData(
     account: Address,
     limit: number
 ) {
-    const tonApi = new TonAPI();
+    const tonClient = new TonClient();
 
-    const transactions: any = await tonApi.getTransactionsByAddress(
+    const transactions: any = await tonClient.getTransactionsByAddress(
         account,
         limit
     );

@@ -33,3 +33,9 @@ export {
 
 // TON API
 export * from "./ton-api";
+
+// Endpoints
+export enum ENDPOINT {
+    MAINNET = "https://toncenter.com/api/v2/jsonRPC",
+    TESTNET = "https://testnet.toncenter.com/api/v2/jsonRPC"
+}
