@@ -6,6 +6,18 @@ import { StateInit } from 'ton';
 export class NftItem implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
+    static buildNftItemDataCell(data: NftItemData) {
+        let dataCell = beginCell()
+    
+        let contentCell = encodeOffChainContent(data.content)
+    
+        dataCell.storeAddress(data.ownerAddress)
+        dataCell.storeAddress(data.editorAddress)
+        dataCell.storeRef(contentCell)
+    
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -66,16 +78,4 @@ export type NftItemData = {
     ownerAddress: Address
     editorAddress: Address
     content: string
-}
-
-export function buildNftItemDataCell(data: NftItemData) {
-    let dataCell = beginCell()
-
-    let contentCell = encodeOffChainContent(data.content)
-
-    dataCell.storeAddress(data.ownerAddress)
-    dataCell.storeAddress(data.editorAddress)
-    dataCell.storeRef(contentCell)
-
-    return dataCell.endCell()
 }

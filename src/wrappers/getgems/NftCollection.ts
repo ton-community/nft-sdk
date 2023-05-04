@@ -31,6 +31,35 @@ export class NftCollection implements NftCollectionStandard {
 
     static NftCollectionCodeCell = Cell.fromBoc(Buffer.from(this.NftCollectionCodeBoc, 'base64'))[0]
 
+    static buildNftCollectionDataCell(data: NftCollectionData) {
+        let dataCell = beginCell()
+
+        dataCell.storeAddress(data.ownerAddress)
+        dataCell.storeUint(data.nextItemIndex, 64)
+
+        let contentCell = beginCell()
+
+        let collectionContent = encodeOffChainContent(data.collectionContent)
+
+        let commonContent = beginCell()
+        commonContent.storeBuffer(Buffer.from(data.commonContent))
+        // commonContent.bits.writeString(data.commonContent)
+
+        contentCell.storeRef(collectionContent)
+        contentCell.storeRef(commonContent)
+        dataCell.storeRef(contentCell)
+
+        dataCell.storeRef(data.nftItemCode)
+
+        let royaltyCell = beginCell()
+        royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
+        royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
+        royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
+        dataCell.storeRef(royaltyCell)
+
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -43,7 +72,7 @@ export class NftCollection implements NftCollectionStandard {
         config: NftCollectionData
     ) {
 
-        let data = buildNftCollectionDataCell(config);
+        let data = this.buildNftCollectionDataCell(config);
         let address = contractAddress(
             0,
             {
@@ -185,32 +214,3 @@ export type NftCollectionData = {
 //           nft_item_code:^Cell
 //           royalty_params:^RoyaltyParams
 //           = Storage;
-
-export function buildNftCollectionDataCell(data: NftCollectionData) {
-    let dataCell = beginCell()
-
-    dataCell.storeAddress(data.ownerAddress)
-    dataCell.storeUint(data.nextItemIndex, 64)
-
-    let contentCell = beginCell()
-
-    let collectionContent = encodeOffChainContent(data.collectionContent)
-
-    let commonContent = beginCell()
-    commonContent.storeBuffer(Buffer.from(data.commonContent))
-    // commonContent.bits.writeString(data.commonContent)
-
-    contentCell.storeRef(collectionContent)
-    contentCell.storeRef(commonContent)
-    dataCell.storeRef(contentCell)
-
-    dataCell.storeRef(data.nftItemCode)
-
-    let royaltyCell = beginCell()
-    royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
-    royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
-    royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
-    dataCell.storeRef(royaltyCell)
-
-    return dataCell.endCell()
-}

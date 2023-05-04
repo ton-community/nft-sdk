@@ -10,6 +10,31 @@ export class NftOffer implements Contract {
 
     static NftOfferCodeCell = Cell.fromBoc(Buffer.from(this.NftOfferCodeBoc, 'base64'))[0]
 
+    static buildNftOfferDataCell(data: NftOfferData) {
+        const feesCell = beginCell()
+    
+        feesCell.storeAddress(data.marketplaceFeeAddress)
+        feesCell.storeUint(data.marketplaceFactor, 32)
+        feesCell.storeUint(data.marketplaceBase, 32)
+        feesCell.storeAddress(data.royaltyAddress)
+        feesCell.storeUint(data.royaltyFactor, 32)
+        feesCell.storeUint(data.royaltyBase, 32)
+    
+        const dataCell = beginCell()
+    
+        dataCell.storeUint(data.isComplete ? 1 : 0, 1)
+        dataCell.storeUint(data.createdAt, 32)
+        dataCell.storeUint(data.finishAt, 32)
+        dataCell.storeAddress(data.marketplaceAddress)
+        dataCell.storeAddress(data.nftAddress)
+        dataCell.storeAddress(data.offerOwnerAddress)
+        dataCell.storeCoins(data.fullPrice) // fullPrice
+        dataCell.storeRef(feesCell)
+        dataCell.storeUint(1, 1) // can_deploy
+    
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -22,7 +47,7 @@ export class NftOffer implements Contract {
         config: NftOfferData
     ) {
 
-        let data = buildNftOfferDataCell(config);
+        let data = this.buildNftOfferDataCell(config);
         let address = contractAddress(
             0,
             {
@@ -139,29 +164,4 @@ export type NftOfferData = {
     marketplaceBase: number
     royaltyFactor: number
     royaltyBase: number
-}
-  
-export function buildNftOfferDataCell(data: NftOfferData) {
-    const feesCell = beginCell()
-  
-    feesCell.storeAddress(data.marketplaceFeeAddress)
-    feesCell.storeUint(data.marketplaceFactor, 32)
-    feesCell.storeUint(data.marketplaceBase, 32)
-    feesCell.storeAddress(data.royaltyAddress)
-    feesCell.storeUint(data.royaltyFactor, 32)
-    feesCell.storeUint(data.royaltyBase, 32)
-  
-    const dataCell = beginCell()
-  
-    dataCell.storeUint(data.isComplete ? 1 : 0, 1)
-    dataCell.storeUint(data.createdAt, 32)
-    dataCell.storeUint(data.finishAt, 32)
-    dataCell.storeAddress(data.marketplaceAddress)
-    dataCell.storeAddress(data.nftAddress)
-    dataCell.storeAddress(data.offerOwnerAddress)
-    dataCell.storeCoins(data.fullPrice) // fullPrice
-    dataCell.storeRef(feesCell)
-    dataCell.storeUint(1, 1) // can_deploy
-  
-    return dataCell.endCell()
 }

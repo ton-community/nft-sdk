@@ -9,6 +9,28 @@ export class NftFixedPriceV2 implements Contract {
 
     static NftFixPriceSaleV2CodeCell = Cell.fromBoc(Buffer.from(this.NftFixPriceSaleV2CodeBoc, 'base64'))[0]
 
+    static buildNftFixPriceSaleV2DataCell(data: NftFixPriceSaleV2Data) {
+
+        let feesCell = beginCell()
+    
+        feesCell.storeAddress(data.marketplaceFeeAddress)
+        feesCell.storeCoins(data.marketplaceFee)
+        feesCell.storeAddress(data.royaltyAddress)
+        feesCell.storeCoins(data.royaltyAmount)
+    
+        let dataCell = beginCell()
+    
+        dataCell.storeUint(data.isComplete ? 1 : 0, 1)
+        dataCell.storeUint(data.createdAt, 32)
+        dataCell.storeAddress(data.marketplaceAddress)
+        dataCell.storeAddress(data.nftAddress)
+        dataCell.storeAddress(data.nftOwnerAddress)
+        dataCell.storeCoins(data.fullPrice)
+        dataCell.storeRef(feesCell)
+    
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -21,7 +43,7 @@ export class NftFixedPriceV2 implements Contract {
         config: NftFixPriceSaleV2Data
     ) {
 
-        let data = buildNftFixPriceSaleV2DataCell(config);
+        let data = this.buildNftFixPriceSaleV2DataCell(config);
         let address = contractAddress(
             0,
             {
@@ -124,26 +146,4 @@ export type NftFixPriceSaleV2Data = {
     marketplaceFee: bigint
     royaltyAddress: Address
     royaltyAmount: bigint
-}
-
-export function buildNftFixPriceSaleV2DataCell(data: NftFixPriceSaleV2Data) {
-
-    let feesCell = beginCell()
-
-    feesCell.storeAddress(data.marketplaceFeeAddress)
-    feesCell.storeCoins(data.marketplaceFee)
-    feesCell.storeAddress(data.royaltyAddress)
-    feesCell.storeCoins(data.royaltyAmount)
-
-    let dataCell = beginCell()
-
-    dataCell.storeUint(data.isComplete ? 1 : 0, 1)
-    dataCell.storeUint(data.createdAt, 32)
-    dataCell.storeAddress(data.marketplaceAddress)
-    dataCell.storeAddress(data.nftAddress)
-    dataCell.storeAddress(data.nftOwnerAddress)
-    dataCell.storeCoins(data.fullPrice)
-    dataCell.storeRef(feesCell)
-
-    return dataCell.endCell()
 }

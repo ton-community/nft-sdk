@@ -10,6 +10,20 @@ export class SbtSingle implements Contract {
 
     static SbtSingleCodeCell = Cell.fromBoc(Buffer.from(this.SbtSingleCodeBoC, 'base64'))[0];
 
+    static buildSingleSbtDataCell(data: SbtSingleData) {
+        let dataCell = beginCell()
+    
+        let contentCell = encodeOffChainContent(data.content)
+    
+        dataCell.storeAddress(data.ownerAddress)
+        dataCell.storeAddress(data.editorAddress)
+        dataCell.storeRef(contentCell)
+        dataCell.storeAddress(data.authorityAddress)
+        dataCell.storeUint(data.revokedAt ? data.revokedAt : 0, 64)
+    
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -23,7 +37,7 @@ export class SbtSingle implements Contract {
         config: SbtSingleData
     ) {
 
-        let data = buildSingleSbtDataCell(config);
+        let data = this.buildSingleSbtDataCell(config);
         let address = contractAddress(
             0,
             {
@@ -139,18 +153,4 @@ export type SbtSingleData = {
     content: string
     authorityAddress: Address
     revokedAt?: number
-}
-
-export function buildSingleSbtDataCell(data: SbtSingleData) {
-    let dataCell = beginCell()
-
-    let contentCell = encodeOffChainContent(data.content)
-
-    dataCell.storeAddress(data.ownerAddress)
-    dataCell.storeAddress(data.editorAddress)
-    dataCell.storeRef(contentCell)
-    dataCell.storeAddress(data.authorityAddress)
-    dataCell.storeUint(data.revokedAt ? data.revokedAt : 0, 64)
-
-    return dataCell.endCell()
 }

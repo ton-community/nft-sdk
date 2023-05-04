@@ -18,12 +18,21 @@ export class NftMarketplace implements Contract {
 
     static NftMarketplaceCodeCell = Cell.fromBoc(Buffer.from(this.NftMarketplaceCodeBoc, 'base64'))[0]
 
+    static buildNftMarketplaceDataCell(data: NftMarketplaceData) {
+        let dataCell = beginCell()
+
+        dataCell.storeUint(data.seqno, 32)
+        dataCell.storeUint(data.subwallet, 32)
+        dataCell.storeBuffer(data.publicKey)
+
+        return dataCell.endCell()
+    }
 
     static async createFromConfig(
         config: NftMarketplaceData
     ) {
 
-        let data = buildNftMarketplaceDataCell(config);
+        let data = this.buildNftMarketplaceDataCell(config);
         let address = contractAddress(
             0,
             {
@@ -71,16 +80,6 @@ export type NftMarketplaceData = {
     seqno: number
     subwallet: number
     publicKey: Buffer
-}
-
-export function buildNftMarketplaceDataCell(data: NftMarketplaceData) {
-    let dataCell = beginCell()
-
-    dataCell.storeUint(data.seqno, 32)
-    dataCell.storeUint(data.subwallet, 32)
-    dataCell.storeBuffer(data.publicKey)
-
-    return dataCell.endCell()
 }
 
 export function buildSignature(params: { 

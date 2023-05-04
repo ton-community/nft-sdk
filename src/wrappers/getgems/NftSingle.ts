@@ -10,6 +10,24 @@ export class NftSingle implements Contract {
 
     static NftSingleCodeCell = Cell.fromBoc(Buffer.from(this.NftSingleCodeBoc, 'base64'))[0]
 
+    static buildeNftSingleDataCell(data: NftSingleData) {
+        let dataCell = beginCell()
+
+        let contentCell = encodeOffChainContent(data.content)
+
+        let royaltyCell = beginCell()
+        royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
+        royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
+        royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
+
+        dataCell.storeAddress(data.ownerAddress)
+        dataCell.storeAddress(data.editorAddress)
+        dataCell.storeRef(contentCell)
+        dataCell.storeRef(royaltyCell)
+
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -18,12 +36,11 @@ export class NftSingle implements Contract {
         );
     }
 
-
     static async createFromConfig(
         config: NftSingleData
     ) {
 
-        let data = buildeNftSingleDataCell(config);
+        let data = this.buildeNftSingleDataCell(config);
         let address = contractAddress(
             0,
             {
@@ -159,22 +176,4 @@ export type NftSingleData = {
     editorAddress: Address
     content: string
     royaltyParams: RoyaltyParams
-}
-
-export function buildeNftSingleDataCell(data: NftSingleData) {
-    let dataCell = beginCell()
-
-    let contentCell = encodeOffChainContent(data.content)
-
-    let royaltyCell = beginCell()
-    royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
-    royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
-    royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
-
-    dataCell.storeAddress(data.ownerAddress)
-    dataCell.storeAddress(data.editorAddress)
-    dataCell.storeRef(contentCell)
-    dataCell.storeRef(royaltyCell)
-
-    return dataCell.endCell()
 }

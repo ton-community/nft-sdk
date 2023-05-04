@@ -7,6 +7,48 @@ export class NftAuctionV2 implements Contract {
 
     static NftAuctionV2CodeCell = Cell.fromBoc(Buffer.from(this.NftAuctionV2CodeBoc, 'base64'))[0]
 
+
+    static buildNftAuctionV2DataCell(data: NftAuctionV2Data) {
+
+        const constantCell = beginCell()
+        const subGasPriceFromBid = 8449000
+        constantCell.storeUint(subGasPriceFromBid, 32);
+        constantCell.storeAddress(data.marketplaceAddress);
+        constantCell.storeCoins(data.minBid)
+        constantCell.storeCoins(data.maxBid)
+        constantCell.storeCoins(data.minStep)
+        constantCell.storeUint(data.stepTimeSeconds, 32) // step_time
+        constantCell.storeAddress(data.nftAddress);
+        constantCell.storeUint(data.createdAtTimestamp, 32)
+
+        const feesCell = beginCell()
+        feesCell.storeAddress(data.marketplaceFeeAddress)      // mp_fee_addr
+        feesCell.storeUint(data.marketplaceFeeFactor, 32)               // mp_fee_factor
+        feesCell.storeUint(data.marketplaceFeeBase, 32)   // mp_fee_base
+        feesCell.storeAddress(data.royaltyAddress)  // royalty_fee_addr
+        feesCell.storeUint(data.royaltyFactor, 32)              // royalty_fee_factor
+        feesCell.storeUint(data.royaltyBase, 32)   // royalty_fee_base
+
+
+        const storage = beginCell()
+        storage.storeBit(data.end) // end?
+        storage.storeBit(data.activated) // activated
+        storage.storeBit(false) // is_canceled
+        storage.storeBuffer(Buffer.from([0, 0]))        // last_member
+        storage.storeCoins(0)       // last_bid
+        storage.storeUint(0, 32) // last_bid_at
+        storage.storeUint(data.endTimestamp, 32)    // end_time
+        if (data.nftOwnerAddress) {
+            storage.storeAddress(data.nftOwnerAddress)
+        } else {
+            storage.storeBuffer(Buffer.from([0, 0]))
+        }
+        storage.storeRef(feesCell.endCell())
+        storage.storeRef(constantCell.endCell())
+
+        return storage.endCell()
+    }
+
     static createFromAddress(
         address: Address,
     ) {
@@ -19,7 +61,7 @@ export class NftAuctionV2 implements Contract {
     static createFromConfig(
         config: NftAuctionV2Data
     ) {
-        let data = buildNftAuctionV2DataCell(config);
+        let data = this.buildNftAuctionV2DataCell(config);
         let address = contractAddress(
             0,
             {
@@ -132,45 +174,4 @@ export type NftAuctionV2Data = {
     marketplaceAddress: Address,
     activated: boolean,
 
-}
-
-export function buildNftAuctionV2DataCell(data: NftAuctionV2Data) {
-
-    const constantCell = beginCell()
-    const subGasPriceFromBid = 8449000
-    constantCell.storeUint(subGasPriceFromBid, 32);
-    constantCell.storeAddress(data.marketplaceAddress);
-    constantCell.storeCoins(data.minBid)
-    constantCell.storeCoins(data.maxBid)
-    constantCell.storeCoins(data.minStep)
-    constantCell.storeUint(data.stepTimeSeconds, 32) // step_time
-    constantCell.storeAddress(data.nftAddress);
-    constantCell.storeUint(data.createdAtTimestamp, 32)
-
-    const feesCell = beginCell()
-    feesCell.storeAddress(data.marketplaceFeeAddress)      // mp_fee_addr
-    feesCell.storeUint(data.marketplaceFeeFactor, 32)               // mp_fee_factor
-    feesCell.storeUint(data.marketplaceFeeBase, 32)   // mp_fee_base
-    feesCell.storeAddress(data.royaltyAddress)  // royalty_fee_addr
-    feesCell.storeUint(data.royaltyFactor, 32)              // royalty_fee_factor
-    feesCell.storeUint(data.royaltyBase, 32)   // royalty_fee_base
-
-
-    const storage = beginCell()
-    storage.storeBit(data.end) // end?
-    storage.storeBit(data.activated) // activated
-    storage.storeBit(false) // is_canceled
-    storage.storeBuffer(Buffer.from([0, 0]))        // last_member
-    storage.storeCoins(0)       // last_bid
-    storage.storeUint(0, 32) // last_bid_at
-    storage.storeUint(data.endTimestamp, 32)    // end_time
-    if (data.nftOwnerAddress) {
-        storage.storeAddress(data.nftOwnerAddress)
-    } else {
-        storage.storeBuffer(Buffer.from([0, 0]))
-    }
-    storage.storeRef(feesCell.endCell())
-    storage.storeRef(constantCell.endCell())
-
-    return storage.endCell()
 }

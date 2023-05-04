@@ -9,6 +9,26 @@ export class NftFixedPrice implements Contract {
 
     static NftFixPriceSaleCodeCell = Cell.fromBoc(Buffer.from(this.NftFixPriceSaleCodeBoc, 'base64'))[0]
 
+    static buildNftFixPriceSaleDataCell(data: NftFixPriceSaleData) {
+
+        let feesCell = beginCell()
+    
+        feesCell.storeCoins(data.marketplaceFee)
+        feesCell.storeAddress(data.marketplaceFeeAddress)
+        feesCell.storeAddress(data.royaltyAddress)
+        feesCell.storeCoins(data.royaltyAmount)
+    
+        let dataCell = beginCell()
+    
+        dataCell.storeAddress(data.marketplaceAddress)
+        dataCell.storeAddress(data.nftAddress)
+        dataCell.storeAddress(data.nftOwnerAddress)
+        dataCell.storeCoins(data.fullPrice)
+        dataCell.storeRef(feesCell)
+    
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -21,7 +41,7 @@ export class NftFixedPrice implements Contract {
         config: NftFixPriceSaleData
     ) {
 
-        let data = buildNftFixPriceSaleDataCell(config);
+        let data = this.buildNftFixPriceSaleDataCell(config);
         let address = contractAddress(
             0,
             {
@@ -74,24 +94,4 @@ export type NftFixPriceSaleData = {
     marketplaceFeeAddress: Address
     royaltyAmount: bigint
     royaltyAddress: Address
-}
-
-export function buildNftFixPriceSaleDataCell(data: NftFixPriceSaleData) {
-
-    let feesCell = beginCell()
-
-    feesCell.storeCoins(data.marketplaceFee)
-    feesCell.storeAddress(data.marketplaceFeeAddress)
-    feesCell.storeAddress(data.royaltyAddress)
-    feesCell.storeCoins(data.royaltyAmount)
-
-    let dataCell = beginCell()
-
-    dataCell.storeAddress(data.marketplaceAddress)
-    dataCell.storeAddress(data.nftAddress)
-    dataCell.storeAddress(data.nftOwnerAddress)
-    dataCell.storeCoins(data.fullPrice)
-    dataCell.storeRef(feesCell)
-
-    return dataCell.endCell()
 }

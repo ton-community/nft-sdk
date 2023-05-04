@@ -10,6 +10,28 @@ export class NftFixedPriceV3 implements Contract {
 
     static NftFixPriceSaleV3CodeCell = Cell.fromBoc(Buffer.from(this.NftFixPriceSaleV3CodeBoc, 'base64'))[0]
 
+    static buildNftFixPriceSaleV3DataCell(data: NftFixPriceSaleV3Data) {
+        const feesCell = beginCell()
+    
+        feesCell.storeAddress(data.marketplaceFeeAddress)
+        feesCell.storeCoins(data.marketplaceFee)
+        feesCell.storeAddress(data.royaltyAddress)
+        feesCell.storeCoins(data.royaltyAmount)
+    
+        const dataCell = beginCell()
+    
+        dataCell.storeUint(data.isComplete ? 1 : 0, 1)
+        dataCell.storeUint(data.createdAt, 32)
+        dataCell.storeAddress(data.marketplaceAddress)
+        dataCell.storeAddress(data.nftAddress)
+        dataCell.storeAddress(data.nftOwnerAddress)
+        dataCell.storeCoins(data.fullPrice)
+        dataCell.storeRef(feesCell)
+        dataCell.storeUint(data.canDeployByExternal ? 1 : 0, 1) // can_deploy_by_external
+    
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -23,7 +45,7 @@ export class NftFixedPriceV3 implements Contract {
         config: NftFixPriceSaleV3Data
     ) {
 
-        let data = buildNftFixPriceSaleV3DataCell(config);
+        let data = this.buildNftFixPriceSaleV3DataCell(config);
         let address = contractAddress(
             0,
             {
@@ -127,24 +149,3 @@ export type NftFixPriceSaleV3Data = {
     canDeployByExternal?: boolean
   }
   
-  export function buildNftFixPriceSaleV3DataCell(data: NftFixPriceSaleV3Data) {
-    const feesCell = beginCell()
-  
-    feesCell.storeAddress(data.marketplaceFeeAddress)
-    feesCell.storeCoins(data.marketplaceFee)
-    feesCell.storeAddress(data.royaltyAddress)
-    feesCell.storeCoins(data.royaltyAmount)
-  
-    const dataCell = beginCell()
-  
-    dataCell.storeUint(data.isComplete ? 1 : 0, 1)
-    dataCell.storeUint(data.createdAt, 32)
-    dataCell.storeAddress(data.marketplaceAddress)
-    dataCell.storeAddress(data.nftAddress)
-    dataCell.storeAddress(data.nftOwnerAddress)
-    dataCell.storeCoins(data.fullPrice)
-    dataCell.storeRef(feesCell)
-    dataCell.storeUint(data.canDeployByExternal ? 1 : 0, 1) // can_deploy_by_external
-  
-    return dataCell.endCell()
-  }

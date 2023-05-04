@@ -7,6 +7,50 @@ export class NftAuction implements Contract {
     
     static NftAuctionCodeCell = Cell.fromBoc(Buffer.from(this.NftAuctionCodeBoc, 'base64'))[0]
 
+    static buildNftAuctionDataCell(data: NftAuctionData) {
+
+        const feesCell = beginCell()
+        feesCell.storeAddress(data.marketplaceFeeAddress)      // mp_fee_addr
+        feesCell.storeUint(data.marketplaceFeeFactor, 32)               // mp_fee_factor
+        feesCell.storeUint(data.marketplaceFeeBase, 32)   // mp_fee_base
+        feesCell.storeAddress(data.royaltyAddress)  // royalty_fee_addr
+        feesCell.storeUint(data.royaltyFactor, 32)              // royalty_fee_factor
+        feesCell.storeUint(data.royaltyBase, 32)   // royalty_fee_base
+
+
+        const bidsCell = beginCell()
+        bidsCell.storeCoins(data.minBid)       // min_bid
+        bidsCell.storeCoins(data.maxBid)       // max_bid
+        bidsCell.storeCoins(data.minStep)       // min_step
+        bidsCell.storeBuffer(Buffer.from([0,0]))        // last_member
+        bidsCell.storeCoins(0)       // last_bid
+        bidsCell.storeUint(0, 32) // last_bid_at
+        bidsCell.storeUint(data.endTimestamp, 32)    // end_time
+        bidsCell.storeUint(data.stepTimeSeconds, 32)               // step_time
+        bidsCell.storeUint(data.tryStepTimeSeconds, 32)               // try_step_time
+
+
+        let nftCell = beginCell();
+        if (data.nftOwnerAddress) {
+            nftCell.storeAddress(data.nftOwnerAddress)
+        } else {
+            nftCell.storeBuffer(Buffer.from([0, 0]))
+        }
+        nftCell.storeAddress(data.nftAddress)          // nft_addr
+
+
+        const storage = beginCell()
+        storage.storeBit(data.end)     // end?
+        storage.storeAddress(data.marketplaceAddress)   // mp_addr
+        storage.storeBit(data.activated)    // activated
+        storage.storeUint(data.createdAtTimestamp, 32)
+        storage.storeBit(false) // is_canceled
+        storage.storeRef(feesCell.endCell())
+        storage.storeRef(bidsCell.endCell())
+        storage.storeRef(nftCell.endCell())
+
+        return storage.endCell()
+    }
 
     static createFromAddress(
         address: Address
@@ -20,7 +64,7 @@ export class NftAuction implements Contract {
         config: NftAuctionData
     ) {
 
-        let data = buildNftAuctionDataCell(config);
+        let data = this.buildNftAuctionDataCell(config);
         let address = contractAddress(
             0,
             {
@@ -170,49 +214,4 @@ export type NftAuctionData = {
     end: boolean,
     marketplaceAddress: Address,
     activated: boolean,
-}
-
-export function buildNftAuctionDataCell(data: NftAuctionData) {
-
-    const feesCell = beginCell()
-    feesCell.storeAddress(data.marketplaceFeeAddress)      // mp_fee_addr
-    feesCell.storeUint(data.marketplaceFeeFactor, 32)               // mp_fee_factor
-    feesCell.storeUint(data.marketplaceFeeBase, 32)   // mp_fee_base
-    feesCell.storeAddress(data.royaltyAddress)  // royalty_fee_addr
-    feesCell.storeUint(data.royaltyFactor, 32)              // royalty_fee_factor
-    feesCell.storeUint(data.royaltyBase, 32)   // royalty_fee_base
-
-
-    const bidsCell = beginCell()
-    bidsCell.storeCoins(data.minBid)       // min_bid
-    bidsCell.storeCoins(data.maxBid)       // max_bid
-    bidsCell.storeCoins(data.minStep)       // min_step
-    bidsCell.storeBuffer(Buffer.from([0,0]))        // last_member
-    bidsCell.storeCoins(0)       // last_bid
-    bidsCell.storeUint(0, 32) // last_bid_at
-    bidsCell.storeUint(data.endTimestamp, 32)    // end_time
-    bidsCell.storeUint(data.stepTimeSeconds, 32)               // step_time
-    bidsCell.storeUint(data.tryStepTimeSeconds, 32)               // try_step_time
-
-
-    let nftCell = beginCell();
-    if (data.nftOwnerAddress) {
-        nftCell.storeAddress(data.nftOwnerAddress)
-    } else {
-        nftCell.storeBuffer(Buffer.from([0, 0]))
-    }
-    nftCell.storeAddress(data.nftAddress)          // nft_addr
-
-
-    const storage = beginCell()
-    storage.storeBit(data.end)     // end?
-    storage.storeAddress(data.marketplaceAddress)   // mp_addr
-    storage.storeBit(data.activated)    // activated
-    storage.storeUint(data.createdAtTimestamp, 32)
-    storage.storeBit(false) // is_canceled
-    storage.storeRef(feesCell.endCell())
-    storage.storeRef(bidsCell.endCell())
-    storage.storeRef(nftCell.endCell())
-
-    return storage.endCell()
 }

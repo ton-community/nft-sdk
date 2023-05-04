@@ -8,6 +8,21 @@ export class NftItem implements NftItemStandard {
 
     static NftItemCodeCell = Cell.fromBoc(Buffer.from(this.NftItemCodeBoc, 'base64'))[0]
 
+    static buildNftItemDataCell(data: NftItemData) {
+        let dataCell = beginCell()
+    
+        let contentCell = beginCell()
+        // contentCell.bits.writeString(data.content)
+        contentCell.storeBuffer(Buffer.from(data.content))
+    
+        dataCell.storeUint(data.index, 64)
+        dataCell.storeAddress(data.collectionAddress)
+        dataCell.storeAddress(data.ownerAddress)
+        dataCell.storeRef(contentCell)
+    
+        return dataCell.endCell()
+    }
+
     static createFromAddress(
         address: Address
     ) {
@@ -21,7 +36,7 @@ export class NftItem implements NftItemStandard {
         config: NftItemData
     ) {
 
-        let data = buildNftItemDataCell(config);
+        let data = this.buildNftItemDataCell(config);
         let address = contractAddress(
             0,
             {
@@ -149,19 +164,4 @@ export type NftItemData = {
     collectionAddress: Address | null
     ownerAddress: Address
     content: string
-}
-
-export function buildNftItemDataCell(data: NftItemData) {
-    let dataCell = beginCell()
-
-    let contentCell = beginCell()
-    // contentCell.bits.writeString(data.content)
-    contentCell.storeBuffer(Buffer.from(data.content))
-
-    dataCell.storeUint(data.index, 64)
-    dataCell.storeAddress(data.collectionAddress)
-    dataCell.storeAddress(data.ownerAddress)
-    dataCell.storeRef(contentCell)
-
-    return dataCell.endCell()
 }
