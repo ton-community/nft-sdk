@@ -12,11 +12,10 @@ const OperationCodes = {
 }
 
 export class NftSwap implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address,
-        workchain: number,
         init: { 
             code: Cell; 
             data: Cell 
@@ -24,9 +23,8 @@ export class NftSwap implements Contract {
     ) {
         return new NftSwap(
             address,
-            workchain,
             init
-            );
+        );
     }
 
     // Deployment

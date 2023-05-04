@@ -24,7 +24,7 @@ export const OperationCodes = {
 }
 
 export class NftCollection implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address
@@ -49,7 +49,6 @@ export class NftCollection implements Contract {
 
         return new NftCollection(
             address,
-            0,
             {
                 code: NftCollectionCodeCell,
                 data: data

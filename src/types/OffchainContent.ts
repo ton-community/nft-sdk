@@ -11,18 +11,19 @@ export type Offchain = {
 };
 
 export function flattenSnakeCell(cell: Cell) {
-    let c: Cell|null = cell
+	let c: Cell | null = cell;
 
-    let res = Buffer.alloc(0)
+	let res = Buffer.alloc(0);
 
-    while (c) {
-        let cs = c.beginParse()
-        let data = cs.readRemainingBytes()
-        res = Buffer.concat([res, data])
-        c = c.refs[0]
-    }
+	while (c) {
+		const cs = c.beginParse();
 
-    return res
+		const data = cs.loadBuffer(cs.remainingBits / 8);
+		res = Buffer.concat([res, data]);
+		c = c.refs[0];
+	}
+
+	return res;
 }
 
 function bufferToChunks(buff: Buffer, chunkSize: number) {
@@ -35,23 +36,23 @@ function bufferToChunks(buff: Buffer, chunkSize: number) {
 }
 
 export function makeSnakeCell(data: Buffer) {
-    let chunks = bufferToChunks(data, 127)
-    let rootCell = beginCell()
-    let curCell = rootCell
+	const chunks = bufferToChunks(data, 127);
+	const rootCell = beginCell();
+	let curCell = rootCell;
 
-    for (let i = 0; i < chunks.length; i++) {
-        let chunk = chunks[i]
+	for (let i = 0; i < chunks.length; i++) {
+		const chunk = chunks[i];
 
-        curCell.storeBuffer(chunk)
+		curCell.storeBuffer(chunk);
 
-        if (chunks[i+1]) {
-            let nextCell = beginCell()
-            curCell.storeRef(nextCell)
-            curCell = nextCell
-        }
-    }
+		if (chunks[i + 1]) {
+			const nextCell = beginCell();
+			curCell.storeRef(nextCell);
+			curCell = nextCell;
+		}
+	}
 
-    return rootCell
+	return rootCell.endCell();
 }
 
 export function loadOffchainContent(content: Cell): Offchain {

@@ -7,6 +7,7 @@
   "author": "Gajesh Naik @Gajesh2007",
   "license": "MIT",
   "dependencies": {
+    "@aws-crypto/sha256-js": "^4.0.0",
     "@pinata/sdk": "^2.1.0",
     "@ton-community/blueprint": "^0.9.0",
     "@ton-community/sandbox": "^0.8.0",
@@ -22,7 +23,6 @@
     "mocha": "^10.2.0",
     "nft.storage": "^7.0.3",
     "ton": "latest",
-    "ton": "^12.1.5",
     "ton-compiler": "^2.3.0",
     "ton-contract-executor": "^0.5.2",
     "ton-core": "^0.49.0",

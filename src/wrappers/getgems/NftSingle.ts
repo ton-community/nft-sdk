@@ -3,7 +3,7 @@ import { encodeOffChainContent } from '../../types/OffchainContent';
 import { combineFunc } from '../../utils/combineFunc';
 
 export class NftSingle implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address
@@ -29,7 +29,6 @@ export class NftSingle implements Contract {
 
         return new NftSingle(
             address,
-            0,
             {
                 code: NftSingleCodeCell,
                 data: data

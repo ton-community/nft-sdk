@@ -3,7 +3,7 @@ import { encodeOffChainContent } from '../../types/OffchainContent';
 import { combineFunc } from '../../utils/combineFunc';
 
 export class SbtSingle implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address
@@ -29,7 +29,6 @@ export class SbtSingle implements Contract {
 
         return new SbtSingle(
             address,
-            0,
             {
                 code: SbtSingleCodeCell,
                 data: data

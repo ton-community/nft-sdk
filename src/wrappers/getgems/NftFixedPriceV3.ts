@@ -1,7 +1,7 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
 
 export class NftFixedPriceV3 implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address
@@ -27,7 +27,6 @@ export class NftFixedPriceV3 implements Contract {
 
         return new NftFixedPriceV3(
             address,
-            0,
             {
                 code: NftFixPriceSaleV3CodeCell,
                 data: data
