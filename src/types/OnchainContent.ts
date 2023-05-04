@@ -26,7 +26,7 @@ export type MetaDataKeys =
   | "image_data"
   | "decimals";
 
-const onChainMetadataSpec: {
+const onChainContentSpec: {
     [key in MetaDataKeys]: "utf8" | "ascii" | undefined;
   } = {
     name: "utf8",
@@ -37,16 +37,16 @@ const onChainMetadataSpec: {
     image_data: undefined,
   };
 
-export function buildOnchainContent(data: { [s: string]: string | undefined }): Cell {
+export function storeOnchainContent(data: { [s: string]: string | undefined }): Builder {
     const KEYLEN = 256;
     const dict = beginDict(KEYLEN);
   
     Object.entries(data).forEach(([k, v]: [string, string | undefined]) => {
-      if (!onChainMetadataSpec[k as MetaDataKeys])
+      if (!onChainContentSpec[k as MetaDataKeys])
         throw new Error(`Unsupported onchain key: ${k}`);
       if (v === undefined || v === "") return;
   
-      let bufferToStore = Buffer.from(v, onChainMetadataSpec[k as MetaDataKeys]);
+      let bufferToStore = Buffer.from(v, onChainContentSpec[k as MetaDataKeys]);
   
       const CELL_MAX_SIZE_BYTES = Math.floor((1023 - 8) / 8);
   
@@ -67,11 +67,11 @@ export function buildOnchainContent(data: { [s: string]: string | undefined }): 
       dict.storeRef(sha256(k), rootCell);
     });
   
-    return beginCell().storeInt(ONCHAIN_CONTENT_PREFIX, 8).storeDict(dict.endDict()).endCell();
+    return beginCell().storeInt(ONCHAIN_CONTENT_PREFIX, 8).storeDict(dict.endDict());
   }
 
 
-function parseOnchainMetadata(contentSlice: Slice): {
+export function loadOnChainContent(contentSlice: Slice): {
     metadata: { [s in MetaDataKeys]?: string };
     isDeployerFaultyOnChainData: boolean;
   } {
@@ -110,10 +110,10 @@ function parseOnchainMetadata(contentSlice: Slice): {
   
     const res: { [s in MetaDataKeys]?: string } = {};
   
-    Object.keys(onChainMetadataSpec).forEach((k) => {
+    Object.keys(onChainContentSpec).forEach((k) => {
       const val = dict
         .get(toKey(sha256(k).toString("hex")))
-        ?.toString(onChainMetadataSpec[k as MetaDataKeys]);
+        ?.toString(onChainContentSpec[k as MetaDataKeys]);
       if (val) res[k as MetaDataKeys] = val;
     });
   
