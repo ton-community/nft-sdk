@@ -1,6 +1,7 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { NftItem as NftItemStandard } from '../standard/NftItem';
 
-export class NftItem implements Contract {
+export class NftItem implements NftItemStandard {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(

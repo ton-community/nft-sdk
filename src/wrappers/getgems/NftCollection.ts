@@ -1,5 +1,6 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
 import { encodeOffChainContent } from '../../types/OffchainContent';
+import { NftCollection as NftCollectionStandard } from '../standard/NftCollection';
 
 export type CollectionMintItemInput = {
     passAmount: bigint
@@ -23,7 +24,7 @@ export const OperationCodes = {
     GetRoyaltyParamsResponse: 0xa8cb00ad
 }
 
-export class NftCollection implements Contract {
+export class NftCollection implements NftCollectionStandard {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
@@ -125,18 +126,14 @@ export class NftCollection implements Contract {
         })
     }
 
-    // const { stack } = await provider.get('get_nft_address_by_index', [
-    //     { type: 'int', value: index }
-    // ])
-
     async getCollectionData(
         provider: ContractProvider
     ) {
         const { stack } = await provider.get('get_collection_data', [])
         return {
-            next_item_index: stack.readBigNumber(),
+            nextItemIndex: stack.readBigNumber(),
             collectionContent: stack.readCellOpt(),
-            owner_address: stack.readAddressOpt(),
+            ownerAddress: stack.readAddressOpt(),
         }
     }
 
@@ -165,7 +162,6 @@ export class NftCollection implements Contract {
             fullContent: stack.readCellOpt(),
         }
     }
-
 }
 
 // Utils

@@ -25,16 +25,9 @@ export class NftCollection implements Contract {
     // ])
 
     async getCollectionData(
-        provider: ContractProvider, 
-        next_item_index: bigint, 
-        collection_content: Cell,
-        owner_address: Slice
+        provider: ContractProvider
     ) {
-        const { stack } = await provider.get('get_collection_data', [
-            { type: 'int', value: next_item_index },
-            { type: 'cell', cell: collection_content },
-            { type: 'slice', cell: owner_address.asCell() }
-        ])
+        const { stack } = await provider.get('get_collection_data', [])
         return {
             nextItemIndex: stack.readBigNumber(),
             collectionContent: stack.readCellOpt(),
