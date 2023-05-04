@@ -311,6 +311,8 @@ yargs(hideBin(process.argv))
       }
     }
   )
+
+  
   .demandCommand(1, 'You need at least one command before moving on')
   .help()
   .alias('h', 'help')

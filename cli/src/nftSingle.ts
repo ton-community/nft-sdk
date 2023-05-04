@@ -115,6 +115,4 @@ export async function transfer(
     console.log(
         `Transferred NFT from ${sender.address?.toString()} to ${destination}`
     )
-
-    return nftSingle;
 }

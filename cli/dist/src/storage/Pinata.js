@@ -34,6 +34,7 @@ class Pinata {
                     .sort((a, b) => parseInt(a) - parseInt(b));
                 // Process image uploads in ascending order and collect their URLs
                 const imageUrls = [];
+                const jsonUrls = [];
                 for (const imageFile of imageFiles) {
                     // Read image file
                     const imagePath = path_1.default.join(assetsFolderPath, imageFile);
@@ -64,6 +65,7 @@ class Pinata {
                             },
                         });
                         const jsonUrl = `https://gateway.pinata.cloud/ipfs/${jsonResult.IpfsHash}`;
+                        jsonUrls.push(jsonUrl);
                         console.log(`JSON file uploaded to IPFS: ${jsonUrl}`);
                     }
                     else {
@@ -71,7 +73,7 @@ class Pinata {
                     }
                 }
                 console.log('All images uploaded successfully!');
-                return imageUrls;
+                return [imageUrls, jsonUrls];
             }
             catch (error) {
                 console.error('Error uploading images to IPFS:', error);
