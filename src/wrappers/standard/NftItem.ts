@@ -5,19 +5,7 @@ import {compile} from "@ton-community/blueprint";
 import { StateInit } from 'ton';
 
 export class NftItem implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
-
-    static createFromConfig(
-        config: NftItemData, 
-        workchain = 0
-    ) {
-        const data = buildNftItemDataCell(config)
-        const init = { 
-            code: NftItemCodeCell, 
-            data: data 
-        };
-        return new NftItem(contractAddress(workchain, init), workchain, init)
-    }
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address
