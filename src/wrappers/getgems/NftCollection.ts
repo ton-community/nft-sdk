@@ -1,6 +1,6 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
-import { encodeOffChainContent } from '../../types/OffchainContent';
-import { NftCollection as NftCollectionStandard } from '../standard/NftCollection';
+import { Address, beginCell, Cell, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
+import { encodeOffChainContent } from '../../types/OffchainContent'
+import { NftCollection as NftCollectionStandard } from '../standard/NftCollection'
 
 export type CollectionMintItemInput = {
     passAmount: bigint
@@ -32,16 +32,16 @@ export class NftCollection implements NftCollectionStandard {
     static NftCollectionCodeCell = Cell.fromBoc(Buffer.from(this.NftCollectionCodeBoc, 'base64'))[0]
 
     static buildNftCollectionDataCell(data: NftCollectionData) {
-        let dataCell = beginCell()
+        const dataCell= beginCell()
 
         dataCell.storeAddress(data.ownerAddress)
         dataCell.storeUint(data.nextItemIndex, 64)
 
-        let contentCell = beginCell()
+        const contentCell = beginCell()
 
-        let collectionContent = encodeOffChainContent(data.collectionContent)
+        const collectionContent = encodeOffChainContent(data.collectionContent)
 
-        let commonContent = beginCell()
+        const commonContent = beginCell()
         commonContent.storeBuffer(Buffer.from(data.commonContent))
         // commonContent.bits.writeString(data.commonContent)
 
@@ -51,7 +51,7 @@ export class NftCollection implements NftCollectionStandard {
 
         dataCell.storeRef(data.nftItemCode)
 
-        let royaltyCell = beginCell()
+        const royaltyCell = beginCell()
         royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
         royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
         royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
@@ -65,15 +65,15 @@ export class NftCollection implements NftCollectionStandard {
     ) {
         return new NftCollection(
             address
-        );
+        )
     }
 
     static async createFromConfig(
         config: NftCollectionData
     ) {
 
-        let data = this.buildNftCollectionDataCell(config);
-        let address = contractAddress(
+        const data = this.buildNftCollectionDataCell(config)
+        const address = contractAddress(
             0,
             {
                 code: this.NftCollectionCodeCell,
@@ -107,11 +107,11 @@ export class NftCollection implements NftCollectionStandard {
         itemOwnerAddress: Address, 
         itemContent: string 
     }) {
-        let itemContent = beginCell()
+        const itemContent = beginCell()
         // itemContent.bits.writeString(params.itemContent)
         itemContent.storeBuffer(Buffer.from(params.itemContent)).endCell()
 
-        let nftItemMessage = beginCell()
+        const nftItemMessage = beginCell()
 
         nftItemMessage.storeAddress(params.itemOwnerAddress)
         nftItemMessage.storeRef(itemContent).endCell()

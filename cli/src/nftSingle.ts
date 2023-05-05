@@ -1,10 +1,10 @@
-import { Sender, toNano } from 'ton-core';
+import { Sender, toNano } from 'ton-core'
 import {NftSingle, NftSingleData} from '../../src/wrappers/getgems/NftSingle'
 import importKeyPair from './utils/importKeyPair';
 import { readFileSync, writeFileSync } from 'fs';
 import { error } from 'console';
 import { env } from 'process';
-import { Address } from 'ton-core';
+import { Address } from 'ton-core'
 import { TonClient4 } from 'ton';
 import createSender from './utils/createSender'
 

@@ -1,15 +1,13 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress, storeStateInit, toNano } from 'ton-core';
-import { encodeOffChainContent } from '../../types/OffchainContent';
-import {compile} from "@ton-community/blueprint";
-import { StateInit } from 'ton';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode } from 'ton-core'
+import { encodeOffChainContent } from '../../types/OffchainContent'
 
 export class NftItem implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static buildNftItemDataCell(data: NftItemData) {
-        let dataCell = beginCell()
+        const dataCell= beginCell()
     
-        let contentCell = encodeOffChainContent(data.content)
+        const contentCell = encodeOffChainContent(data.content)
     
         dataCell.storeAddress(data.ownerAddress)
         dataCell.storeAddress(data.editorAddress)
@@ -23,7 +21,7 @@ export class NftItem implements Contract {
     ) {
         return new NftItem(
             address
-            );
+        )
     }
 
     // Deployment

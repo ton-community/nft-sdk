@@ -1,4 +1,4 @@
-import { Address, Dictionary, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode } from 'ton-core'
 
 export const OperationCodes = {
     cancel: 2001,
@@ -21,7 +21,7 @@ export class NftRaffle implements Contract {
     ) {
         return new NftRaffle(
             address
-            );
+        )
     }
 
     // Deployment

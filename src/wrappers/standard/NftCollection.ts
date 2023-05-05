@@ -1,20 +1,20 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
-import { encodeOffChainContent } from '../../types/OffchainContent';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender } from 'ton-core'
+import { encodeOffChainContent } from '../../types/OffchainContent'
 
 export class NftCollection implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static buildNftCollectionDataCell(data: NftCollectionData) {
-        let dataCell = beginCell()
+        const dataCell= beginCell()
 
         dataCell.storeAddress(data.ownerAddress)
         dataCell.storeUint(data.nextItemIndex, 64)
 
-        let contentCell = beginCell()
+        const contentCell = beginCell()
 
-        let collectionContent = encodeOffChainContent(data.collectionContent)
+        const collectionContent = encodeOffChainContent(data.collectionContent)
 
-        let commonContent = beginCell()
+        const commonContent = beginCell()
         commonContent.storeBuffer(Buffer.from(data.commonContent))
         // commonContent.bits.writeString(data.commonContent)
 
@@ -24,7 +24,7 @@ export class NftCollection implements Contract {
 
         dataCell.storeRef(data.nftItemCode)
 
-        let royaltyCell = beginCell()
+        const royaltyCell = beginCell()
         royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
         royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
         royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
@@ -38,7 +38,7 @@ export class NftCollection implements Contract {
     ) {
         return new NftCollection(
             address
-            );
+        )
     }
 
     // Deployment

@@ -1,5 +1,5 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
-import { KeyPair, sign } from 'ton-crypto';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
+import { KeyPair, sign } from 'ton-crypto'
 
 export class NftMarketplace implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -9,7 +9,7 @@ export class NftMarketplace implements Contract {
     ) {
         return new NftMarketplace(
             address
-            );
+        )
     }
 
     // Data
@@ -19,7 +19,7 @@ export class NftMarketplace implements Contract {
     static NftMarketplaceCodeCell = Cell.fromBoc(Buffer.from(this.NftMarketplaceCodeBoc, 'base64'))[0]
 
     static buildNftMarketplaceDataCell(data: NftMarketplaceData) {
-        let dataCell = beginCell()
+        const dataCell= beginCell()
 
         dataCell.storeUint(data.seqno, 32)
         dataCell.storeUint(data.subwallet, 32)
@@ -32,8 +32,8 @@ export class NftMarketplace implements Contract {
         config: NftMarketplaceData
     ) {
 
-        let data = this.buildNftMarketplaceDataCell(config);
-        let address = contractAddress(
+        const data = this.buildNftMarketplaceDataCell(config)
+        const address = contractAddress(
             0,
             {
                 code: this.NftMarketplaceCodeCell,
@@ -87,9 +87,9 @@ export function buildSignature(params: {
     saleStateInit: Cell, 
     saleMessageBody: Cell 
 }) {
-  let bodyCell = beginCell()
-  bodyCell.storeRef(params.saleStateInit)
-  bodyCell.storeRef(params.saleMessageBody)
+    const bodyCell = beginCell()
+    bodyCell.storeRef(params.saleStateInit)
+    bodyCell.storeRef(params.saleMessageBody)
 
-  return sign(bodyCell.endCell().hash(), params.keyPair.secretKey)
+    return sign(bodyCell.endCell().hash(), params.keyPair.secretKey)
 }

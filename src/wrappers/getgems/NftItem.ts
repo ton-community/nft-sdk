@@ -1,5 +1,5 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
-import { NftItem as NftItemStandard } from '../standard/NftItem';
+import { Address, beginCell, Cell, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
+import { NftItem as NftItemStandard } from '../standard/NftItem'
 
 export class NftItem implements NftItemStandard {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -9,9 +9,9 @@ export class NftItem implements NftItemStandard {
     static NftItemCodeCell = Cell.fromBoc(Buffer.from(this.NftItemCodeBoc, 'base64'))[0]
 
     static buildNftItemDataCell(data: NftItemData) {
-        let dataCell = beginCell()
+        const dataCell= beginCell()
     
-        let contentCell = beginCell()
+        const contentCell = beginCell()
         // contentCell.bits.writeString(data.content)
         contentCell.storeBuffer(Buffer.from(data.content))
     
@@ -28,7 +28,7 @@ export class NftItem implements NftItemStandard {
     ) {
         return new NftItem(
             address
-        );
+        )
     }
 
 
@@ -36,8 +36,8 @@ export class NftItem implements NftItemStandard {
         config: NftItemData
     ) {
 
-        let data = this.buildNftItemDataCell(config);
-        let address = contractAddress(
+        const data = this.buildNftItemDataCell(config)
+        const address = contractAddress(
             0,
             {
                 code: this.NftItemCodeCell,

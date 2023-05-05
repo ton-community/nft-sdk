@@ -1,13 +1,13 @@
 import {Blockchain} from '@ton-community/sandbox'
-import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
+import {toNano} from 'ton-core'
 import {NftAuction, NftAuctionData} from '../../src/wrappers/getgems/NftAuction'
-import {randomAddress} from "../../src/utils/randomAddress";
+import {randomAddress} from '../../src/utils/randomAddress'
 
 async function main() {
     // Creates Local Test Blockchain
     const blockchain = await Blockchain.create()
 
-    let defaultConfig: NftAuctionData = {
+    const defaultConfig: NftAuctionData = {
         marketplaceFeeAddress: randomAddress(),
         marketplaceFeeFactor: BigInt(5),
         marketplaceFeeBase: BigInt(100),
@@ -47,13 +47,13 @@ async function main() {
     const deployResult = await nftAuction.sendDeploy(deployer.getSender(), toNano('0.05'))
 
     // Prints Result
-    console.log(deployResult);
+    console.log(deployResult)
 
     // Fetches Nft Data
     const data = await nftAuction.getSaleData()
 
     // Prints Nft Data
-    console.log(data);
+    console.log(data)
 }
 
-main();
+main()

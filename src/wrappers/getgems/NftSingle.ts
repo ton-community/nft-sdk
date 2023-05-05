@@ -1,5 +1,5 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
-import { encodeOffChainContent } from '../../types/OffchainContent';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
+import { encodeOffChainContent } from '../../types/OffchainContent'
 
 export class NftSingle implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -11,11 +11,11 @@ export class NftSingle implements Contract {
     static NftSingleCodeCell = Cell.fromBoc(Buffer.from(this.NftSingleCodeBoc, 'base64'))[0]
 
     static buildeNftSingleDataCell(data: NftSingleData) {
-        let dataCell = beginCell()
+        const dataCell= beginCell()
 
-        let contentCell = encodeOffChainContent(data.content)
+        const contentCell = encodeOffChainContent(data.content)
 
-        let royaltyCell = beginCell()
+        const royaltyCell = beginCell()
         royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
         royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
         royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
@@ -33,15 +33,15 @@ export class NftSingle implements Contract {
     ) {
         return new NftSingle(
             address
-        );
+        )
     }
 
     static async createFromConfig(
         config: NftSingleData
     ) {
 
-        let data = this.buildeNftSingleDataCell(config);
-        let address = contractAddress(
+        const data = this.buildeNftSingleDataCell(config)
+        const address = contractAddress(
             0,
             {
                 code: this.NftSingleCodeCell,

@@ -1,5 +1,5 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
-import { NftCollection } from '../standard/NftCollection';
+import { Address, beginCell, Cell, ContractProvider, Sender, SendMode } from 'ton-core'
+import { NftCollection } from '../standard/NftCollection'
 
 export type CollectionMintItemInput = {
     passAmount: bigint
@@ -31,7 +31,7 @@ export class NftCollectionEditable implements NftCollection {
     ) {
         return new NftCollectionEditable(
             address
-            );
+        )
     }
 
     // Deployment
@@ -51,11 +51,11 @@ export class NftCollectionEditable implements NftCollection {
         itemOwnerAddress: Address, 
         itemContent: string 
     }) {
-        let itemContent = beginCell()
+        const itemContent = beginCell()
         // itemContent.bits.writeString(params.itemContent)
         itemContent.storeBuffer(Buffer.from(params.itemContent)).endCell()
 
-        let nftItemMessage = beginCell()
+        const nftItemMessage = beginCell()
 
         nftItemMessage.storeAddress(params.itemOwnerAddress)
         nftItemMessage.storeRef(itemContent).endCell()

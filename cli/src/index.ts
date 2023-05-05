@@ -6,7 +6,7 @@ import {Pinata} from "../../src/storage/Pinata"
 import {AmazonS3} from "../../src/storage/AmazonS3"
 import {TonClient} from '../../src/ton-api'
 import {fetchAndParseTransactionData} from '../../src/utils/FetchAndParseTransaction'
-import { Address } from 'ton-core';
+import { Address } from 'ton-core'
 import {createNftSingle, transfer} from "./nftSingle"
 import {createNftCollection} from "./nftCollection"
 import { TonClient4 } from 'ton';

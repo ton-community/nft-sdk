@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
 
 export class NftAuctionV2 implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -12,13 +12,13 @@ export class NftAuctionV2 implements Contract {
 
         const constantCell = beginCell()
         const subGasPriceFromBid = 8449000
-        constantCell.storeUint(subGasPriceFromBid, 32);
-        constantCell.storeAddress(data.marketplaceAddress);
+        constantCell.storeUint(subGasPriceFromBid, 32)
+        constantCell.storeAddress(data.marketplaceAddress)
         constantCell.storeCoins(data.minBid)
         constantCell.storeCoins(data.maxBid)
         constantCell.storeCoins(data.minStep)
         constantCell.storeUint(data.stepTimeSeconds, 32) // step_time
-        constantCell.storeAddress(data.nftAddress);
+        constantCell.storeAddress(data.nftAddress)
         constantCell.storeUint(data.createdAtTimestamp, 32)
 
         const feesCell = beginCell()
@@ -54,15 +54,15 @@ export class NftAuctionV2 implements Contract {
     ) {
         return new NftAuctionV2(
             address
-        );
+        )
     }
 
     // createFromConfig
     static createFromConfig(
         config: NftAuctionV2Data
     ) {
-        let data = this.buildNftAuctionV2DataCell(config);
-        let address = contractAddress(
+        const data = this.buildNftAuctionV2DataCell(config)
+        const address = contractAddress(
             0,
             {
                 code: this.NftAuctionV2CodeCell,
@@ -76,7 +76,7 @@ export class NftAuctionV2 implements Contract {
                 code: this.NftAuctionV2CodeCell,
                 data: data
             }
-        );
+        )
     }
 
     // Deployment

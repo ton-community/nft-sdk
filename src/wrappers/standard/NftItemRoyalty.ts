@@ -1,15 +1,15 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
-import { NftItem } from './NftItem';
+import { Address, beginCell, Cell, ContractProvider, Sender, SendMode } from 'ton-core'
+import { NftItem } from './NftItem'
 
 export class NftItemRoyalty implements NftItem {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
-    
+
     static createFromAddress(
         address: Address
     ) {
         return new NftItemRoyalty(
             address
-            );
+        )
     }
 
     // Deployment

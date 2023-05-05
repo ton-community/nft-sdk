@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
 
 export class NftAuction implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -29,8 +29,7 @@ export class NftAuction implements Contract {
         bidsCell.storeUint(data.stepTimeSeconds, 32)               // step_time
         bidsCell.storeUint(data.tryStepTimeSeconds, 32)               // try_step_time
 
-
-        let nftCell = beginCell();
+        const nftCell = beginCell()
         if (data.nftOwnerAddress) {
             nftCell.storeAddress(data.nftOwnerAddress)
         } else {
@@ -57,15 +56,15 @@ export class NftAuction implements Contract {
     ) {
         return new NftAuction(
             address
-        );
+        )
     }
 
     static async createFromConfig(
         config: NftAuctionData
     ) {
 
-        let data = this.buildNftAuctionDataCell(config);
-        let address = contractAddress(
+        const data = this.buildNftAuctionDataCell(config)
+        const address = contractAddress(
             0,
             {
                 code: this.NftAuctionCodeCell,
@@ -135,7 +134,7 @@ export class NftAuction implements Contract {
         marketplaceAddress: Address,
         coins: bigint
     }) {
-        const transfer = beginCell();
+        const transfer = beginCell()
         transfer.storeUint(0x18, 6)
         transfer.storeAddress(params.marketplaceAddress)
         transfer.storeCoins(params.coins)
@@ -146,7 +145,7 @@ export class NftAuction implements Contract {
         transferBox.storeUint(2, 8)
         transferBox.storeRef(transfer.endCell())
 
-        const msgResend = beginCell().storeUint(0, 32).storeBuffer(Buffer.from("emergency_message")).storeRef(transferBox.endCell()).endCell()
+        const msgResend = beginCell().storeUint(0, 32).storeBuffer(Buffer.from('emergency_message')).storeRef(transferBox.endCell()).endCell()
 
         await provider.internal(via, {
             value: params.value,

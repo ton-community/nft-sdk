@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, contractAddress } from 'ton-core'
 
 export class NftFixedPrice implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -11,14 +11,14 @@ export class NftFixedPrice implements Contract {
 
     static buildNftFixPriceSaleDataCell(data: NftFixPriceSaleData) {
 
-        let feesCell = beginCell()
+        const feesCell = beginCell()
     
         feesCell.storeCoins(data.marketplaceFee)
         feesCell.storeAddress(data.marketplaceFeeAddress)
         feesCell.storeAddress(data.royaltyAddress)
         feesCell.storeCoins(data.royaltyAmount)
     
-        let dataCell = beginCell()
+        const dataCell= beginCell()
     
         dataCell.storeAddress(data.marketplaceAddress)
         dataCell.storeAddress(data.nftAddress)
@@ -34,15 +34,15 @@ export class NftFixedPrice implements Contract {
     ) {
         return new NftFixedPrice(
             address
-            );
+        )
     }
 
     static async createFromConfig(
         config: NftFixPriceSaleData
     ) {
 
-        let data = this.buildNftFixPriceSaleDataCell(config);
-        let address = contractAddress(
+        const data = this.buildNftFixPriceSaleDataCell(config)
+        const address = contractAddress(
             0,
             {
                 code: this.NftFixPriceSaleCodeCell,
