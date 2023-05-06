@@ -14,9 +14,7 @@ export class NftMarketplace implements Contract {
 
     // Data
 
-    static NftMarketplaceCodeBoc = 'te6cckEBDAEA7wABFP8A9KQT9LzyyAsBAgEgAwIAePKDCNcYINMf0x/THwL4I7vyY/ABUTK68qFRRLryogT5AVQQVfkQ8qP4AJMg10qW0wfUAvsA6DABpALwAgIBSAcEAgFIBgUAEbjJftRNDXCx+AAXuznO1E0NM/MdcL/4AgLOCQgAF0AsjLH8sfy//J7VSAIBIAsKABU7UTQ0x/TH9P/MIACpGwiIMcAkVvgAdDTAzBxsJEw4PABbCEB0x8BwAGONIMI1xgg+QFAA/kQ8qPU1DAh+QBwyMoHy//J0Hd0gBjIywXLAljPFnD6AstrEszMyYBA+wDgW4NC26jQ='
-
-    static NftMarketplaceCodeCell = Cell.fromBoc(Buffer.from(this.NftMarketplaceCodeBoc, 'base64'))[0]
+    static code = Cell.fromBoc(Buffer.from('te6cckEBDAEA7wABFP8A9KQT9LzyyAsBAgEgAwIAePKDCNcYINMf0x/THwL4I7vyY/ABUTK68qFRRLryogT5AVQQVfkQ8qP4AJMg10qW0wfUAvsA6DABpALwAgIBSAcEAgFIBgUAEbjJftRNDXCx+AAXuznO1E0NM/MdcL/4AgLOCQgAF0AsjLH8sfy//J7VSAIBIAsKABU7UTQ0x/TH9P/MIACpGwiIMcAkVvgAdDTAzBxsJEw4PABbCEB0x8BwAGONIMI1xgg+QFAA/kQ8qPU1DAh+QBwyMoHy//J0Hd0gBjIywXLAljPFnD6AstrEszMyYBA+wDgW4NC26jQ=', 'base64'))[0]
 
     static buildNftMarketplaceDataCell(data: NftMarketplaceData) {
         const dataCell= beginCell()
@@ -37,7 +35,7 @@ export class NftMarketplace implements Contract {
         const address = contractAddress(
             workchain,
             {
-                code: this.NftMarketplaceCodeCell,
+                code: this.code,
                 data: data
             }
         )
@@ -45,7 +43,7 @@ export class NftMarketplace implements Contract {
         return new NftMarketplace(
             address,
             {
-                code: this.NftMarketplaceCodeCell,
+                code: this.code,
                 data: data
             }
         )
