@@ -1,5 +1,4 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode } from 'ton-core'
-import { encodeOffChainContent } from '../../types/OffchainContent'
 
 export class NftItem implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -40,12 +39,4 @@ export class NftItem implements Contract {
             individualContent: stack.readCellOpt(),
         }
     }
-}
-
-// Utils
-
-export type NftItemData = {
-    ownerAddress: Address
-    editorAddress: Address
-    content: string
 }

@@ -1,5 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender } from 'ton-core'
-import { encodeOffChainContent } from '../../types/OffchainContent'
+import { Address, Cell, Contract, ContractProvider } from 'ton-core'
 
 export class NftCollection implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
