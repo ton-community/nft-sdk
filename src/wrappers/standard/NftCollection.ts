@@ -4,35 +4,6 @@ import { encodeOffChainContent } from '../../types/OffchainContent'
 export class NftCollection implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
-    static buildDataCell(data: NftCollectionData) {
-        const dataCell= beginCell()
-
-        dataCell.storeAddress(data.ownerAddress)
-        dataCell.storeUint(data.nextItemIndex, 64)
-
-        const contentCell = beginCell()
-
-        const collectionContent = encodeOffChainContent(data.collectionContent)
-
-        const commonContent = beginCell()
-        commonContent.storeBuffer(Buffer.from(data.commonContent))
-        // commonContent.bits.writeString(data.commonContent)
-
-        contentCell.storeRef(collectionContent)
-        contentCell.storeRef(commonContent)
-        dataCell.storeRef(contentCell)
-
-        dataCell.storeRef(data.nftItemCode)
-
-        const royaltyCell = beginCell()
-        royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
-        royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
-        royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
-        dataCell.storeRef(royaltyCell)
-
-        return dataCell.endCell()
-    }
-
     static createFromAddress(
         address: Address
     ) {
@@ -40,18 +11,6 @@ export class NftCollection implements Contract {
             address
         )
     }
-
-    // Deployment
-    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
-        await provider.internal(via, {
-            value,
-            body: beginCell().endCell(),
-        })
-    }
-
-    // const { stack } = await provider.get('get_nft_address_by_index', [
-    //     { type: 'int', value: index }
-    // ])
 
     async getCollectionData(
         provider: ContractProvider

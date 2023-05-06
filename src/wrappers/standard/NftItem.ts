@@ -4,34 +4,6 @@ import { encodeOffChainContent } from '../../types/OffchainContent'
 export class NftItem implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
-    static buildDataCell(data: NftItemData) {
-        const dataCell= beginCell()
-    
-        const contentCell = encodeOffChainContent(data.content)
-    
-        dataCell.storeAddress(data.ownerAddress)
-        dataCell.storeAddress(data.editorAddress)
-        dataCell.storeRef(contentCell)
-    
-        return dataCell.endCell()
-    }
-
-    static createFromAddress(
-        address: Address
-    ) {
-        return new NftItem(
-            address
-        )
-    }
-
-    // Deployment
-    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
-        await provider.internal(via, {
-            value,
-            body: beginCell().endCell(),
-        })
-    }
-
     async sendTransfer(provider: ContractProvider, via: Sender, params: {
         value: bigint
         queryId: bigint
