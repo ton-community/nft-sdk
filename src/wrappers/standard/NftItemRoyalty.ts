@@ -1,9 +1,7 @@
 import { Address, beginCell, Cell, ContractProvider, Sender, SendMode } from 'ton-core'
 import { NftItem } from './NftItem'
 
-export class NftItemRoyalty implements NftItem {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
-
+export class NftItemRoyalty extends NftItem {
     static createFromAddress(
         address: Address
     ) {
@@ -53,10 +51,6 @@ export class NftItemRoyalty implements NftItem {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
-
-    // const { stack } = await provider.get('get_nft_address_by_index', [
-    //     { type: 'int', value: index }
-    // ])
 
     async getNftData(provider: ContractProvider) {
         const { stack } = await provider.get('get_nft_data', [])

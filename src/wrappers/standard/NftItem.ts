@@ -27,6 +27,24 @@ export class NftItem implements Contract {
         })
     }
 
+    async sendGetStaticData(
+        provider: ContractProvider,
+        via: Sender,
+        params: {
+            value: bigint
+            queryId: bigint
+        }
+    ) {
+        await provider.internal(via, {
+            value: params.value,
+            body: beginCell()
+                .storeUint(0x2fcb26a2, 32)
+                .storeUint(params.queryId || 0, 64)
+                .endCell(),
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
+        })
+    }
+
     // Getter Functio
 
     async getNftData(provider: ContractProvider) {
