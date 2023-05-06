@@ -43,12 +43,13 @@ export class NftOffer implements Contract {
     }
 
     static async createFromConfig(
-        config: NftOfferData
+        config: NftOfferData,
+        workchain = 0
     ) {
 
         const data = this.buildNftOfferDataCell(config)
         const address = contractAddress(
-            0,
+            workchain,
             {
                 code: this.NftOfferCodeCell,
                 data: data

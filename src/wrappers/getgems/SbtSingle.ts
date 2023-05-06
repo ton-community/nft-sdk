@@ -34,12 +34,13 @@ export class SbtSingle implements Contract {
 
 
     static async createFromConfig(
-        config: SbtSingleData
+        config: SbtSingleData,
+        workchain = 0
     ) {
 
         const data = this.buildSingleSbtDataCell(config)
         const address = contractAddress(
-            0,
+            workchain,
             {
                 code: this.SbtSingleCodeCell,
                 data: data

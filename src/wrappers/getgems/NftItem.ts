@@ -33,12 +33,13 @@ export class NftItem implements NftItemStandard {
 
 
     static async createFromConfig(
-        config: NftItemData
+        config: NftItemData,
+        workchain = 0
     ) {
 
         const data = this.buildNftItemDataCell(config)
         const address = contractAddress(
-            0,
+            workchain,
             {
                 code: this.NftItemCodeCell,
                 data: data

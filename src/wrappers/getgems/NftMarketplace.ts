@@ -29,12 +29,13 @@ export class NftMarketplace implements Contract {
     }
 
     static async createFromConfig(
-        config: NftMarketplaceData
+        config: NftMarketplaceData,
+        workchain = 0
     ) {
 
         const data = this.buildNftMarketplaceDataCell(config)
         const address = contractAddress(
-            0,
+            workchain,
             {
                 code: this.NftMarketplaceCodeCell,
                 data: data

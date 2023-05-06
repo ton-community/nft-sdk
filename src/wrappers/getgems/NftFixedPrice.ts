@@ -38,12 +38,13 @@ export class NftFixedPrice implements Contract {
     }
 
     static async createFromConfig(
-        config: NftFixPriceSaleData
+        config: NftFixPriceSaleData,
+        workchain = 0
     ) {
 
         const data = this.buildNftFixPriceSaleDataCell(config)
         const address = contractAddress(
-            0,
+            workchain,
             {
                 code: this.NftFixPriceSaleCodeCell,
                 data: data

@@ -59,11 +59,12 @@ export class NftAuctionV2 implements Contract {
 
     // createFromConfig
     static createFromConfig(
-        config: NftAuctionV2Data
+        config: NftAuctionV2Data,
+        workchain = 0
     ) {
         const data = this.buildNftAuctionV2DataCell(config)
         const address = contractAddress(
-            0,
+            workchain,
             {
                 code: this.NftAuctionV2CodeCell,
                 data: data

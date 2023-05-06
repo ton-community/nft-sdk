@@ -37,12 +37,13 @@ export class NftSingle implements Contract {
     }
 
     static async createFromConfig(
-        config: NftSingleData
+        config: NftSingleData,
+        workchain = 0
     ) {
 
         const data = this.buildeNftSingleDataCell(config)
         const address = contractAddress(
-            0,
+            workchain,
             {
                 code: this.NftSingleCodeCell,
                 data: data

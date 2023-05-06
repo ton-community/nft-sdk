@@ -69,12 +69,13 @@ export class NftCollection implements NftCollectionStandard {
     }
 
     static async createFromConfig(
-        config: NftCollectionData
+        config: NftCollectionData,
+        workchain = 0
     ) {
 
         const data = this.buildNftCollectionDataCell(config)
         const address = contractAddress(
-            0,
+            workchain,
             {
                 code: this.NftCollectionCodeCell,
                 data: data
