@@ -19,9 +19,9 @@ export class AmazonS3 {
     }
 
     // Function to upload images in bulk to Amazon S3
-    async uploadBulk(
+    async uploadImagesBulk(
         assetsFolderPath: string, 
-        s3BucketName: string = "nft-collection",
+        s3BucketName: string,
         options?: {
             type: string
         }
@@ -73,7 +73,7 @@ export class AmazonS3 {
                     const jsonParams: AWS.S3.PutObjectRequest = {
                         Bucket: s3BucketName,
                         Key: `${path.parse(imageFile).name}.json`,
-                        Body: jsonData,
+                        Body: jsonFile,
                         ContentType: 'application/json',
                     };
                     await this.s3.upload(jsonParams).promise();

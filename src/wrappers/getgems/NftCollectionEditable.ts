@@ -1,4 +1,5 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, ContractProvider, Sender, SendMode } from 'ton-core'
+import { NftCollection } from '../standard/NftCollection'
 
 export type CollectionMintItemInput = {
     passAmount: bigint
@@ -22,15 +23,13 @@ const OperationCodes = {
     GetRoyaltyParamsResponse: 0xa8cb00ad
 }
 
-export class NftCollectionEditable implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
-
+export class NftCollectionEditable extends NftCollection {
     static createFromAddress(
         address: Address
     ) {
         return new NftCollectionEditable(
             address
-            );
+        )
     }
 
     // Deployment
@@ -50,11 +49,11 @@ export class NftCollectionEditable implements Contract {
         itemOwnerAddress: Address, 
         itemContent: string 
     }) {
-        let itemContent = beginCell()
+        const itemContent = beginCell()
         // itemContent.bits.writeString(params.itemContent)
         itemContent.storeBuffer(Buffer.from(params.itemContent)).endCell()
 
-        let nftItemMessage = beginCell()
+        const nftItemMessage = beginCell()
 
         nftItemMessage.storeAddress(params.itemOwnerAddress)
         nftItemMessage.storeRef(itemContent).endCell()
@@ -102,21 +101,10 @@ export class NftCollectionEditable implements Contract {
         })
     }
 
-    // const { stack } = await provider.get('get_nft_address_by_index', [
-    //     { type: 'int', value: index }
-    // ])
-
     async getCollectionData(
-        provider: ContractProvider, 
-        nextItemIndex: bigint, 
-        collectionContent: Cell,
-        ownerAddress: Slice
+        provider: ContractProvider
     ) {
-        const { stack } = await provider.get('get_collection_data', [
-            { type: 'int', value: nextItemIndex },
-            { type: 'cell', cell: collectionContent },
-            { type: 'slice', cell: ownerAddress.asCell() }
-        ])
+        const { stack } = await provider.get('get_collection_data', [])
         return {
             nextItemIndex: stack.readBigNumber(),
             collectionContent: stack.readCellOpt(),

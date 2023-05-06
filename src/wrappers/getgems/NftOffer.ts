@@ -1,34 +1,63 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
 
 export class NftOffer implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+
+    // Data
+
+    static code = Cell.fromBoc(Buffer.from('te6cckECFgEABEkAART/APSkE/S88sgLAQIBIAQCAVby7UTQ0wDTH9Mf+kD6QPpA+gDU0wAwMAfAAfLRlPgjJb7jAl8IggD//vLwAwDOB9MfgQ+jAsMAEvLygQ+kIddKwwDy8oEPpSHXSYEB9Lzy8vgAgggPQkBw+wJwIIAQyMsFJM8WIfoCy2rLHwHPFsmDBvsAcQdVBXAIyMsAF8sfFcsfUAPPFgHPFgHPFgH6AszLAMntVAIBSAYFAIOhRh/aiaGmAaY/pj/0gfSB9IH0AammAGBhofSBpj+mP/SBpj+mPmCo7CHgBqjuqeAGpQVCA0MEMJ6MjIqkHYACq4ECAswLBwP322ERFofSBpj+mP/SBpj+mPmBSs+AGqJCH4Aam4UJHQxbKDk3szS6QTrLgQQAhkZYKoAueLKAH9AQnltWWPgOeLZLj9gBFhABFrpOEBWEk2EPGGkGEASK3xhrgQQQgv5h6KZGWPieWfk2eLKAHni2UAQQRMS0B9AWUAZLjAoJCAB4gBjIywUmzxZw+gLLasyCCA9CQHD7AsmDBvsAcVVgcAjIywAXyx8Vyx9QA88WAc8WAc8WAfoCzMsAye1UAEyLlPZmZlciBmZWWHAggBDIywVQBc8WUAP6AhPLassfAc8WyXH7AABYi+T2ZmZXIgcm95YWxpZXOBNwIIAQyMsFUAXPFlAD+gITy2rLHwHPFslx+wACAUgPDAIBIA4NAB0IMAAk18DcOBZ8AIB8AGAAESCEDuaygCphIAIBIBEQABMghA7msoAAamEgAfcAdDTAwFxsJJfBOD6QDDtRNDTANMf0x/6QPpA+kD6ANTTADDAAY4lMTc3OFUzEnAIyMsAF8sfFcsfUAPPFgHPFgHPFgH6AszLAMntVOB/KscBwACOGjAJ0x8hwACLZjYW5jZWyFIgxwWwknMy3lCq3iCBAiu6KcABsFOmgEgLQxwWwnhCsXwzUMNDTB9QwAfsA4IIQBRONkVIQuuMCPCfAAfLRlCvAAFOTxwWwjis4ODlQdqAQN0ZQRAMCcAjIywAXyx8Vyx9QA88WAc8WAc8WAfoCzMsAye1U4Dc5CcAD4wJfCYQP8vAVEwGsU1jHBVNixwWx8uHKgggPQkBw+wJRUccFjhQ1cIAQyMsFKM8WIfoCy2rJgwb7AOMNcUcXUGYFBANwCMjLABfLHxXLH1ADzxYBzxYBzxYB+gLMywDJ7VQUALYF+gAhghAdzWUAvJeCEB3NZQAy3o0EE9mZmVyIGNhbmNlbCBmZWWBURzNwIIAQyMsFUAXPFlAD+gITy2rLHwHPFslx+wDUMHGAEMjLBSnPFnD6AstqzMmDBvsAAMYwCdM/+kAwU5THBQnAABmwK4IQO5rKAL6wnjgQWhBJEDhHFQNEZPAIjjg5XwYzM3AgghBfzD0UyMsfE8s/I88WUAPPFsoAIfoCygDJcYAYyMsFUAPPFnD6AhLLaszJgED7AOK1Lpfy', 'base64'))[0]
+
+    static buildDataCell(data: NftOfferData) {
+        const feesCell = beginCell()
+    
+        feesCell.storeAddress(data.marketplaceFeeAddress)
+        feesCell.storeUint(data.marketplaceFactor, 32)
+        feesCell.storeUint(data.marketplaceBase, 32)
+        feesCell.storeAddress(data.royaltyAddress)
+        feesCell.storeUint(data.royaltyFactor, 32)
+        feesCell.storeUint(data.royaltyBase, 32)
+    
+        const dataCell = beginCell()
+    
+        dataCell.storeUint(data.isComplete ? 1 : 0, 1)
+        dataCell.storeUint(data.createdAt, 32)
+        dataCell.storeUint(data.finishAt, 32)
+        dataCell.storeAddress(data.marketplaceAddress)
+        dataCell.storeAddress(data.nftAddress)
+        dataCell.storeAddress(data.offerOwnerAddress)
+        dataCell.storeCoins(data.fullPrice) // fullPrice
+        dataCell.storeRef(feesCell)
+        dataCell.storeUint(1, 1) // can_deploy
+    
+        return dataCell.endCell()
+    }
 
     static createFromAddress(
         address: Address
     ) {
         return new NftOffer(
             address
-            );
+        )
     }
 
     static async createFromConfig(
-        config: NftOfferData
+        config: NftOfferData,
+        workchain = 0
     ) {
 
-        let data = buildNftOfferDataCell(config);
-        let address = contractAddress(
-            0,
+        const data = this.buildDataCell(config)
+        const address = contractAddress(
+            workchain,
             {
-                code: NftOfferCodeCell,
+                code: this.code,
                 data: data
             }
         )
 
         return new NftOffer(
             address,
-            0,
             {
-                code: NftOfferCodeCell,
+                code: this.code,
                 data: data
             }
         )
@@ -55,7 +84,7 @@ export class NftOffer implements Contract {
             nextPayload.storeBuffer(m.slice(0, 121))
         }
 
-        nextPayload.endCell();
+        nextPayload.endCell()
 
         await provider.internal(via, {
             value: params.value,
@@ -81,7 +110,7 @@ export class NftOffer implements Contract {
             nextPayload.storeBuffer(m.slice(0, 121))
         }
 
-        nextPayload.endCell();
+        nextPayload.endCell()
 
         await provider.internal(via, {
             value: params.value,
@@ -113,7 +142,7 @@ export class NftOffer implements Contract {
             royaltyFactor: stack.readBigNumber(),
             royaltyBase: stack.readBigNumber(),
             profitPrice: stack.readBigNumber(),
-          }
+        }
     }
 }
 
@@ -134,35 +163,3 @@ export type NftOfferData = {
     royaltyFactor: number
     royaltyBase: number
 }
-  
-export function buildNftOfferDataCell(data: NftOfferData) {
-    const feesCell = beginCell()
-  
-    feesCell.storeAddress(data.marketplaceFeeAddress)
-    feesCell.storeUint(data.marketplaceFactor, 32)
-    feesCell.storeUint(data.marketplaceBase, 32)
-    feesCell.storeAddress(data.royaltyAddress)
-    feesCell.storeUint(data.royaltyFactor, 32)
-    feesCell.storeUint(data.royaltyBase, 32)
-  
-    const dataCell = beginCell()
-  
-    dataCell.storeUint(data.isComplete ? 1 : 0, 1)
-    dataCell.storeUint(data.createdAt, 32)
-    dataCell.storeUint(data.finishAt, 32)
-    dataCell.storeAddress(data.marketplaceAddress)
-    dataCell.storeAddress(data.nftAddress)
-    dataCell.storeAddress(data.offerOwnerAddress)
-    dataCell.storeCoins(data.fullPrice) // fullPrice
-    dataCell.storeRef(feesCell)
-    dataCell.storeUint(1, 1) // can_deploy
-  
-    return dataCell.endCell()
-}
-
-// Data
-
-const NftOfferCodeBoc =
-  'te6cckECFgEABEkAART/APSkE/S88sgLAQIBIAQCAVby7UTQ0wDTH9Mf+kD6QPpA+gDU0wAwMAfAAfLRlPgjJb7jAl8IggD//vLwAwDOB9MfgQ+jAsMAEvLygQ+kIddKwwDy8oEPpSHXSYEB9Lzy8vgAgggPQkBw+wJwIIAQyMsFJM8WIfoCy2rLHwHPFsmDBvsAcQdVBXAIyMsAF8sfFcsfUAPPFgHPFgHPFgH6AszLAMntVAIBSAYFAIOhRh/aiaGmAaY/pj/0gfSB9IH0AammAGBhofSBpj+mP/SBpj+mPmCo7CHgBqjuqeAGpQVCA0MEMJ6MjIqkHYACq4ECAswLBwP322ERFofSBpj+mP/SBpj+mPmBSs+AGqJCH4Aam4UJHQxbKDk3szS6QTrLgQQAhkZYKoAueLKAH9AQnltWWPgOeLZLj9gBFhABFrpOEBWEk2EPGGkGEASK3xhrgQQQgv5h6KZGWPieWfk2eLKAHni2UAQQRMS0B9AWUAZLjAoJCAB4gBjIywUmzxZw+gLLasyCCA9CQHD7AsmDBvsAcVVgcAjIywAXyx8Vyx9QA88WAc8WAc8WAfoCzMsAye1UAEyLlPZmZlciBmZWWHAggBDIywVQBc8WUAP6AhPLassfAc8WyXH7AABYi+T2ZmZXIgcm95YWxpZXOBNwIIAQyMsFUAXPFlAD+gITy2rLHwHPFslx+wACAUgPDAIBIA4NAB0IMAAk18DcOBZ8AIB8AGAAESCEDuaygCphIAIBIBEQABMghA7msoAAamEgAfcAdDTAwFxsJJfBOD6QDDtRNDTANMf0x/6QPpA+kD6ANTTADDAAY4lMTc3OFUzEnAIyMsAF8sfFcsfUAPPFgHPFgHPFgH6AszLAMntVOB/KscBwACOGjAJ0x8hwACLZjYW5jZWyFIgxwWwknMy3lCq3iCBAiu6KcABsFOmgEgLQxwWwnhCsXwzUMNDTB9QwAfsA4IIQBRONkVIQuuMCPCfAAfLRlCvAAFOTxwWwjis4ODlQdqAQN0ZQRAMCcAjIywAXyx8Vyx9QA88WAc8WAc8WAfoCzMsAye1U4Dc5CcAD4wJfCYQP8vAVEwGsU1jHBVNixwWx8uHKgggPQkBw+wJRUccFjhQ1cIAQyMsFKM8WIfoCy2rJgwb7AOMNcUcXUGYFBANwCMjLABfLHxXLH1ADzxYBzxYBzxYB+gLMywDJ7VQUALYF+gAhghAdzWUAvJeCEB3NZQAy3o0EE9mZmVyIGNhbmNlbCBmZWWBURzNwIIAQyMsFUAXPFlAD+gITy2rLHwHPFslx+wDUMHGAEMjLBSnPFnD6AstqzMmDBvsAAMYwCdM/+kAwU5THBQnAABmwK4IQO5rKAL6wnjgQWhBJEDhHFQNEZPAIjjg5XwYzM3AgghBfzD0UyMsfE8s/I88WUAPPFsoAIfoCygDJcYAYyMsFUAPPFnD6AhLLaszJgED7AOK1Lpfy'
-
-export const NftOfferCodeCell = Cell.fromBoc(Buffer.from(NftOfferCodeBoc, 'base64'))[0]

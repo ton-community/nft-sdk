@@ -3,20 +3,20 @@ import {
     Slice,
     Address,
     Cell
-  } from "ton-core";
-import { isEligibleTransaction } from "../utils/EligibleInternalTx";
+  } from "ton-core"
+import { isEligibleTransaction } from "../utils/EligibleInternalTx"
   
   export type TransferEditorshipInfo = {
-    queryId: number;
-    from: Address;
-    nftItem: Address;
-    newEditor: Address;
-    responseDestination: Address;
-    customPayload?: Cell;
-    forwardAmount?: bigint;
-    forwardPayload?: Cell;
-    value: bigint;
-  };
+    queryId: number
+    from: Address
+    nftItem: Address
+    newEditor: Address
+    responseDestination: Address
+    customPayload?: Cell
+    forwardAmount?: bigint
+    forwardPayload?: Cell
+    value: bigint
+  }
   
   function extractTransferEditorshipInfo(body: any): TransferEditorshipInfo {
     return {
@@ -29,26 +29,26 @@ import { isEligibleTransaction } from "../utils/EligibleInternalTx";
       forwardAmount: body?.loadCoins(),
       forwardPayload: body?.loadMaybeRef(),
       value: body?.info.value.coins,
-    };
+    }
   }
   
   export function parseTransferEditorshipInfo(
     transaction: Slice
   ): TransferEditorshipInfo | null {
-    const tx = loadTransaction(transaction);
-    const body = tx.inMessage?.body.beginParse();
+    const tx = loadTransaction(transaction)
+    const body = tx.inMessage?.body.beginParse()
   
-    let op;
+    let op
     try {
-      op = body?.loadUint(32);
+      op = body?.loadUint(32)
     } catch {
-      return null;
+      return null
     }
   
     if (isEligibleTransaction(tx)) {
-      return extractTransferEditorshipInfo(body);
+      return extractTransferEditorshipInfo(body)
     }
   
-    return null;
+    return null
   }
   

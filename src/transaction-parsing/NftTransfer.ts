@@ -1,16 +1,16 @@
-import { loadTransaction, Slice, Address, Cell } from "ton-core";
-import { isEligibleTransaction } from "../utils/EligibleInternalTx";
+import { loadTransaction, Slice, Address, Cell } from "ton-core"
+import { isEligibleTransaction } from "../utils/EligibleInternalTx"
 
 export type NftTransferInfo = {
-  queryId: number;
-  from: Address;
-  to: Address;
-  value: bigint;
-  responseTo?: Address;
-  customPayload: any;
-  forwardAmount: bigint;
-  forwardPayload: any;
-};
+  queryId: number
+  from: Address
+  to: Address
+  value: bigint
+  responseTo?: Address
+  customPayload: any
+  forwardAmount: bigint
+  forwardPayload: any
+}
 
 function extractNftTransferInfo(body: any): NftTransferInfo {
   return {
@@ -22,25 +22,25 @@ function extractNftTransferInfo(body: any): NftTransferInfo {
     customPayload: body?.loadBit(),
     forwardAmount: body?.loadCoins(),
     forwardPayload: body?.loadBit(),
-  };
+  }
 }
 
 export function parseNftTransferInfo(
   transaction: Slice
 ): NftTransferInfo | null {
-  const tx = loadTransaction(transaction);
-  const body = tx.inMessage?.body.beginParse();
+  const tx = loadTransaction(transaction)
+  const body = tx.inMessage?.body.beginParse()
 
-  let op;
+  let op
   try {
-    op = body?.loadUint(32);
+    op = body?.loadUint(32)
   } catch {
-    return null;
+    return null
   }
 
   if (isEligibleTransaction(tx)) {
-    return extractNftTransferInfo(body);
+    return extractNftTransferInfo(body)
   }
 
-  return null;
+  return null
 }

@@ -1,23 +1,13 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
-import { NftItem } from './NftItem';
+import { Address, beginCell, Cell, ContractProvider, Sender, SendMode } from 'ton-core'
+import { NftItem } from './NftItem'
 
-export class NftItemRoyalty implements NftItem {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
-
+export class NftItemRoyalty extends NftItem {
     static createFromAddress(
         address: Address
     ) {
         return new NftItemRoyalty(
             address
-            );
-    }
-
-    // Deployment
-    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
-        await provider.internal(via, {
-            value,
-            body: beginCell().endCell(),
-        })
+        )
     }
 
     async sendTransfer(provider: ContractProvider, via: Sender, params: {
@@ -61,10 +51,6 @@ export class NftItemRoyalty implements NftItem {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
-
-    // const { stack } = await provider.get('get_nft_address_by_index', [
-    //     { type: 'int', value: index }
-    // ])
 
     async getNftData(provider: ContractProvider) {
         const { stack } = await provider.get('get_nft_data', [])

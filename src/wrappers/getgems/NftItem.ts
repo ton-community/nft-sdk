@@ -1,35 +1,51 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
+import { NftItem as NftItemStandard } from '../standard/NftItem'
 
-export class NftItem implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+export class NftItem extends NftItemStandard {
+    static code = Cell.fromBoc(Buffer.from('te6cckECDQEAAdAAART/APSkE/S88sgLAQIBYgMCAAmhH5/gBQICzgcEAgEgBgUAHQDyMs/WM8WAc8WzMntVIAA7O1E0NM/+kAg10nCAJp/AfpA1DAQJBAj4DBwWW1tgAgEgCQgAET6RDBwuvLhTYALXDIhxwCSXwPg0NMDAXGwkl8D4PpA+kAx+gAxcdch+gAx+gAw8AIEs44UMGwiNFIyxwXy4ZUB+kDUMBAj8APgBtMf0z+CEF/MPRRSMLqOhzIQN14yQBPgMDQ0NTWCEC/LJqISuuMCXwSED/LwgCwoAcnCCEIt3FzUFyMv/UATPFhAkgEBwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7AAH2UTXHBfLhkfpAIfAB+kDSADH6AIIK+vCAG6EhlFMVoKHeItcLAcMAIJIGoZE24iDC//LhkiGOPoIQBRONkchQCc8WUAvPFnEkSRRURqBwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7ABBHlBAqN1viDACCAo41JvABghDVMnbbEDdEAG1xcIAQyMsFUAfPFlAF+gIVy2oSyx/LPyJus5RYzxcBkTLiAckB+wCTMDI04lUC8ANqhGIu', 'base64'))[0]
+
+    static buildDataCell(data: NftItemData) {
+        const dataCell= beginCell()
+    
+        const contentCell = beginCell()
+        // contentCell.bits.writeString(data.content)
+        contentCell.storeBuffer(Buffer.from(data.content))
+    
+        dataCell.storeUint(data.index, 64)
+        dataCell.storeAddress(data.collectionAddress)
+        dataCell.storeAddress(data.ownerAddress)
+        dataCell.storeRef(contentCell)
+    
+        return dataCell.endCell()
+    }
 
     static createFromAddress(
         address: Address
     ) {
         return new NftItem(
             address
-        );
+        )
     }
 
 
     static async createFromConfig(
-        config: NftItemData
+        config: NftItemData,
+        workchain = 0
     ) {
 
-        let data = buildNftItemDataCell(config);
-        let address = contractAddress(
-            0,
+        const data = this.buildDataCell(config)
+        const address = contractAddress(
+            workchain,
             {
-                code: NftItemCodeCell,
+                code: this.code,
                 data: data
             }
         )
 
         return new NftItem(
             address,
-            0,
             {
-                code: NftItemCodeCell,
+                code: this.code,
                 data: data
             }
         )
@@ -42,32 +58,7 @@ export class NftItem implements Contract {
             body: beginCell().endCell(),
         })
     }
-
-
-    async sendTransfer(provider: ContractProvider, via: Sender, params: {
-        value: bigint
-        queryId: bigint
-        newOwner: Address
-        responseDestination: Address
-        customPayload?: Cell
-        forwardAmount: bigint
-        forwardPayload?: Cell
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(0x5fcc3d14, 32)
-                .storeUint(params.queryId, 64)
-                .storeAddress(params.newOwner)
-                .storeAddress(params.responseDestination)
-                .storeMaybeRef(params.customPayload)
-                .storeCoins(params.forwardAmount)
-                .storeMaybeRef(params.forwardPayload)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
+    
     async sendGetStaticData(
         provider: ContractProvider,
         via: Sender,
@@ -146,24 +137,3 @@ export type NftItemData = {
     ownerAddress: Address
     content: string
 }
-
-export function buildNftItemDataCell(data: NftItemData) {
-    let dataCell = beginCell()
-
-    let contentCell = beginCell()
-    // contentCell.bits.writeString(data.content)
-    contentCell.storeBuffer(Buffer.from(data.content))
-
-    dataCell.storeUint(data.index, 64)
-    dataCell.storeAddress(data.collectionAddress)
-    dataCell.storeAddress(data.ownerAddress)
-    dataCell.storeRef(contentCell)
-
-    return dataCell.endCell()
-}
-
-// Data
-
-export const NftItemCodeBoc = 'te6cckECDQEAAdAAART/APSkE/S88sgLAQIBYgMCAAmhH5/gBQICzgcEAgEgBgUAHQDyMs/WM8WAc8WzMntVIAA7O1E0NM/+kAg10nCAJp/AfpA1DAQJBAj4DBwWW1tgAgEgCQgAET6RDBwuvLhTYALXDIhxwCSXwPg0NMDAXGwkl8D4PpA+kAx+gAxcdch+gAx+gAw8AIEs44UMGwiNFIyxwXy4ZUB+kDUMBAj8APgBtMf0z+CEF/MPRRSMLqOhzIQN14yQBPgMDQ0NTWCEC/LJqISuuMCXwSED/LwgCwoAcnCCEIt3FzUFyMv/UATPFhAkgEBwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7AAH2UTXHBfLhkfpAIfAB+kDSADH6AIIK+vCAG6EhlFMVoKHeItcLAcMAIJIGoZE24iDC//LhkiGOPoIQBRONkchQCc8WUAvPFnEkSRRURqBwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7ABBHlBAqN1viDACCAo41JvABghDVMnbbEDdEAG1xcIAQyMsFUAfPFlAF+gIVy2oSyx/LPyJus5RYzxcBkTLiAckB+wCTMDI04lUC8ANqhGIu'
-
-export const NftItemCodeCell = Cell.fromBoc(Buffer.from(NftItemCodeBoc, 'base64'))[0]

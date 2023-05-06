@@ -1,10 +1,11 @@
-import { Address } from "ton-core";
+import fetch, {RequestInit} from 'node-fetch'
+import { Address } from 'ton-core'
 
 export class TonClient {
-    private url: string;
+    private url: string
 
     constructor(url?: string) {
-        this.url = url ? url : "https://TonClient.io";
+        this.url = url ? url : 'https://tonapi.io'
     }
 
     // Get NFT collections - /v2/nfts/collections
@@ -20,9 +21,9 @@ export class TonClient {
                     'Content-Type': 'application/json',
                 },
             }
-        );
+        )
 
-        return response;
+        return response
     }
 
     // Get NFT collection by collection address - /v2/nfts/collections/{account_id}
@@ -37,9 +38,9 @@ export class TonClient {
                     'Content-Type': 'application/json',
                 },
             }
-        );
+        )
 
-        return response;
+        return response
     }
 
     // Get NFT items from collection by collection address - /v2/nfts/collections/{account_id}/items
@@ -56,9 +57,9 @@ export class TonClient {
                     'Content-Type': 'application/json',
                 },
             }
-        );
+        )
 
-        return response;
+        return response
     }
 
     // Get NFT item by its address - /v2/nfts/{account_id}
@@ -73,9 +74,9 @@ export class TonClient {
                     'Content-Type': 'application/json',
                 },
             }
-        );
+        )
 
-        return response;
+        return response
     }
 
     // Get Transactions By Address - /v1/blockchain/getTransactions
@@ -93,16 +94,16 @@ export class TonClient {
                     'Content-Type': 'application/json',
                 },
             }
-        );
+        )
 
-        return response;
+        return response
     }
 }
 
 async function request<TResponse>(
     url: string, 
     config: RequestInit
-  ): Promise<TResponse> {
-    const response = await fetch(url, config);
-    return await response.json();
-  }
+): Promise<TResponse> {
+    const response = await fetch(url, config)
+    return (await response.json()) as TResponse
+}

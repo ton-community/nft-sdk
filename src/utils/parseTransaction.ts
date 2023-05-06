@@ -1,32 +1,32 @@
-import { loadTransaction, Slice, Address, Cell } from "ton-core";
-import {NftTransferInfo, RoyaltyInfo} from "../transaction-parsing"
+import { loadTransaction, Slice } from 'ton-core'
+import {NftTransferInfo, RoyaltyInfo} from '../transaction-parsing'
 
 export type Info = {
-    type: "transfer" | "royalty_params" | "unknown" | null;
+    type: 'transfer' | 'royalty_params' | 'unknown' | null;
     info: NftTransferInfo | RoyaltyInfo | null;
 };
 
 export function parseTransactionData(transaction: Slice): Info {
-    const tx = loadTransaction(transaction);
+    const tx = loadTransaction(transaction)
 
-    if (tx.inMessage?.info.type === "internal") {
-        const body = tx.inMessage.body.beginParse();
-        let op;
+    if (tx.inMessage?.info.type === 'internal') {
+        const body = tx.inMessage.body.beginParse()
+        let op
 
         try {
-            op = body.loadUint(32);
+            op = body.loadUint(32)
             console.log(op)
         } catch {
             return {
-                type: "unknown",
+                type: 'unknown',
                 info: null,
             }
         }
 
         if (
             op === 0x5fcc3d14 &&
-            tx.description.type === "generic" &&
-            tx.description.computePhase.type === "vm"
+            tx.description.type === 'generic' &&
+            tx.description.computePhase.type === 'vm'
         ) {
             const nftTransfer: NftTransferInfo = {
                 queryId: body.loadUint(64),
@@ -37,31 +37,31 @@ export function parseTransactionData(transaction: Slice): Info {
                 customPayload: body.loadMaybeRef(),
                 forwardAmount: body.loadCoins(),
                 forwardPayload: body.loadMaybeRef(),
-            };
+            }
 
             return {
-                type: "transfer",
+                type: 'transfer',
                 info: nftTransfer,
-            };
+            }
         } else if (
             op === 0x693d3950 &&
-            tx.description.type === "generic" &&
-            tx.description.computePhase.type === "vm"
+            tx.description.type === 'generic' &&
+            tx.description.computePhase.type === 'vm'
         ) {
             const royaltyInfo: RoyaltyInfo = {
                 queryId: body.loadUint(64),
                 from: tx.inMessage.info.src,
                 nftItem: body.loadAddress(),
                 value: tx.inMessage.info.value.coins,
-            };
+            }
 
             return {
-                type: "royalty_params",
+                type: 'royalty_params',
                 info: royaltyInfo,
-            };
+            }
         } else {
             return {
-                type: "unknown",
+                type: 'unknown',
                 info: null
             }
         }
@@ -70,5 +70,5 @@ export function parseTransactionData(transaction: Slice): Info {
     return {
         type: null,
         info: null,
-    };
+    }
 }

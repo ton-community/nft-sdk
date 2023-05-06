@@ -1,34 +1,60 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
 
 export class NftFixedPriceV2 implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
+
+    // Data
+
+    static code = Cell.fromBoc(Buffer.from('te6cckECDAEAAikAART/APSkE/S88sgLAQIBIAMCAATyMAIBSAUEAFGgOFnaiaGmAaY/9IH0gfSB9AGoYaH0gfQB9IH0AGEEIIySsKAVgAKrAQICzQgGAfdmCEDuaygBSYKBSML7y4cIk0PpA+gD6QPoAMFOSoSGhUIehFqBSkHCAEMjLBVADzxYB+gLLaslx+wAlwgAl10nCArCOF1BFcIAQyMsFUAPPFgH6AstqyXH7ABAjkjQ04lpwgBDIywVQA88WAfoCy2rJcfsAcCCCEF/MPRSBwCCIYAYyMsFKs8WIfoCy2rLHxPLPyPPFlADzxbKACH6AsoAyYMG+wBxVVAGyMsAFcsfUAPPFgHPFgHPFgH6AszJ7VQC99AOhpgYC42EkvgnB9IBh2omhpgGmP/SB9IH0gfQBqGBNgAPloyhFrpOEBWccgGRwcKaDjgskvhHAoomOC+XD6AmmPwQgCicbIiV15cPrpn5j9IBggKwNkZYAK5Y+oAeeLAOeLAOeLAP0BZmT2qnAbE+OAcYED6Y/pn5gQwLCQFKwAGSXwvgIcACnzEQSRA4R2AQJRAkECPwBeA6wAPjAl8JhA/y8AoAyoIQO5rKABi+8uHJU0bHBVFSxwUVsfLhynAgghBfzD0UIYAQyMsFKM8WIfoCy2rLHxnLPyfPFifPFhjKACf6AhfKAMmAQPsAcQZQREUVBsjLABXLH1ADzxYBzxYBzxYB+gLMye1UABY3EDhHZRRDMHDwBTThaBI=', 'base64'))[0]
+
+    static buildDataCell(data: NftFixPriceSaleV2Data) {
+
+        const feesCell = beginCell()
+    
+        feesCell.storeAddress(data.marketplaceFeeAddress)
+        feesCell.storeCoins(data.marketplaceFee)
+        feesCell.storeAddress(data.royaltyAddress)
+        feesCell.storeCoins(data.royaltyAmount)
+    
+        const dataCell= beginCell()
+    
+        dataCell.storeUint(data.isComplete ? 1 : 0, 1)
+        dataCell.storeUint(data.createdAt, 32)
+        dataCell.storeAddress(data.marketplaceAddress)
+        dataCell.storeAddress(data.nftAddress)
+        dataCell.storeAddress(data.nftOwnerAddress)
+        dataCell.storeCoins(data.fullPrice)
+        dataCell.storeRef(feesCell)
+    
+        return dataCell.endCell()
+    }
 
     static createFromAddress(
         address: Address
     ) {
         return new NftFixedPriceV2(
             address
-            );
+        )
     }
 
     static async createFromConfig(
-        config: NftFixPriceSaleV2Data
+        config: NftFixPriceSaleV2Data,
+        workchain = 0
     ) {
 
-        let data = buildNftFixPriceSaleV2DataCell(config);
-        let address = contractAddress(
-            0,
+        const data = this.buildDataCell(config)
+        const address = contractAddress(
+            workchain,
             {
-                code: NftFixPriceSaleV2CodeCell,
+                code: this.code,
                 data: data
             }
         )
 
         return new NftFixedPriceV2(
             address,
-            0,
             {
-                code: NftFixPriceSaleV2CodeCell,
+                code: this.code,
                 data: data
             }
         )
@@ -120,31 +146,3 @@ export type NftFixPriceSaleV2Data = {
     royaltyAddress: Address
     royaltyAmount: bigint
 }
-
-export function buildNftFixPriceSaleV2DataCell(data: NftFixPriceSaleV2Data) {
-
-    let feesCell = beginCell()
-
-    feesCell.storeAddress(data.marketplaceFeeAddress)
-    feesCell.storeCoins(data.marketplaceFee)
-    feesCell.storeAddress(data.royaltyAddress)
-    feesCell.storeCoins(data.royaltyAmount)
-
-    let dataCell = beginCell()
-
-    dataCell.storeUint(data.isComplete ? 1 : 0, 1)
-    dataCell.storeUint(data.createdAt, 32)
-    dataCell.storeAddress(data.marketplaceAddress)
-    dataCell.storeAddress(data.nftAddress)
-    dataCell.storeAddress(data.nftOwnerAddress)
-    dataCell.storeCoins(data.fullPrice)
-    dataCell.storeRef(feesCell)
-
-    return dataCell.endCell()
-}
-
-// Data
-
-export const NftFixPriceSaleV2CodeBoc = 'te6cckECDAEAAikAART/APSkE/S88sgLAQIBIAMCAATyMAIBSAUEAFGgOFnaiaGmAaY/9IH0gfSB9AGoYaH0gfQB9IH0AGEEIIySsKAVgAKrAQICzQgGAfdmCEDuaygBSYKBSML7y4cIk0PpA+gD6QPoAMFOSoSGhUIehFqBSkHCAEMjLBVADzxYB+gLLaslx+wAlwgAl10nCArCOF1BFcIAQyMsFUAPPFgH6AstqyXH7ABAjkjQ04lpwgBDIywVQA88WAfoCy2rJcfsAcCCCEF/MPRSBwCCIYAYyMsFKs8WIfoCy2rLHxPLPyPPFlADzxbKACH6AsoAyYMG+wBxVVAGyMsAFcsfUAPPFgHPFgHPFgH6AszJ7VQC99AOhpgYC42EkvgnB9IBh2omhpgGmP/SB9IH0gfQBqGBNgAPloyhFrpOEBWccgGRwcKaDjgskvhHAoomOC+XD6AmmPwQgCicbIiV15cPrpn5j9IBggKwNkZYAK5Y+oAeeLAOeLAOeLAP0BZmT2qnAbE+OAcYED6Y/pn5gQwLCQFKwAGSXwvgIcACnzEQSRA4R2AQJRAkECPwBeA6wAPjAl8JhA/y8AoAyoIQO5rKABi+8uHJU0bHBVFSxwUVsfLhynAgghBfzD0UIYAQyMsFKM8WIfoCy2rLHxnLPyfPFifPFhjKACf6AhfKAMmAQPsAcQZQREUVBsjLABXLH1ADzxYBzxYBzxYB+gLMye1UABY3EDhHZRRDMHDwBTThaBI='
-
-export const NftFixPriceSaleV2CodeCell = Cell.fromBoc(Buffer.from(NftFixPriceSaleV2CodeBoc, 'base64'))[0]

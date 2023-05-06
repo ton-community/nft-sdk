@@ -1,4 +1,4 @@
-import { Address, Dictionary, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core';
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode } from 'ton-core'
 
 const OperationCodes = {
     ownershipAssigned: 0x05138d91,
@@ -12,11 +12,10 @@ const OperationCodes = {
 }
 
 export class NftSwap implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address,
-        workchain: number,
         init: { 
             code: Cell; 
             data: Cell 
@@ -24,9 +23,8 @@ export class NftSwap implements Contract {
     ) {
         return new NftSwap(
             address,
-            workchain,
             init
-            );
+        )
     }
 
     // Deployment
@@ -241,7 +239,7 @@ export class NftSwap implements Contract {
 // }
 
 // export function buildSwapDataCell(data: SwapData) {
-//     let dataCell = beginCell()
+//     const dataCell= beginCell()
 //     dataCell.storeUint(data.state, 2)
 //     dataCell.storeAddress(data.leftAddress)
 //     dataCell.storeAddress(data.rightAddress)
@@ -254,7 +252,7 @@ export class NftSwap implements Contract {
 //     if (data.leftNft.length > 0) {
 //         let leftNft = Dictionary.empty(256)
 //         for (const leftNftKey in data.leftNft) {
-//             let bitCell = beginCell();
+//             let bitCell = beginCell()
 //             bitCell.storeBit(data.leftNft[leftNftKey].sent);
 
 //             leftNft.storeCell(data.leftNft[leftNftKey].addr.hash, bitCell)
@@ -270,7 +268,7 @@ export class NftSwap implements Contract {
 //     if (data.rightNft.length > 0) {
 //         let rightNft = new DictBuilder(256)
 //         for (const rightNftKey in data.rightNft) {
-//             let bitCell = beginCell();
+//             let bitCell = beginCell()
 //             bitCell.storeBit(data.rightNft[rightNftKey].sent);
 
 //             rightNft.storeCell(data.rightNft[rightNftKey].addr.hash, bitCell)

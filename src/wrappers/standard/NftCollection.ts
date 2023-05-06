@@ -1,48 +1,20 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, Slice, contractAddress } from 'ton-core';
-import { encodeOffChainContent } from '../../types/OffchainContent';
+import { Address, Cell, Contract, ContractProvider } from 'ton-core'
 
 export class NftCollection implements Contract {
-    constructor(readonly address: Address, readonly workchain?: number, readonly init?: { code: Cell; data: Cell }) {}
-
-    static createFromConfig(
-        config: NftCollectionData, code: Cell, workchain = 0
-    ) {
-        const data = buildNftCollectionDataCell(config)
-        const init = { code, data }
-        return new NftCollection(contractAddress(workchain, init), workchain, init)
-    }
+    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
     static createFromAddress(
         address: Address
     ) {
         return new NftCollection(
             address
-            );
+        )
     }
-
-    // Deployment
-    async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
-        await provider.internal(via, {
-            value,
-            body: beginCell().endCell(),
-        })
-    }
-
-    // const { stack } = await provider.get('get_nft_address_by_index', [
-    //     { type: 'int', value: index }
-    // ])
 
     async getCollectionData(
-        provider: ContractProvider, 
-        next_item_index: bigint, 
-        collection_content: Cell,
-        owner_address: Slice
+        provider: ContractProvider
     ) {
-        const { stack } = await provider.get('get_collection_data', [
-            { type: 'int', value: next_item_index },
-            { type: 'cell', cell: collection_content },
-            { type: 'slice', cell: owner_address.asCell() }
-        ])
+        const { stack } = await provider.get('get_collection_data', [])
         return {
             nextItemIndex: stack.readBigNumber(),
             collectionContent: stack.readCellOpt(),
@@ -101,32 +73,3 @@ export type NftCollectionData = {
 //           nft_item_code:^Cell
 //           royalty_params:^RoyaltyParams
 //           = Storage;
-
-export function buildNftCollectionDataCell(data: NftCollectionData) {
-    let dataCell = beginCell()
-
-    dataCell.storeAddress(data.ownerAddress)
-    dataCell.storeUint(data.nextItemIndex, 64)
-
-    let contentCell = beginCell()
-
-    let collectionContent = encodeOffChainContent(data.collectionContent)
-
-    let commonContent = beginCell()
-    commonContent.storeBuffer(Buffer.from(data.commonContent))
-    // commonContent.bits.writeString(data.commonContent)
-
-    contentCell.storeRef(collectionContent)
-    contentCell.storeRef(commonContent)
-    dataCell.storeRef(contentCell)
-
-    dataCell.storeRef(data.nftItemCode)
-
-    let royaltyCell = beginCell()
-    royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
-    royaltyCell.storeUint(data.royaltyParams.royaltyBase, 16)
-    royaltyCell.storeAddress(data.royaltyParams.royaltyAddress)
-    dataCell.storeRef(royaltyCell)
-
-    return dataCell.endCell()
-}
