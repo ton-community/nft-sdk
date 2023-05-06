@@ -23,9 +23,7 @@ const OperationCodes = {
     GetRoyaltyParamsResponse: 0xa8cb00ad
 }
 
-export class NftCollectionEditable implements NftCollection {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
-
+export class NftCollectionEditable extends NftCollection {
     static createFromAddress(
         address: Address
     ) {

@@ -1,9 +1,8 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
+import { NftItem as Standard } from '../standard/NftItem'
 import { encodeOffChainContent } from '../../types/OffchainContent'
 
-export class NftSingle implements Contract {
-    constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
-
+export class NftSingle extends Standard {   
     // Data
 
     static code = Cell.fromBoc(Buffer.from('te6cckECFQEAAwoAART/APSkE/S88sgLAQIBYgcCAgEgBAMAI7x+f4ARgYuGRlgOS/uAFoICHAIBWAYFABG0Dp4AQgRr4HAAHbXa/gBNhjoaYfph/0gGEAICzgsIAgEgCgkAGzIUATPFljPFszMye1UgABU7UTQ+kD6QNTUMIAIBIA0MABE+kQwcLry4U2AEuQyIccAkl8D4NDTAwFxsJJfA+D6QPpAMfoAMXHXIfoAMfoAMPACBtMf0z+CEF/MPRRSMLqOhzIQRxA2QBXgghAvyyaiUjC64wKCEGk9OVBSMLrjAoIQHARBKlIwuoBMSEQ4BXI6HMhBHEDZAFeAxMjQ1NYIQGgudURK6n1ETxwXy4ZoB1NQwECPwA+BfBIQP8vAPAfZRNscF8uGR+kAh8AH6QNIAMfoAggr68IAboSGUUxWgod4i1wsBwwAgkgahkTbiIML/8uGSIY4+ghBRGkRjyFAKzxZQC88WcSRKFFRGsHCAEMjLBVAHzxZQBfoCFctqEssfyz8ibrOUWM8XAZEy4gHJAfsAEFeUECo4W+IQAIICjjUm8AGCENUydtsQN0UAbXFwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7AJMwMzTiVQLwAwBUFl8GMwHQEoIQqMsArXCAEMjLBVAFzxYk+gIUy2oTyx/LPwHPFsmAQPsAAIYWXwZsInDIywHJcIIQi3cXNSHIy/8D0BPPFhOAQHCAEMjLBVAHzxZQBfoCFctqEssfyz8ibrOUWM8XAZEy4gHJAfsAAfZRN8cF8uGR+kAh8AH6QNIAMfoAggr68IAboSGUUxWgod4i1wsBwwAgkgahkTbiIMIA8uGSIY4+ghAFE42RyFALzxZQC88WcSRLFFRGwHCAEMjLBVAHzxZQBfoCFctqEssfyz8ibrOUWM8XAZEy4gHJAfsAEGeUECo5W+IUAIICjjUm8AGCENUydtsQN0YAbXFwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7AJMwNDTiVQLwA+GNLv4=', 'base64'))[0]
@@ -62,49 +61,6 @@ export class NftSingle implements Contract {
         await provider.internal(via, {
             value,
             body: beginCell().endCell(),
-        })
-    }
-
-
-    async sendTransfer(provider: ContractProvider, via: Sender, params: {
-        value: bigint
-        queryId: bigint
-        newOwner: Address
-        responseDestination?: Address
-        customPayload?: Cell
-        forwardAmount: bigint
-        forwardPayload?: Cell
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(0x5fcc3d14, 32)
-                .storeUint(params.queryId, 64)
-                .storeAddress(params.newOwner)
-                .storeAddress(params.responseDestination)
-                .storeMaybeRef(params.customPayload)
-                .storeCoins(params.forwardAmount)
-                .storeMaybeRef(params.forwardPayload)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
-    async sendGetStaticData(
-        provider: ContractProvider,
-        via: Sender,
-        params: {
-            value: bigint
-            queryId: bigint
-        }
-    ) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(0x2fcb26a2, 32)
-                .storeUint(params.queryId || 0, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
