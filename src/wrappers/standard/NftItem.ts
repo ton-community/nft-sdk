@@ -4,7 +4,7 @@ import { encodeOffChainContent } from '../../types/OffchainContent'
 export class NftItem implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
-    static buildNftItemDataCell(data: NftItemData) {
+    static buildDataCell(data: NftItemData) {
         const dataCell= beginCell()
     
         const contentCell = encodeOffChainContent(data.content)

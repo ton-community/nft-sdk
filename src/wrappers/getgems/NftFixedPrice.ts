@@ -7,7 +7,7 @@ export class NftFixedPrice implements Contract {
 
     static code = Cell.fromBoc(Buffer.from('te6cckECCgEAAbIAART/APSkE/S88sgLAQIBIAMCAATyMAIBSAUEADegOFnaiaH0gfSB9IH0AahhofQB9IH0gfQAYCBHAgLNCAYB99G8EIHc1lACkgUCkQX3lw4QFofQB9IH0gfQAYOEAIZGWCqATniyi6UJDQqFrQilAK/QEK5bVkuP2AOEAIZGWCrGeLKAP9AQtltWS4/YA4QAhkZYKsZ4ssfQFltWS4/YA4EEEIL+YeihDADGRlgqgC54sRfQEKZbUJ5Y+JwHAC7LPyPPFlADzxYSygAh+gLKAMmBAKD7AAH30A6GmBgLjYSS+CcH0gGHaiaH0gfSB9IH0AahgRa6ThAVnHHZkbGymQ44LJL4NwKJFjgvlw+gFpj8EIAonGyIldeXD66Z+Y/SAYIBpkKALniygB54sA54sA/QFmZPaqcBNjgEybCBsimYI4eAJwA2mP6Z+YEOAAyS+FcBDAkAtsACmjEQRxA2RUAS8ATgMjQ0NDXAA449ghA7msoAE77y4clwIIIQX8w9FCGAEMjLBVAHzxYi+gIWy2oVyx8Tyz8hzxYBzxYSygAh+gLKAMmBAKD7AOBfBIQP8vCVeDe4', 'base64'))[0]
 
-    static buildNftFixPriceSaleDataCell(data: NftFixPriceSaleData) {
+    static buildDataCell(data: NftFixPriceSaleData) {
 
         const feesCell = beginCell()
     
@@ -40,7 +40,7 @@ export class NftFixedPrice implements Contract {
         workchain = 0
     ) {
 
-        const data = this.buildNftFixPriceSaleDataCell(config)
+        const data = this.buildDataCell(config)
         const address = contractAddress(
             workchain,
             {
