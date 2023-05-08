@@ -180,26 +180,35 @@ export class NftSwap implements Contract {
         })
     }
 
-    async getRaffleState(
+    async getTradeState(
         provider: ContractProvider
     ) {
-        const { stack } = await provider.get('raffle_state', [])
+        const { stack } = await provider.get('get_trade_state', [])
         return {
-            state: stack.readBigNumber(), 
-            rightNftsCount: stack.readBigNumber(), 
-            rightNftsReceived: stack.readBigNumber(), 
-            leftNftsCount: stack.readBigNumber(),
-            leftNftsReceived: stack.readBigNumber(), 
-            leftUser: stack.readAddressOpt(), 
-            rightUser: stack.readAddressOpt(), 
-            superUser: stack.readAddressOpt(), 
-            leftCommission: stack.readBigNumber(),
-            rightCommission: stack.readBigNumber(), 
-            leftCoinsGot: stack.readBigNumber(), 
-            rightCoinsGot: stack.readBigNumber(),
-            nftTransferFee: stack.readCell(), 
-            nfts: stack.readCell(), 
-            raffledNfts: stack.readCell()
+            state: stack.readBigNumber() ?? 0, 
+            left_ok: !(stack.readBigNumber().toString() == "0"), 
+            right_ok: !(stack.readBigNumber().toString() == "0"), 
+            leftAddress: stack.readAddressOpt(), 
+            rightAddress: stack.readAddressOpt(), 
+            leftNft: stack.readCell(), 
+            rightNft: stack.readCell(),
+            leftComm: stack.readBigNumber(), 
+            leftAmount: stack.readBigNumber(), 
+            leftGot: stack.readBigNumber(), 
+            rightComm: stack.readBigNumber(), 
+            rightAmount: stack.readBigNumber(), 
+            rightGot: stack.readBigNumber()
         }
     }
+
+    async getSupervisor(
+        provider: ContractProvider
+    ) {
+        const { stack } = await provider.get('get_supervisor', [])
+        return {
+            supervisor: stack.readAddressOpt()
+        }
+    }
+
+    
 }
