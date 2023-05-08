@@ -30,23 +30,6 @@ export class NftSwap implements Contract {
         })
     }
 
-
-    async sendOwnershipAssigned(provider: ContractProvider, via: Sender, params: { 
-        value: bigint, 
-        queryId?: number,
-        prevOwner: Address
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.ownershipAssigned, 32)
-                .storeUint(params.queryId || 0, 64)
-                .storeAddress(params.prevOwner)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
     async sendCancel(provider: ContractProvider, via: Sender, params: { 
         value: bigint,
         queryId?: number
@@ -72,48 +55,6 @@ export class NftSwap implements Contract {
                 .storeUint(OperationCodes.addCoins, 32)
                 .storeUint(params.queryId || 0, 64)
                 .storeCoins(params.coins)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
-    async sendTransferCommission(provider: ContractProvider, via: Sender, params: {
-        value: bigint,
-        queryId?: number
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.transferCommission, 32)
-                .storeUint(params.queryId || 0, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
-    async sendTransferCancel(provider: ContractProvider, via: Sender, params: {
-        value: bigint,
-        queryId?: number
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.transferCancel, 32)
-                .storeUint(params.queryId || 0, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
-    async sendTransferComplete(provider: ContractProvider, via: Sender, params: {
-        value: bigint,
-        queryId?: number
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.transferComplete, 32)
-                .storeUint(params.queryId || 0, 64)
                 .endCell(),
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
@@ -154,31 +95,6 @@ export class NftSwap implements Contract {
             sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
-    
-    async sendMakeMessage(
-        provider: ContractProvider,
-        via: Sender,
-        params: {
-            value: bigint,
-            queryId?: number,
-            to: Address,
-            amount: bigint,
-            body: Cell
-        }
-    ) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(0x18, 6)
-                .storeUint(params.queryId || 0, 64)
-                .storeAddress(params.to)
-                .storeCoins(params.amount)
-                .storeUint(0, 1 + 4 + 4 + 64 + 32 + 1 +1)
-                .storeRef(params.body)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
 
     async getTradeState(
         provider: ContractProvider
@@ -208,7 +124,5 @@ export class NftSwap implements Contract {
         return {
             supervisor: stack.readAddressOpt()
         }
-    }
-
-    
+    }   
 }
