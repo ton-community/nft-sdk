@@ -5,7 +5,7 @@ export class NftCollectionRoyalty extends NftCollection {
     static createFromAddress(
         address: Address
     ) {
-        return new NftCollection(
+        return new NftCollectionRoyalty(
             address
         )
     }
