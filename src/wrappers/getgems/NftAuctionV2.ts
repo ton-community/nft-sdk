@@ -96,7 +96,7 @@ export class NftAuctionV2 implements Contract {
                 .storeUint(0,32)
                 .storeBuffer(Buffer.from('cancel'))
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
     
@@ -109,7 +109,7 @@ export class NftAuctionV2 implements Contract {
                 .storeUint(0,32)
                 .storeBuffer(Buffer.from('cancel'))
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 

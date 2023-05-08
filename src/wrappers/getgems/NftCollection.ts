@@ -122,7 +122,7 @@ export class NftCollection extends NftCollectionRoyalty {
                 .storeCoins(params.passAmount)
                 .storeRef(nftItemMessage)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 
@@ -138,7 +138,7 @@ export class NftCollection extends NftCollectionRoyalty {
                 .storeUint(params.queryId || 0, 64)
                 .storeAddress(params.newOwner)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY
+            sendMode: SendMode.PAY_GAS_SEPARATLY
         })
     }
 }

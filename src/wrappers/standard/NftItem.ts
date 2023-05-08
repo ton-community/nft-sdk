@@ -23,7 +23,7 @@ export class NftItem implements Contract {
                 .storeCoins(params.forwardAmount)
                 .storeMaybeRef(params.forwardPayload)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 
@@ -41,7 +41,7 @@ export class NftItem implements Contract {
                 .storeUint(0x2fcb26a2, 32)
                 .storeUint(params.queryId || 0, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 

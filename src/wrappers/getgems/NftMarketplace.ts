@@ -68,7 +68,7 @@ export class NftMarketplace implements Contract {
                 .storeUint(1, 32)
                 .storeUint(params.queryId, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 }

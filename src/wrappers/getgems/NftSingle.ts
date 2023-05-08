@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
+import { Address, beginCell, Cell, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
 import { NftItemRoyalty } from '../standard/NftItemRoyalty'
 import { encodeOffChainContent } from '../../types/OffchainContent'
 
@@ -82,7 +82,7 @@ export class NftSingle extends NftItemRoyalty {
                 .storeCoins(params.forwardAmount || 0)
                 .storeBit(false)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 }

@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, ContractProvider, Sender, SendMode } from 'ton-core'
+import { Address, beginCell, ContractProvider, Sender, SendMode } from 'ton-core'
 import { NftCollectionRoyalty } from '../standard/NftCollectionRoyalty'
 
 export type CollectionMintItemInput = {
@@ -67,7 +67,7 @@ export class NftCollectionEditable extends NftCollectionRoyalty {
                 .storeCoins(params.passAmount)
                 .storeRef(nftItemMessage)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 
@@ -83,7 +83,7 @@ export class NftCollectionEditable extends NftCollectionRoyalty {
                 .storeUint(params.queryId || 0, 64)
                 .storeAddress(params.newOwner)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY
+            sendMode: SendMode.PAY_GAS_SEPARATLY
         })
     }
 }

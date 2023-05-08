@@ -39,7 +39,7 @@ export class NftRaffle implements Contract {
             body: beginCell()
                 .storeUint(OperationCodes.cancel, 32)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 
@@ -51,7 +51,7 @@ export class NftRaffle implements Contract {
             body: beginCell()
                 .storeUint(OperationCodes.addCoins, 32)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 

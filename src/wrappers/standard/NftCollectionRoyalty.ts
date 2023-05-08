@@ -1,5 +1,5 @@
-import { Address, Cell, Contract, ContractProvider, Sender, SendMode, beginCell } from 'ton-core'
-import { NftCollection } from './NftCollection';
+import { Address, ContractProvider, Sender, SendMode, beginCell } from 'ton-core'
+import { NftCollection } from './NftCollection'
 
 export class NftCollectionRoyalty extends NftCollection {
     static createFromAddress(
