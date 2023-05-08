@@ -1,4 +1,3 @@
-import fetch, {RequestInit} from 'node-fetch'
 import { Address } from 'ton-core'
 
 export class TonClient {

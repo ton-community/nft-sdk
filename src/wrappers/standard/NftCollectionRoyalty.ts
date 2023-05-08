@@ -1,11 +1,11 @@
-import { Address, Cell, Contract, ContractProvider, Sender, SendMode, beginCell } from 'ton-core'
-import { NftCollection } from './NftCollection';
+import { Address, ContractProvider, Sender, SendMode, beginCell } from 'ton-core'
+import { NftCollection } from './NftCollection'
 
 export class NftCollectionRoyalty extends NftCollection {
     static createFromAddress(
         address: Address
     ) {
-        return new NftCollection(
+        return new NftCollectionRoyalty(
             address
         )
     }
@@ -41,27 +41,3 @@ export class NftCollectionRoyalty extends NftCollection {
     }
 
 }
-
-// Utils
-
-export type RoyaltyParams = {
-    royaltyFactor: number
-    royaltyBase: number
-    royaltyAddress: Address
-}
-
-export type NftCollectionData = {
-    ownerAddress: Address,
-    nextItemIndex: number | bigint
-    collectionContent: string
-    commonContent: string
-    nftItemCode: Cell
-    royaltyParams: RoyaltyParams
-}
-
-// default#_ royalty_factor:uint16 royalty_base:uint16 royalty_address:MsgAddress = RoyaltyParams;
-// storage#_ owner_address:MsgAddress next_item_index:uint64
-//           ^[collection_content:^Cell common_content:^Cell]
-//           nft_item_code:^Cell
-//           royalty_params:^RoyaltyParams
-//           = Storage;

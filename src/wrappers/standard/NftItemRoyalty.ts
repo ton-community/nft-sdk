@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, ContractProvider, Sender, SendMode } from 'ton-core'
+import { Address, beginCell, ContractProvider, Sender, SendMode } from 'ton-core'
 import { NftItem } from './NftItem'
 
 export class NftItemRoyalty extends NftItem {
@@ -8,30 +8,6 @@ export class NftItemRoyalty extends NftItem {
         return new NftItemRoyalty(
             address
         )
-    }
-
-    async sendTransfer(provider: ContractProvider, via: Sender, params: {
-        value: bigint
-        queryId: bigint
-        newOwner: Address
-        responseDestination: Address
-        customPayload?: Cell
-        forwardAmount: bigint
-        forwardPayload?: Cell
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(0x5fcc3d14, 32)
-                .storeUint(params.queryId, 64)
-                .storeAddress(params.newOwner)
-                .storeAddress(params.responseDestination)
-                .storeMaybeRef(params.customPayload)
-                .storeCoins(params.forwardAmount)
-                .storeMaybeRef(params.forwardPayload)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
     }
 
     async sendGetRoyaltyParams(
@@ -48,19 +24,8 @@ export class NftItemRoyalty extends NftItem {
                 .storeUint(0x693d3950, 32)
                 .storeUint(params.queryId, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
-    }
-
-    async getNftData(provider: ContractProvider) {
-        const { stack } = await provider.get('get_nft_data', [])
-        return {
-            init: stack.readBoolean(),
-            index: stack.readBigNumber(),
-            collectionAddress: stack.readAddressOpt(),
-            ownerAddress: stack.readAddressOpt(),
-            individualContent: stack.readCellOpt(),
-        }
     }
 
     async getRoyaltyParams(

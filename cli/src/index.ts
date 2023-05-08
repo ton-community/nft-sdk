@@ -91,7 +91,7 @@ yargs(hideBin(process.argv))
         console.log(`Using secret API key: ${argv.secretApiKey}`);
 
         let s3 = new AmazonS3(argv.apiKey, argv.secretApiKey);
-        let imagesUrls = await s3.uploadBulk(argv.path, "nft_collection", {
+        let imagesUrls = await s3.uploadImagesBulk(argv.path, "nft_collection", {
           type: `image/${argv.fileType}`
         })
 

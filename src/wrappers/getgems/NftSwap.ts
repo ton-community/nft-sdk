@@ -1,4 +1,4 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode } from 'ton-core'
+import { Address, beginCell, Cell, Contract, ContractProvider, Dictionary, Sender, SendMode, contractAddress } from 'ton-core'
 
 const OperationCodes = {
     ownershipAssigned: 0x05138d91,
@@ -11,44 +11,128 @@ const OperationCodes = {
     transferComplete: 0xef03d009,
 }
 
+
+export const SwapState = {
+    Active: 1,
+    Cancelled: 2,
+    Completed: 3,
+}
+
+interface NFTItem {
+    addr: Address
+    sent: boolean
+}
+
+export type SwapData = {
+    state: number,
+    leftAddress: Address
+    rightAddress: Address
+    rightNft: NFTItem[]
+    leftNft: NFTItem[]
+    supervisorAddress: Address
+    commissionAddress: Address
+    leftCommission: bigint
+    leftAmount: bigint
+    leftCoinsGot: bigint
+    rightCommission: bigint
+    rightAmount: bigint
+    rightCoinsGot: bigint
+}
+
 export class NftSwap implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
-    static createFromAddress(
-        address: Address,
-        init: { 
-            code: Cell; 
-            data: Cell 
+    // wrong code
+    static code = Cell.fromBoc(Buffer.from('te6cckECDAEAAqAAART/APSkE/S88sgLAQIBIAMCAH7yMO1E0NMA0x/6QPpA+kD6ANTTADDAAY4d+ABwB8jLABbLH1AEzxZYzxYBzxYB+gLMywDJ7VTgXweCAP/+8vACAUgFBABXoDhZ2omhpgGmP/SB9IH0gfQBqaYAYGGh9IH0AfSB9ABhBCCMkrCgFYACqwECAs0IBgH3ZghA7msoAUmCgUjC+8uHCJND6QPoA+kD6ADBTkqEhoVCHoRagUpBwgBDIywVQA88WAfoCy2rJcfsAJcIAJddJwgKwjhdQRXCAEMjLBVADzxYB+gLLaslx+wAQI5I0NOJacIAQyMsFUAPPFgH6AstqyXH7AHAgghBfzD0UgcAlsjLHxPLPyPPFlADzxbKAIIJycOA+gLKAMlxgBjIywUmzxZw+gLLaszJgwb7AHFVUHAHyMsAFssfUATPFljPFgHPFgH6AszLAMntVAP10A6GmBgLjYSS+CcH0gGHaiaGmAaY/9IH0gfSB9AGppgBgYOCmE44BgAEwthGmP6Z+lVW8Q4AHxgRDAgRXdFOAA2CnT44LYTwhWL4ZqGGhpg+oYAP2AcBRgAPloyhJrpOEBWfGBHByUYABOGxuIHCOyiiGYOHgC8BRgAMCwoJAC6SXwvgCMACmFVEECQQI/AF4F8KhA/y8ACAMDM5OVNSxwWSXwngUVHHBfLh9IIQBRONkRW68uH1BPpAMEBmBXAHyMsAFssfUATPFljPFgHPFgH6AszLAMntVADYMTc4OYIQO5rKABi+8uHJU0bHBVFSxwUVsfLhynAgghBfzD0UIYAQyMsFKM8WIfoCy2rLHxXLPyfPFifPFhTKACP6AhPKAMmAQPsAcVBmRRUEcAfIywAWyx9QBM8WWM8WAc8WAfoCzMsAye1UM/Vflw==', 'base64'))[0]
+
+    static buildDataCell(data: SwapData) {
+        const dataCell = beginCell()
+        dataCell.storeUint(data.state, 2)
+        dataCell.storeAddress(data.leftAddress)
+        dataCell.storeAddress(data.rightAddress)
+
+        dataCell.storeCoins(data.leftCommission)
+        dataCell.storeCoins(data.leftAmount)
+        dataCell.storeCoins(data.leftCoinsGot)
+        dataCell.storeBit(data.leftNft.length > 0)
+
+        if (data.leftNft.length > 0) {
+            const leftNft = Dictionary.empty(
+                Dictionary.Keys.BigUint(256)
+            )
+            
+            for (const leftNftKey in data.leftNft) {
+                const bitCell = beginCell()
+                bitCell.storeBit(data.leftNft[leftNftKey].sent)
+
+                leftNft.store(bitCell)
+            }
+            dataCell.storeDict(leftNft)
         }
+
+        dataCell.storeCoins(data.rightCommission)
+        dataCell.storeCoins(data.rightAmount)
+        dataCell.storeCoins(data.rightCoinsGot)
+        dataCell.storeBit(data.rightNft.length > 0)
+
+        if (data.rightNft.length > 0) {
+            const rightNft = Dictionary.empty(
+                Dictionary.Keys.BigUint(256)
+            )
+            
+            for (const rightNftKey in data.rightNft) {
+                const bitCell = beginCell()
+                bitCell.storeBit(data.rightNft[rightNftKey].sent)
+
+                rightNft.store(bitCell)
+            }
+            dataCell.storeDict(rightNft)
+        }
+
+        const marketCell = beginCell()
+        marketCell.storeAddress(data.commissionAddress)
+        marketCell.storeAddress(data.supervisorAddress)
+        dataCell.storeRef(marketCell)
+    
+        return dataCell.endCell()
+    }
+
+    static createFromAddress(
+        address: Address
     ) {
         return new NftSwap(
-            address,
-            init
+            address
         )
     }
+
+    static async createFromConfig(
+        config: SwapData,
+        workchain = 0
+    ) {
+        const data = this.buildDataCell(config)
+        const address = contractAddress(
+            workchain,
+            {
+                code: this.code,
+                data: data
+            }
+        )
+
+        return new NftSwap(
+            address,
+            {
+                code: this.code,
+                data: data
+            }
+        )
+    }
+    
 
     // Deployment
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value,
             body: beginCell().endCell(),
-        })
-    }
-
-
-    async sendOwnershipAssigned(provider: ContractProvider, via: Sender, params: { 
-        value: bigint, 
-        queryId?: number,
-        prevOwner: Address
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.ownershipAssigned, 32)
-                .storeUint(params.queryId || 0, 64)
-                .storeAddress(params.prevOwner)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -62,7 +146,7 @@ export class NftSwap implements Contract {
                 .storeUint(OperationCodes.cancel, 32)
                 .storeUint(params.queryId || 0, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 
@@ -78,49 +162,7 @@ export class NftSwap implements Contract {
                 .storeUint(params.queryId || 0, 64)
                 .storeCoins(params.coins)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
-    async sendTransferCommission(provider: ContractProvider, via: Sender, params: {
-        value: bigint,
-        queryId?: number
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.transferCommission, 32)
-                .storeUint(params.queryId || 0, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
-    async sendTransferCancel(provider: ContractProvider, via: Sender, params: {
-        value: bigint,
-        queryId?: number
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.transferCancel, 32)
-                .storeUint(params.queryId || 0, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-
-    async sendTransferComplete(provider: ContractProvider, via: Sender, params: {
-        value: bigint,
-        queryId?: number
-    }) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(OperationCodes.transferComplete, 32)
-                .storeUint(params.queryId || 0, 64)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 
@@ -142,7 +184,7 @@ export class NftSwap implements Contract {
                 .storeUint(params.mode, 8)
                 .storeRef(params.msg)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 
@@ -156,133 +198,37 @@ export class NftSwap implements Contract {
                 .storeUint(OperationCodes.topup, 32)
                 .storeUint(params.queryId || 0, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
-        })
-    }
-    
-    async sendMakeMessage(
-        provider: ContractProvider,
-        via: Sender,
-        params: {
-            value: bigint,
-            queryId?: number,
-            to: Address,
-            amount: bigint,
-            body: Cell
-        }
-    ) {
-        await provider.internal(via, {
-            value: params.value,
-            body: beginCell()
-                .storeUint(0x18, 6)
-                .storeUint(params.queryId || 0, 64)
-                .storeAddress(params.to)
-                .storeCoins(params.amount)
-                .storeUint(0, 1 + 4 + 4 + 64 + 32 + 1 +1)
-                .storeRef(params.body)
-                .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATELY,
+            sendMode: SendMode.PAY_GAS_SEPARATLY,
         })
     }
 
-    async getRaffleState(
+    async getTradeState(
         provider: ContractProvider
     ) {
-        const { stack } = await provider.get('raffle_state', [])
+        const { stack } = await provider.get('get_trade_state', [])
         return {
-            state: stack.readBigNumber(), 
-            rightNftsCount: stack.readBigNumber(), 
-            rightNftsReceived: stack.readBigNumber(), 
-            leftNftsCount: stack.readBigNumber(),
-            leftNftsReceived: stack.readBigNumber(), 
-            leftUser: stack.readAddressOpt(), 
-            rightUser: stack.readAddressOpt(), 
-            superUser: stack.readAddressOpt(), 
-            leftCommission: stack.readBigNumber(),
-            rightCommission: stack.readBigNumber(), 
-            leftCoinsGot: stack.readBigNumber(), 
-            rightCoinsGot: stack.readBigNumber(),
-            nftTransferFee: stack.readCell(), 
-            nfts: stack.readCell(), 
-            raffledNfts: stack.readCell()
+            state: stack.readBigNumber() ?? 0, 
+            left_ok: !(stack.readBigNumber().toString() == '0'), 
+            right_ok: !(stack.readBigNumber().toString() == '0'), 
+            leftAddress: stack.readAddressOpt(), 
+            rightAddress: stack.readAddressOpt(), 
+            leftNft: stack.readCell(), 
+            rightNft: stack.readCell(),
+            leftComm: stack.readBigNumber(), 
+            leftAmount: stack.readBigNumber(), 
+            leftGot: stack.readBigNumber(), 
+            rightComm: stack.readBigNumber(), 
+            rightAmount: stack.readBigNumber(), 
+            rightGot: stack.readBigNumber()
         }
     }
+
+    async getSupervisor(
+        provider: ContractProvider
+    ) {
+        const { stack } = await provider.get('get_supervisor', [])
+        return {
+            supervisor: stack.readAddressOpt()
+        }
+    }   
 }
-
-// Utils
-
-// export const SwapState = {
-//     Active: 1,
-//     Cancelled: 2,
-//     Completed: 3,
-// }
-
-// interface NFTItem {
-//     addr: Address
-//     sent: boolean
-// }
-
-// export type SwapData = {
-//     state: number,
-//     leftAddress: Address
-//     rightAddress: Address
-//     rightNft: NFTItem[]
-//     leftNft: NFTItem[]
-//     supervisorAddress: Address
-//     commissionAddress: Address
-//     leftCommission: bigint
-//     leftAmount: bigint
-//     leftCoinsGot: bigint
-//     rightCommission: bigint
-//     rightAmount: bigint
-//     rightCoinsGot: bigint
-// }
-
-// export function buildSwapDataCell(data: SwapData) {
-//     const dataCell= beginCell()
-//     dataCell.storeUint(data.state, 2)
-//     dataCell.storeAddress(data.leftAddress)
-//     dataCell.storeAddress(data.rightAddress)
-
-//     dataCell.storeCoins(data.leftCommission)
-//     dataCell.storeCoins(data.leftAmount)
-//     dataCell.storeCoins(data.leftCoinsGot)
-//     dataCell.storeBit(data.leftNft.length > 0)
-
-//     if (data.leftNft.length > 0) {
-//         let leftNft = Dictionary.empty(256)
-//         for (const leftNftKey in data.leftNft) {
-//             let bitCell = beginCell()
-//             bitCell.storeBit(data.leftNft[leftNftKey].sent);
-
-//             leftNft.storeCell(data.leftNft[leftNftKey].addr.hash, bitCell)
-//         }
-//         dataCell.storeRef(leftNft.endCell())
-//     }
-
-//     dataCell.storeCoins(data.rightCommission)
-//     dataCell.storeCoins(data.rightAmount)
-//     dataCell.storeCoins(data.rightCoinsGot)
-//     dataCell.storeBit(data.rightNft.length > 0)
-
-//     if (data.rightNft.length > 0) {
-//         let rightNft = new DictBuilder(256)
-//         for (const rightNftKey in data.rightNft) {
-//             let bitCell = beginCell()
-//             bitCell.storeBit(data.rightNft[rightNftKey].sent);
-
-//             rightNft.storeCell(data.rightNft[rightNftKey].addr.hash, bitCell)
-//         }
-//         dataCell.storeRef(rightNft.endCell())
-//     }
-
-//     let marketCell = beginCell()
-//     marketCell.storeAddress(data.commissionAddress)
-//     marketCell.storeAddress(data.supervisorAddress)
-//     dataCell.storeRef(marketCell)
-
-//     return dataCell
-// }
-
-// Data
-
