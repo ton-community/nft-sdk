@@ -1,5 +1,6 @@
 import { beginCell, Builder, Slice, Dictionary } from 'ton-core'
 import { Cell } from 'ton'
+import { Sha256 } from '@aws-crypto/sha256-js'
 
 // offchain#01 uri:Text = FullContent
 
@@ -63,18 +64,8 @@ export function loadOnchainContent(slice: Slice): OnchainContent {
 
 export function storeOnchainContent(src: OnchainContent): (builder: Builder) => void {
     return (builder: Builder) => {
-        const knownKeys = src.knownKeys
-        const unknownKeys = src.unknownKeys
-
         builder.storeUint(8, 0x00)
-
-        knownKeys.forEach((value, key) => {
-            builder.store(key, value)
-        })
-
-        unknownKeys.forEach((value, key) => {
-            builder.storeString(key.toString(), value)
-        })
+        builder.store(storeOnchainDict(src.unknownKeys))
     }
 }
 
@@ -157,7 +148,11 @@ export function loadChunkedData(slice: Slice): string {
 }
 
 export function storeChunkedData(src: string): (builder: Builder) => void {
-
+    return (builder: Builder) => {
+        builder
+            .storeUint(0x01, 8)
+            .store(storeChunkedRaw(src))
+    }
 }
 
 // these two only work with the dict (HashMapE 32 ^(SnakeData ~0))
@@ -177,7 +172,31 @@ export function loadOnchainDict(slice: Slice): Map<bigint, string> {
 
 // uses the Dictionary primitive and either storeSnakeData or storeChunkedData (probably just choose the former one for now)
 export function storeOnchainDict(src: Map<bigint, string>): (builder: Builder) => void {
+    const dict = Dictionary.empty(
+        Dictionary.Keys.BigUint(256),
+        Dictionary.Values.Cell()
+    )
 
+    /// CHECK: THIS
+    Object.entries(src).forEach(([key, value]) => {
+        dict.set(toKey(key), beginCell().store(storeSnakeData(value)).endCell())
+    })
+
+    return (builder: Builder) => {
+        builder.storeDict(dict)
+    }
+}
+
+
+
+const sha256 = (str: string) => {
+    const sha = new Sha256()
+    sha.update(str)
+    return Buffer.from(sha.digestSync())
+}
+
+const toKey = (key: string) => {
+    return BigInt(`0x${sha256(key).toString('hex')}`)
 }
 
 export function flattenSnakeCell(cell: Cell) {
