@@ -22,21 +22,25 @@ type FullContent = OnchainContent | OffchainContent;
 export function loadFullContent(slice: Slice): FullContent {
     const data = slice.preloadUint(8)
 
-    if (data === 0x00) {
+    switch (data) {
+
+    case 0x00:
         return loadOnchainContent(slice)
-    } else if (data === 0x01) {
+    case 0x01:
         return loadOffchainContent(slice)
-    } else {
+    default:    
         throw new Error(`Unknown content type: ${data.toString(16)}`)
+        
     }
 }
 
 export function storeFullContent(src: FullContent): (builder: Builder) => void {
-    if (src.type === 'onchain') {
+    switch (src.type) {
+    case 'onchain':
         return storeOnchainContent(src)
-    } else if (src.type === 'offchain') {
+    case 'offchain':
         return storeOffchainContent(src)
-    } else {
+    default:
         throw new Error('Unknown content type')
     }
 }
@@ -58,7 +62,20 @@ export function loadOnchainContent(slice: Slice): OnchainContent {
 }
 
 export function storeOnchainContent(src: OnchainContent): (builder: Builder) => void {
-    
+    return (builder: Builder) => {
+        const knownKeys = src.knownKeys
+        const unknownKeys = src.unknownKeys
+
+        builder.storeUint(8, 0x00)
+
+        knownKeys.forEach((value, key) => {
+            builder.store(key, value)
+        })
+
+        unknownKeys.forEach((value, key) => {
+            builder.storeString(key.toString(), value)
+        })
+    }
 }
 
 // offchain#01 uri:Text = FullContent;
@@ -94,11 +111,12 @@ export function storeOffchainContent(src: OffchainContent): (builder: Builder) =
 export function loadContentData(slice: Slice): string {
     const data = slice.preloadUint(8)
 
-    if (data === 0x00) {
+    switch (data) {
+    case 0x00:
         return loadSnakeData(slice)
-    } else if (data === 0x01) {
+    case 0x01:
         return loadChunkedData(slice)
-    } else {
+    default:
         throw new Error(`Unknown content type: ${data.toString(16)}`)
     }
 }
@@ -117,7 +135,11 @@ export function loadSnakeData(slice: Slice): string {
 }
 
 export function storeSnakeData(src: string): (builder: Builder) => void {
-
+    return (builder: Builder) => {
+        builder
+            .storeUint(0x00, 8)
+            .storeStringTail(src)
+    }
 }
 
 // chunks#01 data:ChunkedData = ContentData;
