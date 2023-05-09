@@ -20,7 +20,7 @@ export * from './wrappers/getgems/NftSwap'
 export * from './utils'
 
 // Data Encoders & Decoders
-export * from './types/OffchainContent'
+export * from './types/Content'
 
 // Transaction Parsing
 export * as TransactionParsing from './transaction-parsing/'

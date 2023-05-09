@@ -1,5 +1,5 @@
 import { Address, beginCell, Cell, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
-import { encodeOffChainContent } from '../../types/OffchainContent'
+import { encodeOffChainContent } from '../../types/Content'
 import { NftCollectionRoyalty } from '../standard/NftCollectionRoyalty'
 
 export type CollectionMintItemInput = {

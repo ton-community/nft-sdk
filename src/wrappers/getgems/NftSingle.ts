@@ -1,6 +1,6 @@
 import { Address, beginCell, Cell, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
 import { NftItemRoyalty } from '../standard/NftItemRoyalty'
-import { encodeOffChainContent } from '../../types/OffchainContent'
+import { encodeOffChainContent } from '../../types/Content'
 
 export class NftSingle extends NftItemRoyalty {   
     // Data
