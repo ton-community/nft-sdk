@@ -22,9 +22,9 @@ type FullContent = OnchainContent | OffchainContent;
 export function loadFullContent(slice: Slice): FullContent {
     const data = slice.preloadUint(8)
 
-    if (data == 0x00) {
+    if (data === 0x00) {
         return loadOnchainContent(slice)
-    } else if (data == 0x01) {
+    } else if (data === 0x01) {
         return loadOffchainContent(slice)
     } else {
         throw new Error(`Unknown content type: ${data.toString(16)}`)
@@ -32,9 +32,9 @@ export function loadFullContent(slice: Slice): FullContent {
 }
 
 export function storeFullContent(src: FullContent): (builder: Builder) => void {
-    if (src.type == 'onchain') {
+    if (src.type === 'onchain') {
         return storeOnchainContent(src)
-    } else if (src.type == 'offchain') {
+    } else if (src.type === 'offchain') {
         return storeOffchainContent(src)
     } else {
         throw new Error('Unknown content type')
@@ -44,9 +44,9 @@ export function storeFullContent(src: FullContent): (builder: Builder) => void {
 // onchain#00 data:(HashMapE 256 ^ContentData) = FullContent;
 // loads a uint8, checks that it is 0x00, calls loadOnchainDict, inserts known keys into the respective fields
 export function loadOnchainContent(slice: Slice): OnchainContent {
-    const data = slice.preloadUint(8)
+    const data = slice.loadUint(8)
 
-    if (data!= 0x00) {
+    if (data !== 0x00) {
         throw new Error(`Unknown content type: ${data.toString(16)}`)
     }
 
@@ -58,13 +58,13 @@ export function loadOnchainContent(slice: Slice): OnchainContent {
 }
 
 export function storeOnchainContent(src: OnchainContent): (builder: Builder) => void {
-
+    
 }
 
 // offchain#01 uri:Text = FullContent;
 // loads a uint8, checks that it is 0x01, calls loadSnakeData
 export function loadOffchainContent(slice: Slice): OffchainContent {
-    const prefix = slice.preloadUint(8)
+    const prefix = slice.loadUint(8)
 
     if (prefix !== 0x01) {
         throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
@@ -72,7 +72,7 @@ export function loadOffchainContent(slice: Slice): OffchainContent {
     
     return {
         type: 'offchain',
-        uri: loadSnakeData(slice)
+        uri: slice.loadStringTail()
     }
 }
 
@@ -82,7 +82,9 @@ export function storeOffchainContent(src: OffchainContent): (builder: Builder) =
     data = Buffer.concat([offChainPrefix, data])
 
     return (builder: Builder) => {
-        builder.storeStringTail(data.toString())
+        builder
+            .storeUint(0x01, 8)
+            .storeStringTail(data.toString())
     }
 }
 
@@ -92,9 +94,9 @@ export function storeOffchainContent(src: OffchainContent): (builder: Builder) =
 export function loadContentData(slice: Slice): string {
     const data = slice.preloadUint(8)
 
-    if (data == 0x00) {
+    if (data === 0x00) {
         return loadSnakeData(slice)
-    } else if (data == 0x01) {
+    } else if (data === 0x01) {
         return loadChunkedData(slice)
     } else {
         throw new Error(`Unknown content type: ${data.toString(16)}`)
@@ -105,9 +107,9 @@ export function loadContentData(slice: Slice): string {
 // snake#00 data:(SnakeData ~n) = ContentData;
 // loads a uint8, checks that it is 0x00, calls slice.loadStringTail
 export function loadSnakeData(slice: Slice): string {
-    const prefix = slice.preloadUint(8)
+    const prefix = slice.loadUint(8)
 
-    if (prefix!== 0x00) {
+    if (prefix !== 0x00) {
         throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
     }
     
@@ -123,7 +125,7 @@ export function storeSnakeData(src: string): (builder: Builder) => void {
 // notice that above it is `SnakeData ~0` which means `the last layer` so there must be no refs in it, and it should be an integer number of bytes
 // loads a uint8, checks that it is 0x01, calls loadChunkedRaw
 export function loadChunkedData(slice: Slice): string {
-    const prefix = slice.preloadUint(8)
+    const prefix = slice.loadUint(8)
 
     if (prefix!== 0x01) {
         throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
