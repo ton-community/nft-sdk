@@ -1,6 +1,6 @@
 import {Blockchain} from '@ton-community/sandbox'
 import {toNano} from 'ton-core'
-import {NftAuction, NftAuctionData} from '../../src/wrappers/getgems/NftAuction'
+import {NftAuction, NftAuctionData} from '../../src/wrappers/getgems/NftAuction/NftAuction'
 import {randomAddress} from '../../src/utils/randomAddress'
 
 async function main() {

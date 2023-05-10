@@ -158,7 +158,7 @@ export function storeChunkedData(src: string): (builder: Builder) => void {
 // these two only work with the dict (HashMapE 32 ^(SnakeData ~0))
 // load must iterate over all parts and combine them, store must split the string as needed
 export function loadChunkedRaw(slice: Slice): string {
-
+    
 }
 
 export function storeChunkedRaw(src: string): (builder: Builder) => void {
@@ -167,7 +167,7 @@ export function storeChunkedRaw(src: string): (builder: Builder) => void {
 
 // uses the Dictionary primitive with loadContentData to parse the dict
 export function loadOnchainDict(slice: Slice): Map<bigint, string> {
-    
+
 }
 
 // uses the Dictionary primitive and either storeSnakeData or storeChunkedData (probably just choose the former one for now)

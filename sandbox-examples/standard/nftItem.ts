@@ -1,6 +1,6 @@
 import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
-import {SbtSingle, SbtSingleSource} from '../../src/wrappers/getgems/SbtSingle'
+import {SbtSingle, SbtSingleSource} from '../../src/wrappers/getgems/SbtSingle/SbtSingle'
 import {randomAddress} from "../../src/utils/randomAddress";
 import { compileFunc } from '@ton-community/func-js';
 

@@ -1,6 +1,6 @@
 import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
-import {NftAuctionV2, NftAuctionV2Data} from '../../src/wrappers/getgems/NftAuctionV2'
+import {NftAuctionV2, NftAuctionV2Data} from '../../src/wrappers/getgems/NftAuctionV2/NftAuctionV2'
 import {randomAddress} from "../../src/utils/randomAddress";
 import {importKeyPair} from "../../src/utils/importKeyPair"
 import {createSender} from "../../src/utils/createSender"
