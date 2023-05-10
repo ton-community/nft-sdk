@@ -1,5 +1,9 @@
 ;; NFT sale smart contract v3
 
+#include "../stdlib.fc";
+#include "../params.fc";
+#include "../op-codes.fc";
+
 int min_gas_amount() asm "1000000000 PUSHINT"; ;; 1 TON
 
 _ load_data() inline {

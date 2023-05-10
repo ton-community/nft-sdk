@@ -1,5 +1,9 @@
 ;; NFT collection smart contract
 
+#include "../stdlib.fc";
+#include "../params.fc";
+#include "../op-codes.fc";
+
 ;; storage scheme
 ;; default#_ royalty_factor:uint16 royalty_base:uint16 royalty_address:MsgAddress = RoyaltyParams;
 ;; storage#_ owner_address:MsgAddress next_item_index:uint64

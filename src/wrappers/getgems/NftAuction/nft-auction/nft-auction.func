@@ -11,6 +11,7 @@ int equal_slices? (slice a, slice b) asm "SDEQ";
 #include "struct/storage.func";
 #include "struct/handles.func";
 #include "struct/get-met.func";
+#include "../../stdlib.fc";
 
 {-
     SHOULD
