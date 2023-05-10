@@ -1,5 +1,5 @@
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
-import {NftAuction, NftAuctionData} from '../../src/wrappers/getgems/NftAuction'
+import {NftAuction, NftAuctionData} from '../../src/wrappers/getgems/NftAuction/NftAuction'
 import {randomAddress} from "../../src/utils/randomAddress";
 import {importKeyPair} from "../../src/utils/importKeyPair"
 import {createSender} from "../../src/utils/createSender"

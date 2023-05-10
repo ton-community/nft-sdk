@@ -1,5 +1,5 @@
 import { Address, beginCell, ContractProvider, Sender, SendMode } from 'ton-core'
-import { NftCollectionRoyalty } from '../standard/NftCollectionRoyalty'
+import { NftCollectionRoyalty } from '../../standard/NftCollectionRoyalty'
 
 export type CollectionMintItemInput = {
     passAmount: bigint

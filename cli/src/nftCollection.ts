@@ -1,5 +1,5 @@
 import { Sender, toNano } from 'ton-core'
-import {NftCollection, NftCollectionData} from '../../src/wrappers/getgems/NftCollection'
+import {NftCollection, NftCollectionData} from '../../src/wrappers/getgems/NftCollection/NftCollection'
 import importKeyPair from './utils/importKeyPair';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { error } from 'console';

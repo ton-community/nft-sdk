@@ -1,5 +1,5 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
-import { encodeOffChainContent } from '../../types/OffchainContent'
+import { encodeOffChainContent } from '../../../types/Content'
 
 export class SbtSingle implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}

@@ -1,6 +1,6 @@
 import {Blockchain} from '@ton-community/sandbox'
 import {beginCell, Cell, contractAddress, SendMode, toNano} from 'ton-core'
-import {NftItem} from '../../src/wrappers/getgems/NftItem'
+import {NftItem} from '../../src/wrappers/getgems/NftItem/NftItem'
 import {randomAddress} from "../../src/utils/randomAddress";
 import { compileFunc } from '@ton-community/func-js';
 
