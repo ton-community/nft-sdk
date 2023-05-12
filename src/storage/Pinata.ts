@@ -91,6 +91,12 @@ export class Pinata {
         }            
     }
 
+    // Function to upload only one image in bulk to IPFS using Pinata SDK in ascending order of file name and return their URL
+    async uploadSingle(
+        assetsFolderPath: string
+    ): Promise<string> {
+        
+
     async pinByHash(hashToPin: string) {
         return await this.pinata.pinByHash(hashToPin)
     }

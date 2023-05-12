@@ -1,3 +1,5 @@
+
+#include "struct/stdlib.fc";
 #include "struct/op-codes.func";
 #include "struct/exit-codes.func";
 #include "struct/math.func";
@@ -5,7 +7,6 @@
 #include "struct/storage.func";
 #include "struct/handles.func";
 #include "struct/get-met.func";
-#include "../../stdlib.fc";
 
 () return_last_bid(int my_balance, int is_cancel_auc) impure inline_ref {
     if (last_bid <= 0) {
