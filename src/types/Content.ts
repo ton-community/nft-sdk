@@ -158,16 +158,65 @@ export function storeChunkedData(src: string): (builder: Builder) => void {
 // these two only work with the dict (HashMapE 32 ^(SnakeData ~0))
 // load must iterate over all parts and combine them, store must split the string as needed
 export function loadChunkedRaw(slice: Slice): string {
-    
+    const prefix = slice.loadUint(8)
+
+    if (prefix !== 0x01) {
+        throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
+    }
+        
+
+    const dict = slice.loadDict(
+        Dictionary.Keys.BigUint(32), 
+        Dictionary.Values.Cell()
+    )
+
+    const data = ''
+
+    Object.entries(dict).forEach(
+        ([key, value]) => {
+            key
+
+            data.concat(loadSnakeData(value))
+        }
+    )
+
+    return data
 }
 
 export function storeChunkedRaw(src: string): (builder: Builder) => void {
+    const dict = Dictionary.empty(
+        Dictionary.Keys.BigUint(32),
+        Dictionary.Values.Cell()
+    )
 
+    /// CHECK: THIS
+    Object.entries(src).forEach(([key, value]) => {
+        dict.set(toKey(key), beginCell().store(storeSnakeData(value)).endCell())
+    })
+
+    return (builder: Builder) => {
+        builder
+            .storeUint(0x01, 8)
+            .storeDict(
+                dict
+            )
+    }
 }
 
 // uses the Dictionary primitive with loadContentData to parse the dict
 export function loadOnchainDict(slice: Slice): Map<bigint, string> {
+    const dict = slice.loadDict(
+        Dictionary.Keys.BigUint(256), 
+        Dictionary.Values.Cell()
+    )
 
+    const data = new Map<bigint, string>()
+
+    Object.entries(dict).forEach(([key, value]) => {
+        data.set(toKey(key), loadContentData(value))
+    })
+
+    return data
 }
 
 // uses the Dictionary primitive and either storeSnakeData or storeChunkedData (probably just choose the former one for now)
@@ -242,46 +291,4 @@ export function makeSnakeCell(data: Buffer) {
     }
 
     return rootCell.endCell()
-}
-
-// export function loadOffchainContent(content: Cell): Offchain {
-//     const data = flattenSnakeCell(content)
-
-//     const prefix = data[0]
-//     if (prefix !== OFF_CHAIN_CONTENT_PREFIX) {
-//         throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
-//     }
-//     return {
-//         uri: data.slice(1).toString()
-//     }
-// }
-
-// export function storeOffchainContent(content: Offchain) {
-//     let data = Buffer.from(content.uri)
-//     const offChainPrefix = Buffer.from([OFF_CHAIN_CONTENT_PREFIX])
-//     data = Buffer.concat([offChainPrefix, data])
-
-//     return (builder: Builder) => {
-//         builder.storeRef(
-//             makeSnakeCell(data)
-//         )
-//     }
-// }
-
-export function encodeOffChainContent(content: string) {
-    let data = Buffer.from(content)
-    const offChainPrefix = Buffer.from([OFF_CHAIN_CONTENT_PREFIX])
-    data = Buffer.concat([offChainPrefix, data])
-    return makeSnakeCell(data)
-}
-
-
-export function decodeOffChainContent(content: Cell): string {
-    const data = flattenSnakeCell(content)
-
-    const prefix = data[0]
-    if (prefix !== OFF_CHAIN_CONTENT_PREFIX) {
-        throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
-    }
-    return data.slice(1).toString()
 }
