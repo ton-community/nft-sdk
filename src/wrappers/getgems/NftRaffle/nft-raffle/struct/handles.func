@@ -1,3 +1,5 @@
+#include "constants.func";
+
 () handle::raffle() impure inline_ref {
     db::state = state::completed();
     db::raffled_nfts = utils::raffle_nfts(db::raffled_nfts, db::nfts);
