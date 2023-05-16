@@ -83,14 +83,10 @@ export function loadOffchainContent(slice: Slice): OffchainContent {
 }
 
 export function storeOffchainContent(src: OffchainContent): (builder: Builder) => void {
-    let data = Buffer.from(src.uri)
-    const offChainPrefix = Buffer.from([0x01])
-    data = Buffer.concat([offChainPrefix, data])
-
     return (builder: Builder) => {
         builder
             .storeUint(0x01, 8)
-            .storeStringTail(data.toString())
+            .storeStringTail(src.uri)
     }
 }
 
@@ -136,6 +132,11 @@ export function storeSnakeData(src: string): (builder: Builder) => void {
 // notice that above it is `SnakeData ~0` which means `the last layer` so there must be no refs in it, and it should be an integer number of bytes
 // loads a uint8, checks that it is 0x01, calls loadChunkedRaw
 export function loadChunkedData(slice: Slice): string {
+    const prefix = slice.loadUint(8)
+
+    if (prefix !== 0x01) {
+        throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
+    }
 
     return loadChunkedRaw(slice)
 }
@@ -151,13 +152,6 @@ export function storeChunkedData(src: string): (builder: Builder) => void {
 // these two only work with the dict (HashMapE 32 ^(SnakeData ~0))
 // load must iterate over all parts and combine them, store must split the string as needed
 export function loadChunkedRaw(slice: Slice): string {
-    const prefix = slice.loadUint(8)
-
-    if (prefix !== 0x01) {
-        throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
-    }
-        
-
     const dict = slice.loadDict(
         Dictionary.Keys.Uint(32), 
         Dictionary.Values.Cell()
@@ -167,13 +161,17 @@ export function loadChunkedRaw(slice: Slice): string {
 
     for (let i = 0; i < dict.size; i++) {
         const key = dict.keys()[i]
-        const value = dict.values()[i]
+        const value = dict.get(i)
+
+        if (!value) {
+            throw new Error(`Missing value for key: ${key.toString(16)}`)
+        }
     
         if (!dict.has(key)) {
             throw new Error(`Key ${key} is not present in the dictionary`)
         }
     
-        data += (value.beginParse().loadStringTail())
+        data += (value.beginParse().loadStringRefTail())
     }
 
     return data
@@ -189,7 +187,7 @@ export function storeChunkedRaw(src: string): (builder: Builder) => void {
 
     for (let i = 0; i < nChunks; i++) {
         const chunk = src.slice(i * 127, (i + 1) * 127)
-        dict.set(i, beginCell().storeStringTail(chunk).endCell())
+        dict.set(i, beginCell().storeStringRefTail(chunk).endCell())
     }
 
     return (builder: Builder) => {
