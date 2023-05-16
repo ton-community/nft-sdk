@@ -1,6 +1,5 @@
 import { beginCell, Builder, Slice, Dictionary } from 'ton-core'
-import { Cell } from 'ton'
-import { Sha256 } from '@aws-crypto/sha256-js'
+import { sha256_sync } from 'ton-crypto'
 
 // offchain#01 uri:Text = FullContent
 
@@ -138,11 +137,6 @@ export function storeSnakeData(src: string): (builder: Builder) => void {
 // notice that above it is `SnakeData ~0` which means `the last layer` so there must be no refs in it, and it should be an integer number of bytes
 // loads a uint8, checks that it is 0x01, calls loadChunkedRaw
 export function loadChunkedData(slice: Slice): string {
-    const prefix = slice.loadUint(8)
-
-    if (prefix!== 0x01) {
-        throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
-    }
 
     return loadChunkedRaw(slice)
 }
@@ -166,26 +160,29 @@ export function loadChunkedRaw(slice: Slice): string {
         
 
     const dict = slice.loadDict(
-        Dictionary.Keys.BigUint(32), 
+        Dictionary.Keys.Uint(32), 
         Dictionary.Values.Cell()
     )
 
-    const data = ''
+    let data = ''
 
-    Object.entries(dict).forEach(
-        ([key, value]) => {
-            key
-
-            data.concat(loadSnakeData(value))
+    for (let i = 0; i < dict.size; i++) {
+        const key = dict.keys()[i]
+        const value = dict.values()[i]
+    
+        if (!dict.has(key)) {
+            throw new Error(`Key ${key} is not present in the dictionary`)
         }
-    )
+    
+        data += (value.beginParse().loadStringTail())
+    }
 
     return data
 }
 
 export function storeChunkedRaw(src: string): (builder: Builder) => void {
     const dict = Dictionary.empty(
-        Dictionary.Keys.BigUint(32),
+        Dictionary.Keys.Uint(32),
         Dictionary.Values.Cell()
     )
 
@@ -196,7 +193,6 @@ export function storeChunkedRaw(src: string): (builder: Builder) => void {
 
     return (builder: Builder) => {
         builder
-            .storeUint(0x01, 8)
             .storeDict(
                 dict
             )
@@ -226,69 +222,15 @@ export function storeOnchainDict(src: Map<bigint, string>): (builder: Builder) =
         Dictionary.Values.Cell()
     )
 
-    /// CHECK: THIS
-    Object.entries(src).forEach(([key, value]) => {
-        dict.set(toKey(key), beginCell().store(storeSnakeData(value)).endCell())
-    })
+    for (const [key, value] of src) {
+        dict.set(key, beginCell().store(storeSnakeData(value)).endCell())
+    }
 
     return (builder: Builder) => {
         builder.storeDict(dict)
     }
 }
 
-
-
-const sha256 = (str: string) => {
-    const sha = new Sha256()
-    sha.update(str)
-    return Buffer.from(sha.digestSync())
-}
-
 const toKey = (key: string) => {
-    return BigInt(`0x${sha256(key).toString('hex')}`)
-}
-
-export function flattenSnakeCell(cell: Cell) {
-    let c: Cell | null = cell
-
-    let res = Buffer.alloc(0)
-
-    while (c) {
-        const cs = c.beginParse()
-
-        const data = cs.loadBuffer(cs.remainingBits / 8)
-        res = Buffer.concat([res, data])
-        c = c.refs[0]
-    }
-
-    return res
-}
-
-function bufferToChunks(buff: Buffer, chunkSize: number) {
-    const chunks: Buffer[] = []
-    while (buff.byteLength > 0) {
-        chunks.push(buff.slice(0, chunkSize))
-        buff = buff.slice(chunkSize)
-    }
-    return chunks
-}
-
-export function makeSnakeCell(data: Buffer) {
-    const chunks = bufferToChunks(data, 127)
-    const rootCell = beginCell()
-    let curCell = rootCell
-
-    for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i]
-
-        curCell.storeBuffer(chunk)
-
-        if (chunks[i + 1]) {
-            const nextCell = beginCell()
-            curCell.storeRef(nextCell)
-            curCell = nextCell
-        }
-    }
-
-    return rootCell.endCell()
+    return BigInt(`0x${sha256_sync(key).toString('hex')}`)
 }
