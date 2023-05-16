@@ -208,9 +208,9 @@ export function loadOnchainDict(slice: Slice): Map<bigint, string> {
 
     const data = new Map<bigint, string>()
 
-    Object.entries(dict).forEach(([key, value]) => {
-        data.set(toKey(key), loadContentData(value))
-    })
+    for (const [key, value] of dict) {
+        data.set(key, loadContentData(value.beginParse()))
+    }
 
     return data
 }
