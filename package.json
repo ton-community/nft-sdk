@@ -10,7 +10,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@aws-crypto/sha256-js": "^4.0.0",
     "@pinata/sdk": "^2.1.0",
     "@ton-community/blueprint": "^0.9.0",
     "@ton-community/sandbox": "^0.8.0",

@@ -1,5 +1,4 @@
 import { beginCell, Builder, Slice, Dictionary } from 'ton-core'
-import { sha256_sync } from 'ton-crypto'
 
 // offchain#01 uri:Text = FullContent
 
@@ -186,10 +185,12 @@ export function storeChunkedRaw(src: string): (builder: Builder) => void {
         Dictionary.Values.Cell()
     )
 
-    /// CHECK: THIS
-    Object.entries(src).forEach(([key, value]) => {
-        dict.set(toKey(key), beginCell().store(storeSnakeData(value)).endCell())
-    })
+    const nChunks = Math.ceil(src.length / 127)
+
+    for (let i = 0; i < nChunks; i++) {
+        const chunk = src.slice(i * 127, (i + 1) * 127)
+        dict.set(i, beginCell().storeStringTail(chunk).endCell())
+    }
 
     return (builder: Builder) => {
         builder
@@ -229,8 +230,4 @@ export function storeOnchainDict(src: Map<bigint, string>): (builder: Builder) =
     return (builder: Builder) => {
         builder.storeDict(dict)
     }
-}
-
-const toKey = (key: string) => {
-    return BigInt(`0x${sha256_sync(key).toString('hex')}`)
 }
