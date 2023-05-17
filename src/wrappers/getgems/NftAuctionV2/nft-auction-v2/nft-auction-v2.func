@@ -1,3 +1,5 @@
+
+#include "struct/stdlib.fc";
 #include "struct/op-codes.func";
 #include "struct/exit-codes.func";
 #include "struct/math.func";

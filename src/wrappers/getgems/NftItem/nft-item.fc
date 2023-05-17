@@ -14,6 +14,11 @@
 
 -}
 
+
+#include "../stdlib.fc";
+#include "../params.fc";
+#include "../op-codes.fc";
+
 int min_tons_for_storage() asm "50000000 PUSHINT"; ;; 0.05 TON
 
 ;;

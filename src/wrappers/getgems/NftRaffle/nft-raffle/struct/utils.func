@@ -1,3 +1,6 @@
+#include "stdlib.fc";
+#include "storage.func";
+
 () utils::send_nft(int mode, int amount, slice to, int nft_addr) impure inline_ref {
     builder body = begin_cell()
         .store_uint(op::transfer(), 32) ;; op

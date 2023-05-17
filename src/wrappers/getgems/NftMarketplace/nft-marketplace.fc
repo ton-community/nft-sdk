@@ -1,5 +1,9 @@
 ;; NFT marketplace smart contract
 
+#include "../stdlib.fc";
+#include "../params.fc";
+#include "../op-codes.fc";
+
 ;; storage scheme
 ;; storage#_ owner_address:MsgAddress
 ;;           = Storage;

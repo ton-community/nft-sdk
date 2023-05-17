@@ -1,3 +1,5 @@
+#include "stdlib.fc";
+
 int state::active()     asm "1 PUSHINT";
 int state::canceled()   asm "2 PUSHINT";
 int state::completed()  asm "3 PUSHINT";

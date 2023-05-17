@@ -1,5 +1,9 @@
 ;; NFT offer contract
 
+#include "../stdlib.fc";
+#include "../params.fc";
+#include "../op-codes.fc";
+
 slice msg::cancel() asm "<b 124 word cancel| $, b> <s PUSHSLICE";
 slice msg::profit() asm "<b 124 word Profit| $, b> <s PUSHSLICE";
 slice msg::royalties() asm "<b 124 word Offer royalies| $, b> <s PUSHSLICE";

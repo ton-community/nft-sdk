@@ -1,4 +1,11 @@
 
+#include "../../stdlib.fc";
+#include "../../params.fc";
+#include "../../op-codes.fc";
+#include "struct/constants.func";
+#include "struct/utils.func";
+#include "struct/storage.func";
+#include "struct/get-methods.func";
 
 {-
     [+] Receive NFT`s

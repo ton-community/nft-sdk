@@ -1,3 +1,6 @@
+#include "storage.func";
+#include "handles.func";
+
 _ raffle_state() method_id {
     init_data();
     return (db::state, db::right_nfts_count, db::right_nfts_received, db::left_nfts_count,

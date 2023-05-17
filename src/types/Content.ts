@@ -1,6 +1,4 @@
 import { beginCell, Builder, Slice, Dictionary } from 'ton-core'
-import { Cell } from 'ton'
-import { Sha256 } from '@aws-crypto/sha256-js'
 
 // offchain#01 uri:Text = FullContent
 
@@ -85,14 +83,10 @@ export function loadOffchainContent(slice: Slice): OffchainContent {
 }
 
 export function storeOffchainContent(src: OffchainContent): (builder: Builder) => void {
-    let data = Buffer.from(src.uri)
-    const offChainPrefix = Buffer.from([0x01])
-    data = Buffer.concat([offChainPrefix, data])
-
     return (builder: Builder) => {
         builder
             .storeUint(0x01, 8)
-            .storeStringTail(data.toString())
+            .storeStringTail(src.uri)
     }
 }
 
@@ -140,7 +134,7 @@ export function storeSnakeData(src: string): (builder: Builder) => void {
 export function loadChunkedData(slice: Slice): string {
     const prefix = slice.loadUint(8)
 
-    if (prefix!== 0x01) {
+    if (prefix !== 0x01) {
         throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
     }
 
@@ -158,16 +152,66 @@ export function storeChunkedData(src: string): (builder: Builder) => void {
 // these two only work with the dict (HashMapE 32 ^(SnakeData ~0))
 // load must iterate over all parts and combine them, store must split the string as needed
 export function loadChunkedRaw(slice: Slice): string {
+    const dict = slice.loadDict(
+        Dictionary.Keys.Uint(32), 
+        Dictionary.Values.Cell()
+    )
+
+    let data = ''
+
+    for (let i = 0; i < dict.size; i++) {
+        const key = dict.keys()[i]
+        const value = dict.get(i)
+
+        if (!value) {
+            throw new Error(`Missing value for key: ${key.toString(16)}`)
+        }
     
+        if (!dict.has(key)) {
+            throw new Error(`Key ${key} is not present in the dictionary`)
+        }
+    
+        data += (value.beginParse().loadStringRefTail())
+    }
+
+    return data
 }
 
 export function storeChunkedRaw(src: string): (builder: Builder) => void {
+    const dict = Dictionary.empty(
+        Dictionary.Keys.Uint(32),
+        Dictionary.Values.Cell()
+    )
 
+    const nChunks = Math.ceil(src.length / 127)
+
+    for (let i = 0; i < nChunks; i++) {
+        const chunk = src.slice(i * 127, (i + 1) * 127)
+        dict.set(i, beginCell().storeStringRefTail(chunk).endCell())
+    }
+
+    return (builder: Builder) => {
+        builder
+            .storeDict(
+                dict
+            )
+    }
 }
 
 // uses the Dictionary primitive with loadContentData to parse the dict
 export function loadOnchainDict(slice: Slice): Map<bigint, string> {
+    const dict = slice.loadDict(
+        Dictionary.Keys.BigUint(256), 
+        Dictionary.Values.Cell()
+    )
 
+    const data = new Map<bigint, string>()
+
+    for (const [key, value] of dict) {
+        data.set(key, loadContentData(value.beginParse()))
+    }
+
+    return data
 }
 
 // uses the Dictionary primitive and either storeSnakeData or storeChunkedData (probably just choose the former one for now)
@@ -177,111 +221,11 @@ export function storeOnchainDict(src: Map<bigint, string>): (builder: Builder) =
         Dictionary.Values.Cell()
     )
 
-    /// CHECK: THIS
-    Object.entries(src).forEach(([key, value]) => {
-        dict.set(toKey(key), beginCell().store(storeSnakeData(value)).endCell())
-    })
+    for (const [key, value] of src) {
+        dict.set(key, beginCell().store(storeSnakeData(value)).endCell())
+    }
 
     return (builder: Builder) => {
         builder.storeDict(dict)
     }
-}
-
-
-
-const sha256 = (str: string) => {
-    const sha = new Sha256()
-    sha.update(str)
-    return Buffer.from(sha.digestSync())
-}
-
-const toKey = (key: string) => {
-    return BigInt(`0x${sha256(key).toString('hex')}`)
-}
-
-export function flattenSnakeCell(cell: Cell) {
-    let c: Cell | null = cell
-
-    let res = Buffer.alloc(0)
-
-    while (c) {
-        const cs = c.beginParse()
-
-        const data = cs.loadBuffer(cs.remainingBits / 8)
-        res = Buffer.concat([res, data])
-        c = c.refs[0]
-    }
-
-    return res
-}
-
-function bufferToChunks(buff: Buffer, chunkSize: number) {
-    const chunks: Buffer[] = []
-    while (buff.byteLength > 0) {
-        chunks.push(buff.slice(0, chunkSize))
-        buff = buff.slice(chunkSize)
-    }
-    return chunks
-}
-
-export function makeSnakeCell(data: Buffer) {
-    const chunks = bufferToChunks(data, 127)
-    const rootCell = beginCell()
-    let curCell = rootCell
-
-    for (let i = 0; i < chunks.length; i++) {
-        const chunk = chunks[i]
-
-        curCell.storeBuffer(chunk)
-
-        if (chunks[i + 1]) {
-            const nextCell = beginCell()
-            curCell.storeRef(nextCell)
-            curCell = nextCell
-        }
-    }
-
-    return rootCell.endCell()
-}
-
-// export function loadOffchainContent(content: Cell): Offchain {
-//     const data = flattenSnakeCell(content)
-
-//     const prefix = data[0]
-//     if (prefix !== OFF_CHAIN_CONTENT_PREFIX) {
-//         throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
-//     }
-//     return {
-//         uri: data.slice(1).toString()
-//     }
-// }
-
-// export function storeOffchainContent(content: Offchain) {
-//     let data = Buffer.from(content.uri)
-//     const offChainPrefix = Buffer.from([OFF_CHAIN_CONTENT_PREFIX])
-//     data = Buffer.concat([offChainPrefix, data])
-
-//     return (builder: Builder) => {
-//         builder.storeRef(
-//             makeSnakeCell(data)
-//         )
-//     }
-// }
-
-export function encodeOffChainContent(content: string) {
-    let data = Buffer.from(content)
-    const offChainPrefix = Buffer.from([OFF_CHAIN_CONTENT_PREFIX])
-    data = Buffer.concat([offChainPrefix, data])
-    return makeSnakeCell(data)
-}
-
-
-export function decodeOffChainContent(content: Cell): string {
-    const data = flattenSnakeCell(content)
-
-    const prefix = data[0]
-    if (prefix !== OFF_CHAIN_CONTENT_PREFIX) {
-        throw new Error(`Unknown content prefix: ${prefix.toString(16)}`)
-    }
-    return data.slice(1).toString()
 }
