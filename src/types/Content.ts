@@ -15,6 +15,8 @@ type OffchainContent = {
 };
   
 type FullContent = OnchainContent | OffchainContent;
+
+const propertyNames = ['uri', 'name', 'description', 'image', 'image_data']
   
 // onchain#00 data:(HashMapE 256 ^ContentData) = FullContent;
 // offchain#01 uri:Text = FullContent;
@@ -56,7 +58,7 @@ export function loadOnchainContent(slice: Slice): OnchainContent {
 
     const onchainDict = loadOnchainDict(slice)
     const knownKeys = new Map<string, string>()
-    for (const knownProperty of ['uri', 'name', 'description', 'image']) {
+    for (const knownProperty of propertyNames) {
         const hashedKey = BigInt('0x' + sha256_sync(knownProperty).toString('hex'))
         const value = onchainDict.get(hashedKey) ?? ''
         if (onchainDict.has(hashedKey)) {
@@ -181,11 +183,10 @@ export function loadChunkedRaw(slice: Slice): string {
     let data = ''
 
     for (let i = 0; i < dict.size; i++) {
-        const key = dict.keys()[i]
         const value = dict.get(i)
 
         if (!value) {
-            throw new Error(`Missing value for key: ${key.toString(16)}`)
+            throw new Error(`Missing value for key: ${i.toString(16)}`)
         }
     
         data += (value.beginParse().loadStringRefTail())
