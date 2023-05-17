@@ -54,10 +54,20 @@ export function loadOnchainContent(slice: Slice): OnchainContent {
         throw new Error(`Unknown content type: ${data.toString(16)}`)
     }
 
+    const onchainDict = loadOnchainDict(slice)
+    const knownKeys = new Map<string, string>()
+    for (const knownProperty of ['uri', 'name', 'description', 'image']) {
+        const hashedKey = BigInt('0x' + sha256_sync(knownProperty).toString('hex'))
+        const value = onchainDict.get(hashedKey) ?? ''
+        if (onchainDict.has(hashedKey)) {
+            knownKeys.set(knownProperty, value)
+        }
+    }
+
     return {
         type: 'onchain',
-        knownKeys: new Map(),
-        unknownKeys: loadOnchainDict(slice)
+        knownKeys,
+        unknownKeys: onchainDict
     }
 }
 
@@ -68,7 +78,7 @@ export function storeOnchainContent(src: OnchainContent): (builder: Builder) => 
 
 
     for (const [key] of src.knownKeys) {
-        const hashedKey = sha256_sync(key).readBigInt64BE()
+        const hashedKey = BigInt('0x' + sha256_sync(key).toString('hex'))
         map.set(hashedKey, key)
     }
 
@@ -176,10 +186,6 @@ export function loadChunkedRaw(slice: Slice): string {
 
         if (!value) {
             throw new Error(`Missing value for key: ${key.toString(16)}`)
-        }
-    
-        if (!dict.has(key)) {
-            throw new Error(`Key ${key} is not present in the dictionary`)
         }
     
         data += (value.beginParse().loadStringRefTail())
