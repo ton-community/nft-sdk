@@ -1,4 +1,5 @@
 import { beginCell, Builder, Slice, Dictionary } from 'ton-core'
+import {sha256_sync} from 'ton-crypto'
 
 // offchain#01 uri:Text = FullContent
 
@@ -61,9 +62,19 @@ export function loadOnchainContent(slice: Slice): OnchainContent {
 }
 
 export function storeOnchainContent(src: OnchainContent): (builder: Builder) => void {
+    const map = new Map<bigint, string>()
+
+    for (const [key, value] of src.unknownKeys) map.set(key, value)
+
+
+    for (const [key] of src.knownKeys) {
+        const hashedKey = sha256_sync(key).readBigInt64BE()
+        map.set(hashedKey, key)
+    }
+
     return (builder: Builder) => {
         builder.storeUint(8, 0x00)
-        builder.store(storeOnchainDict(src.unknownKeys))
+        builder.store(storeOnchainDict(map))
     }
 }
 
