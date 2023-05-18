@@ -60,8 +60,9 @@ export function loadOnchainContent(slice: Slice): OnchainContent {
     const knownKeys = new Map<string, string>()
     for (const knownProperty of propertyNames) {
         const hashedKey = BigInt('0x' + sha256_sync(knownProperty).toString('hex'))
-        const value = onchainDict.get(hashedKey) ?? ''
-        if (onchainDict.has(hashedKey)) {
+        const value = onchainDict.get(hashedKey)
+        
+        if (onchainDict.has(hashedKey) && value !== undefined) {
             knownKeys.set(knownProperty, value)
         }
     }
