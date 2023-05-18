@@ -1,6 +1,6 @@
 import { Address, beginCell, Cell, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
 import { NftItemRoyalty } from '../../standard/NftItemRoyalty'
-import { encodeOffChainContent } from '../../../types/Content'
+import { storeOffchainContent } from '../../../types/Content'
 
 export class NftSingle extends NftItemRoyalty {   
     // Data
@@ -10,7 +10,10 @@ export class NftSingle extends NftItemRoyalty {
     static buildDataCell(data: NftSingleData) {
         const dataCell= beginCell()
 
-        const contentCell = encodeOffChainContent(data.content)
+        const contentCell = storeOffchainContent({
+            type: 'offchain',
+            uri: data.content
+        })
 
         const royaltyCell = beginCell()
         royaltyCell.storeUint(data.royaltyParams.royaltyFactor, 16)
@@ -19,7 +22,7 @@ export class NftSingle extends NftItemRoyalty {
 
         dataCell.storeAddress(data.ownerAddress)
         dataCell.storeAddress(data.editorAddress)
-        dataCell.storeRef(contentCell)
+        dataCell.store(contentCell)
         dataCell.storeRef(royaltyCell)
 
         return dataCell.endCell()

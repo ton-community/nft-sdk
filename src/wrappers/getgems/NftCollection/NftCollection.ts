@@ -1,5 +1,5 @@
 import { Address, beginCell, Cell, ContractProvider, Transaction, Sender, SendMode, contractAddress } from 'ton-core'
-import { encodeOffChainContent } from '../../../types/Content'
+import { storeOffchainContent } from '../../../types/Content'
 import { NftCollectionRoyalty } from '../../standard/NftCollectionRoyalty'
 import { isEligibleTransaction } from '../../../utils/EligibleInternalTx'
 
@@ -36,13 +36,16 @@ export class NftCollection extends NftCollectionRoyalty {
 
         const contentCell = beginCell()
 
-        const collectionContent = encodeOffChainContent(data.collectionContent)
+        const collectionContent = storeOffchainContent({
+            type: 'offchain',
+            uri: data.collectionContent
+        })
 
         const commonContent = beginCell()
         commonContent.storeBuffer(Buffer.from(data.commonContent))
         // commonContent.bits.writeString(data.commonContent)
 
-        contentCell.storeRef(collectionContent)
+        contentCell.store(collectionContent)
         contentCell.storeRef(commonContent)
         dataCell.storeRef(contentCell)
 

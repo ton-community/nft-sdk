@@ -1,5 +1,5 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
-import { encodeOffChainContent } from '../../../types/Content'
+import { storeOffchainContent } from '../../../types/Content'
 
 export class SbtSingle implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -11,11 +11,14 @@ export class SbtSingle implements Contract {
     static buildDataCell(data: SbtSingleData) {
         const dataCell= beginCell()
     
-        const contentCell = encodeOffChainContent(data.content)
+        const contentCell = storeOffchainContent({
+            type: 'offchain',
+            uri: data.content
+        })
     
         dataCell.storeAddress(data.ownerAddress)
         dataCell.storeAddress(data.editorAddress)
-        dataCell.storeRef(contentCell)
+        dataCell.store(contentCell)
         dataCell.storeAddress(data.authorityAddress)
         dataCell.storeUint(data.revokedAt ? data.revokedAt : 0, 64)
     
