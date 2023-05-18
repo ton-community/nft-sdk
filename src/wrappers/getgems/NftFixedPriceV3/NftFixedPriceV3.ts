@@ -80,7 +80,7 @@ export class NftFixedPriceV3 implements Contract {
                 .storeUint(1, 32)
                 .storeUint(params.queryId, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -94,7 +94,7 @@ export class NftFixedPriceV3 implements Contract {
                 .storeUint(3, 32)
                 .storeUint(params.queryId, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -105,7 +105,7 @@ export class NftFixedPriceV3 implements Contract {
         await provider.internal(via, {
             value: params.value,
             body: beginCell().endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 

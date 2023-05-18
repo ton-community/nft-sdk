@@ -24,7 +24,7 @@ export class NftCollectionRoyalty extends NftCollection {
                 .storeUint(0x693d3950, 32)
                 .storeUint(params.queryId, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 

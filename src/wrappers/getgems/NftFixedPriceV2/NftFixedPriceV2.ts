@@ -79,7 +79,7 @@ export class NftFixedPriceV2 implements Contract {
                 .storeUint(1, 32)
                 .storeUint(params.queryId, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -93,7 +93,7 @@ export class NftFixedPriceV2 implements Contract {
                 .storeUint(3, 32)
                 .storeUint(params.queryId, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -106,7 +106,7 @@ export class NftFixedPriceV2 implements Contract {
             body: beginCell().
                 storeUint(params.queryId || 0, 32).
                 endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 

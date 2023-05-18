@@ -82,7 +82,7 @@ export class NftSingle extends NftItemRoyalty {
                 .storeCoins(params.forwardAmount || 0)
                 .storeBit(false)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 }

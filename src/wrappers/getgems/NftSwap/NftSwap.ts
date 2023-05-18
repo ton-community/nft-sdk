@@ -146,7 +146,7 @@ export class NftSwap implements Contract {
                 .storeUint(OperationCodes.cancel, 32)
                 .storeUint(params.queryId || 0, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -162,7 +162,7 @@ export class NftSwap implements Contract {
                 .storeUint(params.queryId || 0, 64)
                 .storeCoins(params.coins)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -184,7 +184,7 @@ export class NftSwap implements Contract {
                 .storeUint(params.mode, 8)
                 .storeRef(params.msg)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -198,7 +198,7 @@ export class NftSwap implements Contract {
                 .storeUint(OperationCodes.topup, 32)
                 .storeUint(params.queryId || 0, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 

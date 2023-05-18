@@ -93,7 +93,7 @@ export class NftOffer implements Contract {
                 .storeBuffer(Buffer.from('cancel'))
                 .storeRef(nextPayload)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -119,7 +119,7 @@ export class NftOffer implements Contract {
                 .storeCoins(params.amount)
                 .storeRef(nextPayload)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 

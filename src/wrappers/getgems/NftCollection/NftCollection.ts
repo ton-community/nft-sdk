@@ -1,6 +1,7 @@
-import { Address, beginCell, Cell, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
+import { Address, beginCell, Cell, ContractProvider, Transaction, Sender, SendMode, contractAddress } from 'ton-core'
 import { encodeOffChainContent } from '../../../types/Content'
 import { NftCollectionRoyalty } from '../../standard/NftCollectionRoyalty'
+import { isEligibleTransaction } from '../../../utils/EligibleInternalTx'
 
 export type CollectionMintItemInput = {
     passAmount: bigint
@@ -122,7 +123,7 @@ export class NftCollection extends NftCollectionRoyalty {
                 .storeCoins(params.passAmount)
                 .storeRef(nftItemMessage)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -138,8 +139,30 @@ export class NftCollection extends NftCollectionRoyalty {
                 .storeUint(params.queryId || 0, 64)
                 .storeAddress(params.newOwner)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY
+            sendMode: SendMode.PAY_GAS_SEPARATELY
         })
+    }
+
+    static parseMint(tx: Transaction): NftMint | undefined {
+        const body = tx.inMessage?.body.beginParse()
+
+        const op = body?.loadUint(32)
+
+        if (body == undefined) return undefined 
+        
+        if (op == undefined && op == 1) return undefined 
+
+
+        if (isEligibleTransaction(tx)) {
+            return {
+                queryId: body?.loadUint(64),
+                from: Address.parse(tx.inMessage?.info.src?.toString() ?? ''),
+                to: Address.parse(tx.inMessage?.info.dest?.toString() ?? ''),
+                itemIndex: body?.loadUint(64),
+                passAmount: body?.loadCoins(),
+                nftItemMessage: body?.loadRef()
+            }
+        }
     }
 }
 
@@ -154,9 +177,11 @@ export type NftCollectionData = {
     royaltyParams: RoyaltyParams
 }
 
-// default#_ royalty_factor:uint16 royalty_base:uint16 royalty_address:MsgAddress = RoyaltyParams;
-// storage#_ owner_address:MsgAddress next_item_index:uint64
-//           ^[collection_content:^Cell common_content:^Cell]
-//           nft_item_code:^Cell
-//           royalty_params:^RoyaltyParams
-//           = Storage;
+export type NftMint = {
+    queryId: number
+    from: Address
+    to: Address
+    itemIndex: number
+    passAmount: bigint
+    nftItemMessage: Cell
+}

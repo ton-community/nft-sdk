@@ -1,4 +1,5 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode } from 'ton-core'
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, Transaction, SendMode } from 'ton-core'
+import { isEligibleTransaction } from '../../utils/EligibleInternalTx'
 
 export class NftItem implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -23,7 +24,7 @@ export class NftItem implements Contract {
                 .storeCoins(params.forwardAmount)
                 .storeMaybeRef(params.forwardPayload)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -41,7 +42,7 @@ export class NftItem implements Contract {
                 .storeUint(0x2fcb26a2, 32)
                 .storeUint(params.queryId || 0, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -57,4 +58,39 @@ export class NftItem implements Contract {
             individualContent: stack.readCellOpt(),
         }
     }
+
+    // Transaction Parsing
+
+    static parseTransfer(tx: Transaction): NftTransfer | undefined {
+        const body = tx.inMessage?.body.beginParse()
+
+        const op = body?.loadUint(32)
+
+        if (body == undefined) return undefined 
+        
+        if (op == undefined) return undefined 
+
+
+        if (isEligibleTransaction(tx)) {
+            return {
+                queryId: body?.loadUint(64),
+                from: Address.parse(tx.inMessage?.info.src?.toString() ?? ''),
+                to: body?.loadAddress(),
+                responseTo: body?.loadAddress(),
+                customPayload: body?.loadRef(),
+                forwardAmount: body?.loadCoins(),
+                forwardPayload: body?.loadRef(),
+            }
+        }
+    }
+}
+
+export type NftTransfer = {
+    queryId: number
+    from: Address
+    to: Address
+    responseTo?: Address
+    customPayload: Cell
+    forwardAmount: bigint
+    forwardPayload: Cell
 }

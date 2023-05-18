@@ -78,7 +78,7 @@ export class SbtSingle implements Contract {
                 .storeMaybeRef(params.forwardPayload)
                 .storeBit(params.withContent)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -98,7 +98,7 @@ export class SbtSingle implements Contract {
                 .storeMaybeRef(params.forwardPayload)
                 .storeBit(params.withContent)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
@@ -112,7 +112,7 @@ export class SbtSingle implements Contract {
                 .storeUint(0x6f89f5e3, 32)
                 .storeUint(params.queryId, 64)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
