@@ -164,6 +164,26 @@ export class NftCollection extends NftCollectionRoyalty {
             }
         }
     }
+
+
+    static parseOwnershipTransfer(tx: Transaction): OwnershipTransfer | undefined {
+        const body = tx.inMessage?.body.beginParse()
+
+        const op = body?.loadUint(32)
+
+        if (body == undefined) return undefined 
+        
+        if (op == undefined && op == 3) return undefined 
+
+
+        if (isEligibleTransaction(tx)) {
+            return {
+                queryId: body?.loadUint(64),
+                oldOwner: Address.parse(tx.inMessage?.info.src?.toString() ?? ''),
+                newOwner: body?.loadAddress()
+            }
+        }
+    }
 }
 
 // Utils
@@ -184,4 +204,11 @@ export type NftMint = {
     itemIndex: number
     passAmount: bigint
     nftItemMessage: Cell
+}
+
+
+export type OwnershipTransfer = {
+    queryId: number
+    oldOwner: Address
+    newOwner: Address
 }
