@@ -90,6 +90,8 @@ export class NftItem implements Contract {
         } else {
             return undefined
         }
+
+        return undefined
     }
 }
 

@@ -169,6 +169,8 @@ export class NftCollection extends NftCollectionRoyalty {
         } else {
             return undefined
         }
+
+        return undefined
     }
 
 
@@ -190,6 +192,8 @@ export class NftCollection extends NftCollectionRoyalty {
         } else {
             return undefined
         }
+
+        return undefined
     }
 }
 
