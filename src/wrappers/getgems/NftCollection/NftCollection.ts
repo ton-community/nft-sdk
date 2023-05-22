@@ -1,7 +1,8 @@
-import { Address, beginCell, Cell, ContractProvider, Transaction, Sender, SendMode, contractAddress } from 'ton-core'
+import { Address, beginCell, Cell, ContractProvider, Transaction, Sender, SendMode, contractAddress, ExternalAddress } from 'ton-core'
 import { storeOffchainContent } from '../../../types/Content'
 import { NftCollectionRoyalty } from '../../standard/NftCollectionRoyalty'
 import { isEligibleTransaction } from '../../../utils/EligibleInternalTx'
+import { Maybe } from 'ton-core/dist/utils/maybe'
 
 export type CollectionMintItemInput = {
     passAmount: bigint
@@ -149,22 +150,24 @@ export class NftCollection extends NftCollectionRoyalty {
     static parseMint(tx: Transaction): NftMint | undefined {
         const body = tx.inMessage?.body.beginParse()
 
-        const op = body?.loadUint(32)
-
         if (body == undefined) return undefined 
+
+        const op = body.loadUint(32)
         
-        if (op == undefined && op == 1) return undefined 
+        if (op == 1) return undefined 
 
 
         if (isEligibleTransaction(tx)) {
             return {
-                queryId: body?.loadUint(64),
-                from: Address.parse(tx.inMessage?.info.src?.toString() ?? ''),
-                to: Address.parse(tx.inMessage?.info.dest?.toString() ?? ''),
-                itemIndex: body?.loadUint(64),
-                passAmount: body?.loadCoins(),
-                nftItemMessage: body?.loadRef()
+                queryId: body.loadUint(64),
+                from: tx.inMessage?.info.src ?? undefined,
+                to: tx.inMessage?.info.dest ?? undefined,
+                itemIndex: body.loadUint(64),
+                passAmount: body.loadCoins(),
+                nftItemMessage: body.loadRef()
             }
+        } else {
+            return undefined
         }
     }
 
@@ -172,19 +175,20 @@ export class NftCollection extends NftCollectionRoyalty {
     static parseOwnershipTransfer(tx: Transaction): OwnershipTransfer | undefined {
         const body = tx.inMessage?.body.beginParse()
 
-        const op = body?.loadUint(32)
-
         if (body == undefined) return undefined 
-        
-        if (op == undefined && op == 3) return undefined 
 
+        const op = body.loadUint(32)
+        
+        if (op == 3) return undefined 
 
         if (isEligibleTransaction(tx)) {
             return {
-                queryId: body?.loadUint(64),
-                oldOwner: Address.parse(tx.inMessage?.info.src?.toString() ?? ''),
-                newOwner: body?.loadAddress()
+                queryId: body.loadUint(64),
+                oldOwner: tx.inMessage?.info.src ?? undefined,
+                newOwner: body.loadAddress()
             }
+        } else {
+            return undefined
         }
     }
 }
@@ -202,8 +206,8 @@ export type NftCollectionData = {
 
 export type NftMint = {
     queryId: number
-    from: Address
-    to: Address
+    from?: Address | Maybe<ExternalAddress>
+    to?: Address | Maybe<ExternalAddress>
     itemIndex: number
     passAmount: bigint
     nftItemMessage: Cell
@@ -212,6 +216,6 @@ export type NftMint = {
 
 export type OwnershipTransfer = {
     queryId: number
-    oldOwner: Address
+    oldOwner?: Address | Maybe<ExternalAddress>
     newOwner: Address
 }

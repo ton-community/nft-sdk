@@ -1,5 +1,6 @@
-import { Address, beginCell, Cell, Contract, ContractProvider, Sender, Transaction, SendMode } from 'ton-core'
+import { Address, beginCell, Cell, Contract, ContractProvider, Sender, Transaction, SendMode, ExternalAddress } from 'ton-core'
 import { isEligibleTransaction } from '../../utils/EligibleInternalTx'
+import { Maybe } from 'ton-core/dist/utils/maybe'
 
 export class NftItem implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
@@ -64,30 +65,37 @@ export class NftItem implements Contract {
     static parseTransfer(tx: Transaction): NftTransfer | undefined {
         const body = tx.inMessage?.body.beginParse()
 
-        const op = body?.loadUint(32)
-
         if (body == undefined) return undefined 
+
+        const op = body.loadUint(32)
+
         
-        if (op == undefined) return undefined 
+        if (op == 0x5fcc3d14) return undefined 
 
 
         if (isEligibleTransaction(tx)) {
-            return {
-                queryId: body?.loadUint(64),
-                from: Address.parse(tx.inMessage?.info.src?.toString() ?? ''),
-                to: body?.loadAddress(),
-                responseTo: body?.loadAddress(),
-                customPayload: body?.loadRef(),
-                forwardAmount: body?.loadCoins(),
-                forwardPayload: body?.loadRef(),
+            try {
+                return {
+                    queryId: body.loadUint(64),
+                    from: tx.inMessage?.info.src ?? undefined,
+                    to: body.loadAddress(),
+                    responseTo: body.loadAddress(),
+                    customPayload: body.loadRef(),
+                    forwardAmount: body.loadCoins(),
+                    forwardPayload: body.loadRef(),
+                }
+            } catch (e) {
+                console.log(e)
             }
+        } else {
+            return undefined
         }
     }
 }
 
 export type NftTransfer = {
     queryId: number
-    from: Address
+    from?: Address | Maybe<ExternalAddress>
     to: Address
     responseTo?: Address
     customPayload: Cell
