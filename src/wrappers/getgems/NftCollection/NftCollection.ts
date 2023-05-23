@@ -151,11 +151,11 @@ export class NftCollection extends NftCollectionRoyalty {
         try {
             const body = tx.inMessage?.body.beginParse()
 
-            if (body == undefined) return undefined 
+            if (body === undefined) return undefined 
 
             const op = body.loadUint(32)
             
-            if (op != 1) return undefined 
+            if (op !== 1) return undefined 
 
 
             if (!isEligibleTransaction(tx)) {
@@ -179,11 +179,11 @@ export class NftCollection extends NftCollectionRoyalty {
         try {
             const body = tx.inMessage?.body.beginParse()
 
-            if (body == undefined) return undefined 
+            if (body === undefined) return undefined 
 
             const op = body.loadUint(32)
             
-            if (op != 3) return undefined 
+            if (op !== 3) return undefined 
 
             if (!isEligibleTransaction(tx)) {
                 return undefined

@@ -66,12 +66,12 @@ export class NftItem implements Contract {
         try {
             const body = tx.inMessage?.body.beginParse()
 
-            if (body == undefined) return undefined 
+            if (body === undefined) return undefined 
 
             const op = body.loadUint(32)
 
             
-            if (op != 0x5fcc3d14) return undefined 
+            if (op !== 0x5fcc3d14) return undefined 
 
 
             if (!isEligibleTransaction(tx)) {
