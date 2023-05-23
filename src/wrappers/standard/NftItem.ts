@@ -2,9 +2,18 @@ import { Address, beginCell, Cell, Contract, ContractProvider, Sender, Transacti
 import { isEligibleTransaction } from '../../utils/EligibleInternalTx'
 import { Maybe } from 'ton-core/dist/utils/maybe'
 
+/**
+ * Represents an NFT item contract. 
+ */
 export class NftItem implements Contract {
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
+    /**
+     * Sends a transfer from the contract.
+     * @param provider - The ContractProvider to facilitate the transfer.
+     * @param via - The Sender initiating the transfer.
+     * @param params - The parameters for the transfer.
+     */
     async sendTransfer(provider: ContractProvider, via: Sender, params: {
         value: bigint
         queryId: bigint
@@ -29,6 +38,12 @@ export class NftItem implements Contract {
         })
     }
 
+    /**
+     * Gets static data from the contract.
+     * @param provider - The ContractProvider to facilitate the data retrieval.
+     * @param via - The Sender initiating the data retrieval.
+     * @param params - The parameters for the data retrieval.
+     */
     async sendGetStaticData(
         provider: ContractProvider,
         via: Sender,
@@ -47,8 +62,12 @@ export class NftItem implements Contract {
         })
     }
 
-    // Getter Functio
+    // Getter Functions
 
+    /**
+     * Retrieves the data of the NFT from the contract.
+     * @param provider - The ContractProvider to facilitate the data retrieval.
+     */
     async getNftData(provider: ContractProvider) {
         const { stack } = await provider.get('get_nft_data', [])
         return {
@@ -62,6 +81,11 @@ export class NftItem implements Contract {
 
     // Transaction Parsing
 
+    /**
+     * Parses a transfer transaction.
+     * @param tx - The Transaction to be parsed.
+     * @returns A NftTransfer object if the transaction is valid, undefined otherwise.
+     */
     static parseTransfer(tx: Transaction): NftTransfer | undefined {
         try {
             const body = tx.inMessage?.body.beginParse()
@@ -93,6 +117,9 @@ export class NftItem implements Contract {
     }
 }
 
+/**
+ * Represents the data structure of an NFT transfer.
+ */
 export type NftTransfer = {
     queryId: number
     from?: Address | Maybe<ExternalAddress>

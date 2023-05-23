@@ -1,10 +1,24 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode, contractAddress } from 'ton-core'
 
+/**
+ * Class representing an NFT auction contract.
+ */
 export class NftAuction implements Contract {
+    /**
+     * Creates an `NftAuction` instance from an address and initialization data.
+     * @param address - The address of the contract.
+     * @param init - The initialization data.
+     * @returns A new `NftAuction` instance.
+     */
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
     
     static code = Cell.fromBoc(Buffer.from('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', 'base64'))[0]
 
+    /**
+     * Builds the data cell for the auction contract.
+     * @param data - The data for building the data cell.
+     * @returns The built data cell.
+     */
     static buildDataCell(data: NftAuctionData) {
 
         const feesCell = beginCell()
@@ -49,6 +63,11 @@ export class NftAuction implements Contract {
         return storage.endCell()
     }
 
+    /**
+     * Creates an `NftAuction` instance from an address.
+     * @param address - The address to create from.
+     * @returns A new `NftAuction` instance.
+     */
     static createFromAddress(
         address: Address
     ) {
@@ -57,6 +76,12 @@ export class NftAuction implements Contract {
         )
     }
 
+    /**
+     * Creates an `NftAuction` instance from configuration data.
+     * @param config - The configuration data for creating the instance.
+     * @param workchain - The workchain ID (default: 0).
+     * @returns A new `NftAuction` instance.
+     */
     static async createFromConfig(
         config: NftAuctionData,
         workchain = 0
@@ -80,7 +105,12 @@ export class NftAuction implements Contract {
         )
     }
 
-    // Deployment
+    /**
+     * Sends a deploy command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the deploy command.
+     * @param value - The value to send with the command.
+     */
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value,
@@ -88,7 +118,12 @@ export class NftAuction implements Contract {
         })
     }
 
-
+    /**
+     * Sends a cancel command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the cancel command.
+     * @param params - The parameters for the cancel command.
+     */
     async sendCancel(provider: ContractProvider, via: Sender, params: { 
         value: bigint
     }) {
@@ -102,6 +137,12 @@ export class NftAuction implements Contract {
         })
     }
     
+    /**
+     * Sends a stop command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the stop command.
+     * @param params - The parameters for the stop command.
+     */
     async sendStop(provider: ContractProvider, via: Sender, params: { 
         value: bigint
     }) {
@@ -115,6 +156,12 @@ export class NftAuction implements Contract {
         })
     }
 
+    /**
+     * Sends a repeat end auction command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the repeat end auction command.
+     * @param params - The parameters for the repeat end auction command.
+     */
     async sendRepeatEndAuction(provider: ContractProvider, via: Sender, params: { 
         value: bigint
     }) {
@@ -128,6 +175,12 @@ export class NftAuction implements Contract {
         })
     }
 
+    /**
+     * Sends an emergency message to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the emergency message.
+     * @param params - The parameters for the emergency message.
+     */
     async sendEmergencyMessage(provider: ContractProvider, via: Sender, params: { 
         value: bigint,
         marketplaceAddress: Address,
@@ -153,6 +206,11 @@ export class NftAuction implements Contract {
         })
     }
 
+    /**
+     * Retrieves the sale data from the contract.
+     * @param provider - The contract provider.
+     * @returns The sale data.
+     */
     async getSaleData(provider: ContractProvider) {
         const { stack } = await provider.get('get_sale_data', [])
         
@@ -184,8 +242,9 @@ export class NftAuction implements Contract {
     }
 }
 
-// Utils
-
+/**
+ * Type representing the data for an NFT auction contract version 2.
+ */
 export type NftAuctionData = {
     marketplaceFeeAddress: Address,
     marketplaceFeeFactor: bigint,

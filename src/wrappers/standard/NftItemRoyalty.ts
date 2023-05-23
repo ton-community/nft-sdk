@@ -1,7 +1,16 @@
 import { Address, beginCell, ContractProvider, Sender, SendMode } from 'ton-core'
 import { NftItem } from './NftItem'
 
+/**
+ * Represents an NFT item contract with royalty features.
+ * Inherits from the NftItem class.
+ */
 export class NftItemRoyalty extends NftItem {
+    /**
+     * Constructs an instance of the NftItemRoyalty contract from an address.
+     * @param address - The address of the contract.
+     * @returns An instance of NftItemRoyalty.
+     */
     static createFromAddress(
         address: Address
     ) {
@@ -10,6 +19,12 @@ export class NftItemRoyalty extends NftItem {
         )
     }
 
+    /**
+     * Sends a request to get the royalty parameters from the contract.
+     * @param provider - The ContractProvider to facilitate the data retrieval.
+     * @param via - The Sender initiating the data retrieval.
+     * @param params - The parameters for the data retrieval.
+     */
     async sendGetRoyaltyParams(
         provider: ContractProvider,
         via: Sender,
@@ -28,6 +43,11 @@ export class NftItemRoyalty extends NftItem {
         })
     }
 
+    /**
+     * Retrieves the royalty parameters of the NFT from the contract.
+     * @param provider - The ContractProvider to facilitate the data retrieval.
+     * @returns An object with the royalty parameters.
+     */
     async getRoyaltyParams(
         provider: ContractProvider
     ) {
