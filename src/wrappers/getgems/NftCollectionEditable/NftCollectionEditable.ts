@@ -23,7 +23,16 @@ const OperationCodes = {
     GetRoyaltyParamsResponse: 0xa8cb00ad
 }
 
+/**
+ * Class representing an editable Non-Fungible Token (NFT) collection contract.
+ * This class extends from the `NftCollectionRoyalty` class.
+ */
 export class NftCollectionEditable extends NftCollectionRoyalty {
+    /**
+     * Creates an `NftCollectionEditable` instance from an address.
+     * @param address - The address to create from.
+     * @returns A new `NftCollectionEditable` instance.
+     */
     static createFromAddress(
         address: Address
     ) {
@@ -32,7 +41,12 @@ export class NftCollectionEditable extends NftCollectionRoyalty {
         )
     }
 
-    // Deployment
+    /**
+     * Sends a deploy command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the deploy command.
+     * @param value - The value to send with the command.
+     */
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value,
@@ -40,7 +54,12 @@ export class NftCollectionEditable extends NftCollectionRoyalty {
         })
     }
 
-
+    /**
+     * Sends a mint command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the mint command.
+     * @param params - The parameters for the mint command.
+     */
     async sendMint(provider: ContractProvider, via: Sender, params: { 
         queryId?: number, 
         value: bigint,
@@ -50,7 +69,6 @@ export class NftCollectionEditable extends NftCollectionRoyalty {
         itemContent: string 
     }) {
         const itemContent = beginCell()
-        // itemContent.bits.writeString(params.itemContent)
         itemContent.storeBuffer(Buffer.from(params.itemContent)).endCell()
 
         const nftItemMessage = beginCell()
@@ -67,10 +85,16 @@ export class NftCollectionEditable extends NftCollectionRoyalty {
                 .storeCoins(params.passAmount)
                 .storeRef(nftItemMessage)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
+    /**
+     * Sends a change owner command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the change owner command.
+     * @param params - The parameters for the change owner command.
+     */
     async sendChangeOwner(provider: ContractProvider, via: Sender, params: { 
         queryId?: number, 
         value: bigint,
@@ -83,7 +107,7 @@ export class NftCollectionEditable extends NftCollectionRoyalty {
                 .storeUint(params.queryId || 0, 64)
                 .storeAddress(params.newOwner)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY
+            sendMode: SendMode.PAY_GAS_SEPARATELY
         })
     }
 }

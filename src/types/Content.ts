@@ -1,4 +1,5 @@
 import { beginCell, Builder, Slice, Dictionary } from 'ton-core'
+import {sha256_sync} from 'ton-crypto'
 
 // offchain#01 uri:Text = FullContent
 
@@ -14,6 +15,8 @@ type OffchainContent = {
 };
   
 type FullContent = OnchainContent | OffchainContent;
+
+const propertyNames = ['uri', 'name', 'description', 'image', 'image_data']
   
 // onchain#00 data:(HashMapE 256 ^ContentData) = FullContent;
 // offchain#01 uri:Text = FullContent;
@@ -53,17 +56,38 @@ export function loadOnchainContent(slice: Slice): OnchainContent {
         throw new Error(`Unknown content type: ${data.toString(16)}`)
     }
 
+    const onchainDict = loadOnchainDict(slice)
+    const knownKeys = new Map<string, string>()
+    for (const knownProperty of propertyNames) {
+        const hashedKey = BigInt('0x' + sha256_sync(knownProperty).toString('hex'))
+        const value = onchainDict.get(hashedKey)
+        
+        if (onchainDict.has(hashedKey) && value !== undefined) {
+            knownKeys.set(knownProperty, value)
+        }
+    }
+
     return {
         type: 'onchain',
-        knownKeys: new Map(),
-        unknownKeys: loadOnchainDict(slice)
+        knownKeys,
+        unknownKeys: onchainDict
     }
 }
 
 export function storeOnchainContent(src: OnchainContent): (builder: Builder) => void {
+    const map = new Map<bigint, string>()
+
+    for (const [key, value] of src.unknownKeys) map.set(key, value)
+
+
+    for (const [key] of src.knownKeys) {
+        const hashedKey = BigInt('0x' + sha256_sync(key).toString('hex'))
+        map.set(hashedKey, key)
+    }
+
     return (builder: Builder) => {
         builder.storeUint(8, 0x00)
-        builder.store(storeOnchainDict(src.unknownKeys))
+        builder.store(storeOnchainDict(map))
     }
 }
 
@@ -160,15 +184,10 @@ export function loadChunkedRaw(slice: Slice): string {
     let data = ''
 
     for (let i = 0; i < dict.size; i++) {
-        const key = dict.keys()[i]
         const value = dict.get(i)
 
         if (!value) {
-            throw new Error(`Missing value for key: ${key.toString(16)}`)
-        }
-    
-        if (!dict.has(key)) {
-            throw new Error(`Key ${key} is not present in the dictionary`)
+            throw new Error(`Missing value for key: ${i.toString(16)}`)
         }
     
         data += (value.beginParse().loadStringRefTail())

@@ -1,19 +1,33 @@
 import { Address, beginCell, Cell, Contract, ContractProvider, Sender, SendMode } from 'ton-core'
 
+/**
+ * The object containing operation codes for different operations
+ */
 export const OperationCodes = {
     cancel: 2001,
-    addCoins: 2002,
-    // maintain: 2003,
-    // sendAgain: 2004,
+    addCoins: 2002
 }
 
+/**
+ * Class representing a NFT Raffle
+ */
 export class NftRaffle implements Contract {
+    /**
+     * @param address - The address of the NFT Raffle
+     * @param init - The initialization data for the NFT Raffle
+     */
     constructor(readonly address: Address, readonly init?: { code: Cell; data: Cell }) {}
 
-    // Data
-
+    /**
+     * The code for the NFT Raffle contract
+     */
     static code = Cell.fromBoc(Buffer.from('te6ccsECGgEABKgAAA0AEgAXAD0AQwCdANwA+AEgAV4BwQHoAh8CcQJ/Ar4CwwMRAy8DYwObA7cD8QQGBEUEqAEU/wD0pBP0vPLICwECAWIFAgIBWAQDAUW6KJ2zz4QvhD+ET4RfhG+Ef4SPhJ+Er4S/hM+E34TvhP+FCBkBBbtguBUEqNAz0NMDAXGw8kDbPPpAMALTH/hHUkDHBfhIUlDHBfhJUmDHBYIQBRONkVJQuo6GEDRfBNs84IEH0VJQuo6ObDMzgQPqWbFYsfL02zzgMIEH0lJAuhkNCgYDdI6YM4ED6lMxsfL0cAGSMHHeApJyMt5DMNs84FuBB9RSILqOhhAjXwPbPOAygQfTuo6C2zzgW4QP8vAJCAcANIED6fhCcbry8oED6vhJE8cFEvL01NMHMPsAAUqBA+n4QnO98vL4RfhDoPhOqIED61IiufLy+EX4Q6CpBPhQAds8EwNyMDGBA+n4QnG68vQhwAGd+EyCCJiWgFIgoaD4bN4BwAKc+E2CCJiWgBKhoPhtkTDi2zyOgts83ts8FQ8RBLqBA+n4QnG98vKBA+nbPPLycvhi+E/4TvhH+EjbPIIID0JAcPsC+Ef4TI0E05GVCByYWZmbGUgY2FuY2VsZWSBy2zz4SPhNjQTTkZUIHJhZmZsZSBjYW5jZWxlZIHIVDBILA0TbPPhJcI0E05GVCByYWZmbGUgY2FuY2VsZWSCBAILbPNs8EhIRAmZ/jy0kgwf0fG+lII8eItcLA8ACjoZxVHZS2zzeAtcLA8ADjoZxVHUx2zzekTLiAbPmXwUYGASYggiYloASofhOoSDBAPhCcb2xjoMw2zzgIvpEMfhPAds8XLGzjoRfBNs84DQ0+G8Cm/hGpPhm+EwioPhs3pv4RKT4ZPhNAaD4bZEw4hcWFw4DEts8joLbPN7bPBUPEQRyc/hi+FD4T9s8+HD4UPhO2zyCCA9CQHD7AvhJcI0FU5GVCByYWZmbGUgY29tbWlzc2lvboIEAgts8FBMSEAEE2zwRAJj4UPhPyPQA9ADJyPhK+gL4S/oC+Ez6AvhN+gL4TvoCycj4R88W+EjPFvhJzxbJ+Eb4RfhE+EP4QsjLAcsDywPLA8sDycjMzMzMye1UADhwIIAYyMsFUAbPFlAE+gIUy2oSyx8BzxbJAfsAAmB/jyoigwf0fG+lII8bAtcLAMABjohw+EdUZDHbPI6IcPhIVGQx2zzikTLiAbPmXwMYGABsf44xIYMH9HxvpTIhjiNy+BHAAJ1xyMsAydBUIAWDB/QWnXDIywDJ0FQgBYMH9BbiA94Bs+ZbATLbPPhD+ES6+EX4Rrqw+Ez4Sr6w+E34S76wGQBwcFRwEoMH9A5vocAAlF8EcCDg0wMwwACeMXLIywPJ0EADgwf0Fn+fMHPIywPJ0EADgwf0Fn8C4lgBJIBA1yH6QDAB+kQxgEACcALbPBgAenAg+CWCEF/MPRTIyx/LPyTPFlAEzxYTygAi+gISygDJcXAgcoAYyMsFywHLAMsHE8v/UAP6AstqzMkB+wAAwvhBbt3tRNDUAdDTAQH4YtMDAfhj0wMB+GTTAwH4ZdMDMPhm1AHQ+kAB+Gf6QAH4aPpAMPhp1AHQ+gAB+Gr6AAH4a/oAAfhs+gAB+G36ADD4btQw0PQEAfhv9AQw+HB/+GEoOcFW', 'base64'))[0]
 
+    /**
+     * Creates an NftRaffle instance from an address.
+     * @param address - The address to create from.
+     * @returns A new NftRaffle instance.
+     */
     static createFromAddress(
         address: Address
     ) {
@@ -22,7 +36,12 @@ export class NftRaffle implements Contract {
         )
     }
 
-    // Deployment
+    /**
+     * Sends a deploy command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the deploy command.
+     * @param value - The value to send with the command.
+     */
     async sendDeploy(provider: ContractProvider, via: Sender, value: bigint) {
         await provider.internal(via, {
             value,
@@ -30,7 +49,12 @@ export class NftRaffle implements Contract {
         })
     }
 
-
+    /**
+     * Sends a cancel command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the cancel command.
+     * @param params - Parameters for the cancel command including value.
+     */
     async sendCancel(provider: ContractProvider, via: Sender, params: { 
         value: bigint
     }) {
@@ -39,10 +63,16 @@ export class NftRaffle implements Contract {
             body: beginCell()
                 .storeUint(OperationCodes.cancel, 32)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
+    /**
+     * Sends an addCoins command to the contract.
+     * @param provider - The contract provider.
+     * @param via - The sender of the addCoins command.
+     * @param params - Parameters for the addCoins command including value.
+     */
     async sendAddCoins(provider: ContractProvider, via: Sender, params: { 
         value: bigint
     }) {
@@ -51,10 +81,15 @@ export class NftRaffle implements Contract {
             body: beginCell()
                 .storeUint(OperationCodes.addCoins, 32)
                 .endCell(),
-            sendMode: SendMode.PAY_GAS_SEPARATLY,
+            sendMode: SendMode.PAY_GAS_SEPARATELY,
         })
     }
 
+    /**
+     * Gets the state of the raffle.
+     * @param provider - The contract provider.
+     * @returns The current state of the raffle.
+     */
     async getRaffleState(
         provider: ContractProvider
     ) {
