@@ -93,10 +93,8 @@ export class NftItem implements Contract {
             if (body === undefined) return undefined 
 
             const op = body.loadUint(32)
-
             
             if (op !== 0x5fcc3d14) return undefined 
-
 
             if (!isEligibleTransaction(tx)) {
                 return undefined
@@ -107,11 +105,11 @@ export class NftItem implements Contract {
                 from: tx.inMessage?.info.src ?? undefined,
                 to: body.loadAddress(),
                 responseTo: body.loadAddress(),
-                customPayload: body.loadRef(),
+                customPayload: body.loadMaybeRef(),
                 forwardAmount: body.loadCoins(),
-                forwardPayload: body.loadRef(),
+                forwardPayload: body.loadMaybeRef(),
             }
-        } catch (e) { /* empty */ }
+        } catch (e) { console.log(e) }
 
         return undefined
     }
@@ -125,7 +123,7 @@ export type NftTransfer = {
     from?: Address | Maybe<ExternalAddress>
     to: Address
     responseTo?: Address
-    customPayload: Cell
+    customPayload: Cell | null
     forwardAmount: bigint
-    forwardPayload: Cell
+    forwardPayload: Cell | null
 }
