@@ -1,4 +1,4 @@
-import { Address } from 'ton-core'
+import { Address, Transaction } from 'ton-core'
 
 export class TonClient {
     private url: string
@@ -87,6 +87,23 @@ export class TonClient {
     ) {
         const response = await request(
             `${this.url}/v1/blockchain/getTransactions?account=${address.toString()}&limit=${limit}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }
+        )
+
+        return response
+    }
+
+    // Get Transaction Data
+    async getTransactionData(
+        transactionId: string
+    ): Promise<Transaction> {
+        const response: Transaction = await request(
+            `${this.url}/v2/blockchain/transactions/${transactionId}`,
             {
                 method: 'GET',
                 headers: {

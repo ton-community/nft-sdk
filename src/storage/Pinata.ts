@@ -90,34 +90,4 @@ export class Pinata {
             throw error
         }            
     }
-
-    // Function to upload only one image in bulk to IPFS using Pinata SDK in ascending order of file name and return their URL
-    async uploadSingle(
-        assetsFolderPath: string
-    ): Promise<string> {
-        
-
-    async pinByHash(hashToPin: string) {
-        return await this.pinata.pinByHash(hashToPin)
-    }
-
-    async pinFileToIPFS(readableStream: ReadableStream) {
-        return await this.pinata.pinFileToIPFS(readableStream)
-    }
-
-    async pinFromFS(path: string) {
-        return await this.pinata.pinFromFS(path)
-    }
-
-    async pinJSONToIPFS(body: JSON) {
-        return await this.pinata.pinJSONToIPFS(body)
-    }
-
-    async pinJobs() {
-        return await this.pinata.pinJobs()
-    }
-
-    async unpin(hashToUnpin: string) {
-        return await this.pinata.unpin(hashToUnpin)
-    }
 }
