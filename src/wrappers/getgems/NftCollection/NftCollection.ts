@@ -148,16 +148,20 @@ export class NftCollection extends NftCollectionRoyalty {
     }
 
     static parseMint(tx: Transaction): NftMint | undefined {
-        const body = tx.inMessage?.body.beginParse()
+        try {
+            const body = tx.inMessage?.body.beginParse()
 
-        if (body == undefined) return undefined 
+            if (body == undefined) return undefined 
 
-        const op = body.loadUint(32)
-        
-        if (op != 1) return undefined 
+            const op = body.loadUint(32)
+            
+            if (op != 1) return undefined 
 
 
-        if (isEligibleTransaction(tx)) {
+            if (!isEligibleTransaction(tx)) {
+                return undefined
+            }
+
             return {
                 queryId: body.loadUint(64),
                 from: tx.inMessage?.info.src ?? undefined,
@@ -166,32 +170,31 @@ export class NftCollection extends NftCollectionRoyalty {
                 passAmount: body.loadCoins(),
                 nftItemMessage: body.loadRef()
             }
-        } else {
-            return undefined
-        }
-
+        } catch (e) { /* empty */ }
         return undefined
     }
 
 
     static parseOwnershipTransfer(tx: Transaction): OwnershipTransfer | undefined {
-        const body = tx.inMessage?.body.beginParse()
+        try {
+            const body = tx.inMessage?.body.beginParse()
 
-        if (body == undefined) return undefined 
+            if (body == undefined) return undefined 
 
-        const op = body.loadUint(32)
-        
-        if (op != 3) return undefined 
+            const op = body.loadUint(32)
+            
+            if (op != 3) return undefined 
 
-        if (isEligibleTransaction(tx)) {
+            if (!isEligibleTransaction(tx)) {
+                return undefined
+            }
+
             return {
                 queryId: body.loadUint(64),
                 oldOwner: tx.inMessage?.info.src ?? undefined,
                 newOwner: body.loadAddress()
             }
-        } else {
-            return undefined
-        }
+        } catch (e) { /* empty */ }
 
         return undefined
     }

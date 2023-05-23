@@ -63,33 +63,31 @@ export class NftItem implements Contract {
     // Transaction Parsing
 
     static parseTransfer(tx: Transaction): NftTransfer | undefined {
-        const body = tx.inMessage?.body.beginParse()
+        try {
+            const body = tx.inMessage?.body.beginParse()
 
-        if (body == undefined) return undefined 
+            if (body == undefined) return undefined 
 
-        const op = body.loadUint(32)
+            const op = body.loadUint(32)
 
-        
-        if (op != 0x5fcc3d14) return undefined 
+            
+            if (op != 0x5fcc3d14) return undefined 
 
 
-        if (isEligibleTransaction(tx)) {
-            try {
-                return {
-                    queryId: body.loadUint(64),
-                    from: tx.inMessage?.info.src ?? undefined,
-                    to: body.loadAddress(),
-                    responseTo: body.loadAddress(),
-                    customPayload: body.loadRef(),
-                    forwardAmount: body.loadCoins(),
-                    forwardPayload: body.loadRef(),
-                }
-            } catch (e) {
-                console.log(e)
+            if (!isEligibleTransaction(tx)) {
+                return undefined
+            } 
+
+            return {
+                queryId: body.loadUint(64),
+                from: tx.inMessage?.info.src ?? undefined,
+                to: body.loadAddress(),
+                responseTo: body.loadAddress(),
+                customPayload: body.loadRef(),
+                forwardAmount: body.loadCoins(),
+                forwardPayload: body.loadRef(),
             }
-        } else {
-            return undefined
-        }
+        } catch (e) { /* empty */ }
 
         return undefined
     }
