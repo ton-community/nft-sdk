@@ -14,6 +14,39 @@ export class Pinata {
         this.pinata = new PinataClient(apiKey, secretApiKey)
     }
 
+    async uploadImage(imagePath: string): Promise<string> {
+        const fileContent = fs.createReadStream(imagePath)
+        const response = await this.pinata.pinFileToIPFS(fileContent)
+        return `https://gateway.pinata.cloud/ipfs/${response.IpfsHash}`
+    }
+    
+    // Function to upload multiple images
+    async uploadImages(folderPath: string): Promise<string[]> {
+        const files = fs.readdirSync(folderPath)
+        const uploadPromises = files.map(file => this.uploadImage(path.join(folderPath, file)))
+        return Promise.all(uploadPromises)
+    }
+    
+    // Function to upload a JSON file
+    async uploadJson(jsonPath: string): Promise<string> {
+        const fileContent = fs.readFileSync(jsonPath)
+        const jsonData = JSON.parse(fileContent.toString())
+        const response = await this.pinata.pinJSONToIPFS(jsonData)
+        return `https://gateway.pinata.cloud/ipfs/${response.IpfsHash}`
+    }
+    
+    // Function to upload multiple JSON files
+    async uploadJsonBulk(folderPath: string): Promise<string[]> {
+        const files = fs.readdirSync(folderPath)
+        const uploadPromises = files.map(file => this.uploadJson(path.join(folderPath, file)))
+        return Promise.all(uploadPromises)
+    }
+    
+    // Function to return Pinata client interface
+    getClient(): PinataClient {
+        return this.pinata
+    }
+
     // Function to upload images in bulk to IPFS using Pinata SDK in ascending order of file names and return their URLs
     async uploadBulk(
         assetsFolderPath: string

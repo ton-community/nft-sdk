@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 
 // NFT.Storage - For IPFS and NFT Integration
+// TODO
 export class NFTStorageWrapper {
     private nftStorage: NFTStorage
 
