@@ -1,7 +1,7 @@
-import {TonClient} from '../src/ton-api'
+import {TonNftClient} from '../src/ton-api'
 
 async function main() {
-    const tonClient = new TonClient()
+    const tonClient = new TonNftClient('tonapi')
 
     // Telegram Number Collection
     const collection = await tonClient.getNftCollectionByAddress('EQAOQdwdw8kGftJCSFgOErM1mBjYPe4DBPq8-AhF6vr9si5N')

@@ -3,10 +3,17 @@ import { error } from 'console'
 import fs from 'fs'
 import path from 'path'
 
-// Pinata - For IPFS Integration
+/**
+ * Pinata is a class that provides utility functions for interacting with Pinata for IPFS integration.
+ */
 export class Pinata {
     private pinata: PinataClient
 
+    /**
+     * Creates an instance of the Pinata class.
+     * @param apiKey - The API key for Pinata.
+     * @param secretApiKey - The secret API key for Pinata.
+     */
     constructor (
         apiKey: string,
         secretApiKey: string,
@@ -14,20 +21,33 @@ export class Pinata {
         this.pinata = new PinataClient(apiKey, secretApiKey)
     }
 
+    /**
+     * Uploads an image file to IPFS using Pinata SDK.
+     * @param imagePath - The path to the image file to be uploaded.
+     * @returns A Promise that resolves to the URL of the uploaded image on IPFS.
+     */
     async uploadImage(imagePath: string): Promise<string> {
         const fileContent = fs.createReadStream(imagePath)
         const response = await this.pinata.pinFileToIPFS(fileContent)
         return `https://gateway.pinata.cloud/ipfs/${response.IpfsHash}`
     }
     
-    // Function to upload multiple images
+    /**
+     * Uploads multiple image files from a folder to IPFS using Pinata SDK.
+     * @param folderPath - The path to the folder containing the image files.
+     * @returns A Promise that resolves to an array of URLs of the uploaded images on IPFS.
+     */
     async uploadImages(folderPath: string): Promise<string[]> {
         const files = fs.readdirSync(folderPath)
         const uploadPromises = files.map(file => this.uploadImage(path.join(folderPath, file)))
         return Promise.all(uploadPromises)
     }
     
-    // Function to upload a JSON file
+    /**
+     * Uploads a JSON file to IPFS using Pinata SDK.
+     * @param jsonPath - The path to the JSON file to be uploaded.
+     * @returns A Promise that resolves to the URL of the uploaded JSON file on IPFS.
+     */
     async uploadJson(jsonPath: string): Promise<string> {
         const fileContent = fs.readFileSync(jsonPath)
         const jsonData = JSON.parse(fileContent.toString())
@@ -35,19 +55,32 @@ export class Pinata {
         return `https://gateway.pinata.cloud/ipfs/${response.IpfsHash}`
     }
     
-    // Function to upload multiple JSON files
+    /**
+     * Uploads multiple JSON files from a folder to IPFS using Pinata SDK.
+     * @param folderPath - The path to the folder containing the JSON files.
+     * @returns A Promise that resolves to an array of URLs of the uploaded JSON files on IPFS.
+     */
     async uploadJsonBulk(folderPath: string): Promise<string[]> {
         const files = fs.readdirSync(folderPath)
         const uploadPromises = files.map(file => this.uploadJson(path.join(folderPath, file)))
         return Promise.all(uploadPromises)
     }
     
-    // Function to return Pinata client interface
+    /**
+     * Returns the Pinata client interface.
+     * @returns The Pinata client interface.
+     */
     getClient(): PinataClient {
         return this.pinata
     }
 
-    // Function to upload images in bulk to IPFS using Pinata SDK in ascending order of file names and return their URLs
+    /**
+     * Uploads images in bulk to IPFS using Pinata SDK in ascending order of file names and returns their URLs.
+     * @param assetsFolderPath - The path to the folder containing the image and JSON files.
+     * @returns A Promise that resolves to an array of two arrays:
+     * - The first array contains the URLs of the uploaded images on IPFS.
+     * - The second array contains the URLs of the uploaded JSON files on IPFS.
+     */
     async uploadBulk(
         assetsFolderPath: string
     ): Promise<[string[], string[]]> {

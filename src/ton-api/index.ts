@@ -1,125 +1,63 @@
-import { Address, Transaction } from 'ton-core'
+import { Address } from 'ton-core'
+import {TonAPI} from './TonAPI'
 
-export class TonClient {
-    private url: string
+export class TonNftClient {
+    constructor(
+        readonly provider: string,
+        readonly url?: string
+    ) {}
 
-    constructor(url?: string) {
-        this.url = url ? url : 'https://tonapi.io'
-    }
-
-    // Get NFT collections - /v2/nfts/collections
     async getNftCollections(
         limit?: number,
         offset?: number,
     ) {
-        const response = await request(
-            `${this.url}/v2/nfts/collections?limit=${limit}&offset=${offset}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
-        )
+        if (this.provider === 'tonapi') {
+            const tonApi = new TonAPI()
 
-        return response
+            return await tonApi.getNftCollections(limit, offset)
+        }
     }
 
-    // Get NFT collection by collection address - /v2/nfts/collections/{account_id}
     async getNftCollectionByAddress(
         collectionAddress: string,
     ) {
-        const response = await request(
-            `${this.url}/v2/nfts/collections/${collectionAddress}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
-        )
+        if (this.provider === 'tonapi') {
+            const tonApi = new TonAPI()
 
-        return response
+            return await tonApi.getNftCollectionByAddress(collectionAddress)
+        }
     }
 
-    // Get NFT items from collection by collection address - /v2/nfts/collections/{account_id}/items
     async getNftItemsFromCollectionByAddress(
         collectionAddress: string,
         limit?: number,
         offset?: number,
     ) {
-        const response = await request(
-            `${this.url}/v2/nfts/collections/${collectionAddress}/items?limit=${limit}&offset=${offset}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
-        )
+        if (this.provider === 'tonapi') {
+            const tonApi = new TonAPI()
 
-        return response
+            return await tonApi.getNftItemsFromCollectionByAddress(collectionAddress, limit, offset)
+        }
     }
 
-    // Get NFT item by its address - /v2/nfts/{account_id}
     async getNftItemByAddress(
         itemAddress: string,
     ) {
-        const response = await request(
-            `${this.url}/v2/nfts/${itemAddress}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
-        )
+        if (this.provider === 'tonapi') {
+            const tonApi = new TonAPI()
 
-        return response
+            return await tonApi.getNftItemByAddress(itemAddress)
+        }
     }
 
-    // Get Transactions By Address - /v1/blockchain/getTransactions
     async getTransactionsByAddress(
         address: Address,
-        limit: number,
-        // maxLt?: number,
-        // minLt?: number
+        limit: number
     ) {
-        const response = await request(
-            `${this.url}/v1/blockchain/getTransactions?account=${address.toString()}&limit=${limit}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
-        )
+        if (this.provider === 'tonapi') {
+            const tonApi = new TonAPI()
 
-        return response
+            return await tonApi.getTransactionsByAddress(address, limit)
+        }
     }
-
-    // Get Transaction Data
-    async getTransactionData(
-        transactionId: string
-    ): Promise<Transaction> {
-        const response: Transaction = await request(
-            `${this.url}/v2/blockchain/transactions/${transactionId}`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            }
-        )
-
-        return response
-    }
-}
-
-async function request<TResponse>(
-    url: string, 
-    config: RequestInit
-): Promise<TResponse> {
-    const response = await fetch(url, config)
-    return (await response.json()) as TResponse
 }

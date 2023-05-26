@@ -3,9 +3,17 @@ import { error } from 'console'
 import fs from 'fs'
 import path from 'path'
 
+/**
+ * AmazonS3 is a class that provides utility functions for interacting with Amazon S3.
+ */
 export class AmazonS3 {
     public s3: S3
 
+    /**
+     * Creates an instance of the AmazonS3 class.
+     * @param accessKeyId - The access key ID for your AWS account.
+     * @param secretAccessKey - The secret access key for your AWS account.
+     */
     constructor (
         accessKeyId: string,
         secretAccessKey: string
@@ -18,7 +26,12 @@ export class AmazonS3 {
         )
     }
 
-    // Function to upload an image
+    /**
+     * Uploads an image file to an S3 bucket.
+     * @param imagePath - The path to the image file to be uploaded.
+     * @param options - Optional configuration options.
+     * @returns A Promise that resolves to the URL of the uploaded image.
+     */
     async uploadImage(
         imagePath: string, 
         options?: {
@@ -33,33 +46,43 @@ export class AmazonS3 {
             Key: path.basename(imagePath), // File name you want to save as in S3
             Body: fileContent,
             ContentType: 'image/jpeg', // adjust as needed
-        };
+        }
 
-        await this.s3.upload(params).promise();
+        await this.s3.upload(params).promise()
 
-        return `https://${bucketName}.s3.amazonaws.com/${params.Key}`;
+        return `https://${bucketName}.s3.amazonaws.com/${params.Key}`
     }
 
-    // Function to upload multiple images
+    /**
+     * Uploads multiple image files from a folder to an S3 bucket.
+     * @param folderPath - The path to the folder containing the image files.
+     * @param options - Optional configuration options.
+     * @returns A Promise that resolves to an array of URLs of the uploaded images.
+     */
     async uploadImages(
         folderPath: string, 
         options?: {
             bucketName: string
         }
     ): Promise<string[]> {
-        const files = fs.readdirSync(folderPath);
-        const uploadPromises = files.map(file => this.uploadImage(path.join(folderPath, file), options));
-        return Promise.all(uploadPromises);
+        const files = fs.readdirSync(folderPath)
+        const uploadPromises = files.map(file => this.uploadImage(path.join(folderPath, file), options))
+        return Promise.all(uploadPromises)
     }
 
-    // Function to upload a JSON file
+    /**
+     * Uploads a JSON file to an S3 bucket.
+     * @param jsonPath - The path to the JSON file to be uploaded.
+     * @param options - Optional configuration options.
+     * @returns A Promise that resolves to the URL of the uploaded JSON file.
+     */
     async uploadJson(
         jsonPath: string,
         options?: {
             bucketName: string
         }
     ): Promise<string> {
-        const fileContent = fs.readFileSync(jsonPath);
+        const fileContent = fs.readFileSync(jsonPath)
         const bucketName = options?.bucketName ?? "TON_NFT"
 
         const params = {
@@ -67,102 +90,103 @@ export class AmazonS3 {
             Key: path.basename(jsonPath), // File name you want to save as in S3
             Body: fileContent,
             ContentType: 'application/json', // JSON file mimetype
-        };
+        }
 
-        await this.s3.upload(params).promise();
+        await this.s3.upload(params).promise()
 
-        return `https://${bucketName}.s3.amazonaws.com/${params.Key}`;
+        return `https://${bucketName}.s3.amazonaws.com/${params.Key}`
     }
 
-    // Function to upload multiple JSON files
+    /**
+     * Uploads multiple JSON files from a folder to an S3 bucket.
+     * @param folderPath - The path to the folder containing the JSON files.
+     * @param options - Optional configuration options.
+     * @returns A Promise that resolves to an array of URLs of the uploaded JSON files.
+     */
     async uploadJsonBulk(
         folderPath: string,
         options?: {
             bucketName: string
         }
     ): Promise<string[]> {
-        const files = fs.readdirSync(folderPath);
-        const uploadPromises = files.map(file => this.uploadJson(path.join(folderPath, file), options));
-        return Promise.all(uploadPromises);
+        const files = fs.readdirSync(folderPath)
+        const uploadPromises = files.map(file => this.uploadJson(path.join(folderPath, file), options))
+        return Promise.all(uploadPromises)
     }
 
-    // Function to return S3 client interface
-    async getClient(): Promise<AWS.S3> {
-        return this.s3;
+    /**
+     * Returns the S3 client interface.
+     * @returns A Promise that resolves to the S3 client interface.
+     */
+    async getClient(): Promise<S3> {
+        return this.s3
     }
 
-    // Function to upload images & json in bulk to Amazon S3
-    // async uploadImagesAndMetadata(
-    //     assetsFolderPath: string, 
-    //     s3BucketName: string,
-    //     options?: {
-    //         type: string
-    //     }
-    // ): Promise<string[]> {
-    //     try {
-            // Check if the S3 bucket exists, create it if it doesn't exist
-    //         const bucketExists = await this.s3.headBucket({ Bucket: s3BucketName }).promise().then(() => true).catch(() => false)
-    //         if (!bucketExists) {
-    //             await this.createBucket(s3BucketName)
-    //         }
-
+    /**
+     * Uploads images in bulk to IPFS using Pinata SDK in ascending order of file names and returns their URLs.
+     * @param assetsFolderPath - The path to the folder containing the image and JSON files.
+     * @param options - Optional configuration options.
+     * @returns A Promise that resolves to an array of two arrays:
+     * - The first array contains the URLs of the uploaded images on IPFS.
+     * - The second array contains the URLs of the uploaded JSON files on IPFS.
+     */
+    async uploadBulk(
+        assetsFolderPath: string,
+        options?: {
+            bucketName: string
+        }
+    ): Promise<[string[], string[]]> {
+        try {
             // Read the directory
-    //         const files = fs.readdirSync(assetsFolderPath)
-
+            const files = fs.readdirSync(assetsFolderPath)
+    
             // Filter and sort image files
-    //         const imageFiles = files.filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file)).sort((a, b) => parseInt(a) - parseInt(b))
-
+            const imageFiles = files
+                .filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file))
+                .sort((a, b) => parseInt(a) - parseInt(b))
+    
             // Process image uploads in ascending order and collect their URLs
-    //         const imageUrls: string[] = []
-
-    //         for (const imageFile of imageFiles) {
+            const imageUrls: string[] = []
+            const jsonUrls: string[] = []
+    
+            for (const imageFile of imageFiles) {
                 // Read image file
-    //             const imagePath = path.join(assetsFolderPath, imageFile)
-    //             const imageData = fs.readFileSync(imagePath)
-
-                // Prepare S3 upload parameters
-    //             const params: AWS.S3.PutObjectRequest = {
-    //                 Bucket: s3BucketName,
-    //                 Key: imageFile,
-    //                 Body: imageData,
-    //                 ContentType: options?.type ?? 'image/jpeg', // Adjust this if you are handling multiple image formats
-    //             }
-
+                const imagePath = path.join(assetsFolderPath, imageFile)
+    
                 // Upload the image to S3
-    //             await this.s3.upload(params).promise()
-
-                // Add the image URL to the array
-    //             imageUrls.push(`https://${s3BucketName}.s3.amazonaws.com/${imageFile}`)
-
+                const imageUrl = await this.uploadImage(imagePath, options)
+                imageUrls.push(imageUrl)
+    
                 // Read the JSON file with the same filename as the image
-    //             const jsonFilePath = path.join(assetsFolderPath, `${path.parse(imageFile).name}.json`)
-
-    //             if (fs.existsSync(jsonFilePath)) {
-                    // Read the JSON file
-    //                 const jsonFile = fs.readFileSync(jsonFilePath, 'utf8')
-    //                 const jsonData = JSON.parse(jsonFile)
-
+                const jsonFilePath = path.join(
+                    assetsFolderPath,
+                    `${path.parse(imageFile).name}.json`
+                )
+    
+                if (fs.existsSync(jsonFilePath)) {
                     // Upload the JSON file to S3
-    //                 const jsonParams: AWS.S3.PutObjectRequest = {
-    //                     Bucket: s3BucketName,
-    //                     Key: `${path.parse(imageFile).name}.json`,
-    //                     Body: jsonData,
-    //                     ContentType: 'application/json',
-    //                 }
-    //                 await this.s3.upload(jsonParams).promise()
-    //             } else {
-    //                 error('Metadata not found for', path.parse(imageFile).name)
-    //             }
-    //         }
+                    const jsonUrl = await this.uploadJson(jsonFilePath, options)
+                    jsonUrls.push(jsonUrl)
+                    console.log(`JSON file uploaded to S3: ${jsonUrl}`)
+                } else {
+                    error('Metadata not found for', path.parse(imageFile).name)
+                }
+            }
+    
+            console.log('All images uploaded successfully!')
+            return [imageUrls, jsonUrls]
+        } catch (error) {
+            console.error('Error uploading images to S3:', error)
+            throw error
+        }
+    }    
 
-    //         console.log('All images uploaded successfully!')
-    //         return imageUrls
-    //     } catch (error) {
-    //         console.error('Error uploading images to S3:', error)
-    //         throw error
-    //     }
-    // }
-
+    /**
+     * Creates an S3 bucket.
+     * @param bucketName - The name of the bucket to be created.
+     * @param locationConstraint - The AWS region to create the bucket in. Defaults to 'eu-west-1' if not specified.
+     * @returns The location of the created bucket.
+     */
     async createBucket(
         bucketName: string,
         locationConstraint?: string
