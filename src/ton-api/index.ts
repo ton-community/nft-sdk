@@ -2,6 +2,8 @@ import { Address } from 'ton-core'
 import {TonAPI} from './TonAPI'
 
 export class TonNftClient {
+    public tonApi: TonAPI
+
     constructor(
         readonly provider: string,
         readonly url?: string

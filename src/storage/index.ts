@@ -1,154 +1,49 @@
-import { S3 } from 'aws-sdk'
-import {AmazonS3} from './AmazonS3'
-import { Pinata } from './Pinata'
-import PinataClient from '@pinata/sdk'
-
 export class Storage {
-    constructor (
-        readonly provider: string,
-        readonly key: string,
-        readonly secretKey: string
-    ) {}
-
     // Function to upload images
     async uploadImage(
-        imagePath: string, 
-        options?: {
-            bucketName: string
-        }
+        provider: ProviderInterface,
+        imagePath: string
     ): Promise<string> {
-        if (this.provider === 's3') {
-            const s3 = new AmazonS3(
-                this.key,
-                this.secretKey
-            )
-
-            return await s3.uploadImage(
-                imagePath, 
-                options
-            )
-        } else if (this.provider === 'pinata') {
-            const pinata = new Pinata(
-                this.key,
-                this.secretKey
-            )
-
-            return await pinata.uploadImage(
-                imagePath
-            )
-        } else {
-            throw new Error('Invalid provider')
-        }
+        return await provider.uploadImage(imagePath)
     }
 
     // Function to upload multiple images
     async uploadImages(
-        folderPath: string, 
-        options?: {
-            bucketName: string
-        }
+        provider: ProviderInterface,
+        folderPath: string
     ): Promise<string[]> {
-        if (this.provider === 's3') {
-            const s3 = new AmazonS3(
-                this.key,
-                this.secretKey
-            )
-
-            return await s3.uploadImages(
-                folderPath, 
-                options
-            )
-        } else if (this.provider === 'pinata') {
-            const pinata = new Pinata(
-                this.key,
-                this.secretKey
-            )
-
-            return await pinata.uploadImages(
-                folderPath
-            )
-        } else {
-            throw new Error('Invalid provider')
-        }
+        return await provider.uploadImages(folderPath)
     }
 
     // Function to upload json file
-    async uploadJson(jsonPath: string, options?: {
-        bucketName: string
-    }): Promise<string> {
-        if (this.provider ==='s3') {
-            const s3 = new AmazonS3(
-                this.key,
-                this.secretKey
-            )
-
-            return await s3.uploadJson(
-                jsonPath, 
-                options
-            )
-        } else if (this.provider === 'pinata') {
-            const pinata = new Pinata(
-                this.key,
-                this.secretKey
-            )
-
-            return await pinata.uploadJson(
-                jsonPath
-            )
-        } else {
-            throw new Error('Invalid provider')
-        }
+    async uploadJson(
+        provider: ProviderInterface,
+        jsonPath: string
+    ): Promise<string> {
+        return await provider.uploadJson(jsonPath)
     }
 
     // Function to upload multiple json files
     async uploadJsonBulk(
-        folderPath: string,
-        options?: {
-            bucketName: string
-        }
+        provider: ProviderInterface,
+        folderPath: string
     ): Promise<string[]> {
-        if (this.provider ==='s3') {
-            const s3 = new AmazonS3(
-                this.key,
-                this.secretKey
-            )
-
-            return await s3.uploadJsonBulk(
-                folderPath, 
-                options
-            )
-        } else if (this.provider === 'pinata') {
-            const pinata = new Pinata(
-                this.key,
-                this.secretKey
-            )
-
-            return await pinata.uploadJsonBulk(
-                folderPath
-            )
-        } else {
-            throw new Error('Invalid provider')
-        }
+        return await provider.uploadJsonBulk(folderPath)
     }
 
-    // Function to get client
-    async getClient(): Promise<S3 | PinataClient> {
-        if (this.provider ==='s3') {
-            const s3 = new AmazonS3(
-                this.key,
-                this.secretKey
-            )
-
-            return s3.getClient()
-        } else if (this.provider === 'pinata') {
-            const pinata = new Pinata(
-                this.key,
-                this.secretKey
-            )
-
-            return pinata.getClient()
-        } else {
-            throw new Error('Invalid provider')
-        }
+    // Function to upload multiple json files
+    async uploadBulk(
+        provider: ProviderInterface,
+        assetsFolderPath: string
+    ): Promise<[string[], string[]]> {
+        return await provider.uploadBulk(assetsFolderPath)
     }
+}
+
+export interface ProviderInterface {
+    uploadImage: (imagePath: string) => Promise<string>
+    uploadImages: (folderPath: string) => Promise<string[]>
+    uploadJson: (jsonPath: string) => Promise<string>
+    uploadJsonBulk: (folderPath: string) => Promise<string[]>
+    uploadBulk: (assetsFolderPath: string) => Promise<[string[], string[]]>
 }

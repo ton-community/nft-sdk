@@ -2,11 +2,12 @@ import PinataClient from '@pinata/sdk'
 import { error } from 'console'
 import fs from 'fs'
 import path from 'path'
+import { ProviderInterface } from '.'
 
 /**
  * Pinata is a class that provides utility functions for interacting with Pinata for IPFS integration.
  */
-export class Pinata {
+export class Pinata implements ProviderInterface {
     private pinata: PinataClient
 
     /**
@@ -64,14 +65,6 @@ export class Pinata {
         const files = fs.readdirSync(folderPath)
         const uploadPromises = files.map(file => this.uploadJson(path.join(folderPath, file)))
         return Promise.all(uploadPromises)
-    }
-    
-    /**
-     * Returns the Pinata client interface.
-     * @returns The Pinata client interface.
-     */
-    getClient(): PinataClient {
-        return this.pinata
     }
 
     /**
