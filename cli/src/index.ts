@@ -4,8 +4,8 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import {Pinata} from "../../src/storage/Pinata"
 import {AmazonS3} from "../../src/storage/AmazonS3"
-import {TonClient} from '../../src/ton-api'
-import {fetchAndParseTransactionData} from '../../src/utils/FetchAndParseTransaction'
+import {TonNftClient} from '../../src/ton-api'
+import {TonAPI} from '../../src/ton-api/TonAPI'
 import { Address } from 'ton-core'
 import {createNftSingle, transfer} from "./nftSingle"
 import {createNftCollection} from "./nftCollection"
@@ -74,6 +74,12 @@ yargs(hideBin(process.argv))
           type: 'string',
           demandOption: true,
         })
+        .option('bucketName', {
+          alias: 'b',
+          describe: 'Bucket Name',
+          type:'string',
+          demandOption: true,
+        })
         .option('fileType', {
           alias: 'f',
           describe: 'File type of the image',
@@ -89,11 +95,10 @@ yargs(hideBin(process.argv))
       ) {
         console.log(`Using API key: ${argv.apiKey}`);
         console.log(`Using secret API key: ${argv.secretApiKey}`);
+        console.log(`Using bucket name: ${argv.bucketName}`);
 
-        let s3 = new AmazonS3(argv.apiKey, argv.secretApiKey);
-        let imagesUrls = await s3.uploadImagesBulk(argv.path, "nft_collection", {
-          type: `image/${argv.fileType}`
-        })
+        let s3 = new AmazonS3(argv.apiKey, argv.secretApiKey, argv.bucketName);
+        let imagesUrls = await s3.uploadBulk(argv.path)
 
         console.log(`URLs: ${imagesUrls}`)
       }
@@ -118,7 +123,7 @@ yargs(hideBin(process.argv))
         });
     },
     async (argv) => {
-      const tonClient = new TonClient();
+      const tonClient = new TonNftClient(new TonAPI());
       const collections = await tonClient.getNftCollections(argv.limit, argv.offset);
       console.log(collections);
     }
@@ -135,8 +140,8 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       if (typeof argv.address === 'string') {
-        const tonClient = new TonClient();
-        const collection = await tonClient.getNftCollectionByAddress(argv.address);
+        const tonClient = new TonNftClient(new TonAPI());
+        const collection = await tonClient.getNftCollection(argv.address);
         console.log(collection);
       }
     }
@@ -164,8 +169,8 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       if (typeof argv.address === 'string') {
-        const tonClient = new TonClient();
-        const items = await tonClient.getNftItemsFromCollectionByAddress(argv.address, argv.limit, argv.offset);
+        const tonClient = new TonNftClient(new TonAPI());
+        const items = await tonClient.getNftItems(argv.address, argv.limit, argv.offset);
         console.log(items);
       }
     }
@@ -183,35 +188,9 @@ yargs(hideBin(process.argv))
     },
     async (argv) => {
       if (typeof argv.address === 'string') {
-        const tonClient = new TonClient();
-        const item = await tonClient.getNftItemByAddress(argv.address);
+        const tonClient = new TonNftClient(new TonAPI());
+        const item = await tonClient.getNftItem(argv.address);
         console.log(item);
-      }
-    }
-  )
-
-
-  // Command to fetch transactions and parse data
-  .command(
-    'transactions <address> [limit]',
-    'Fetch and parse transaction data',
-    (yargs) => {
-      return yargs
-        .positional('address', {
-          describe: 'Address to fetch transactions from',
-          type: 'string',
-        })
-        .positional('limit', {
-          describe: 'Maximum number of transactions to return',
-          type: 'number',
-          default: 10,
-        });
-    },
-    async (argv) => {
-      if (typeof argv.address === 'string') {
-        const parsedAddress = Address.parse(argv.address);
-        const transactions = await fetchAndParseTransactionData(parsedAddress, argv.limit);
-        console.log(transactions);
       }
     }
   )
