@@ -1,65 +1,49 @@
 import { Address } from 'ton-core'
-import {TonAPI} from './TonAPI'
 
 export class TonNftClient {
-    public tonApi: TonAPI
-
     constructor(
-        readonly provider: string,
-        readonly url?: string
+        readonly client: ClientInterface
     ) {}
 
     async getNftCollections(
         limit?: number,
         offset?: number,
     ) {
-        if (this.provider === 'tonapi') {
-            const tonApi = new TonAPI()
-
-            return await tonApi.getNftCollections(limit, offset)
-        }
+        return await this.client.getNftCollections(limit, offset)
     }
 
-    async getNftCollectionByAddress(
+    async getNftCollection(
         collectionAddress: string,
     ) {
-        if (this.provider === 'tonapi') {
-            const tonApi = new TonAPI()
-
-            return await tonApi.getNftCollectionByAddress(collectionAddress)
-        }
+        return await this.client.getNftCollection(collectionAddress)
     }
 
-    async getNftItemsFromCollectionByAddress(
+    async getNftItems(
         collectionAddress: string,
         limit?: number,
         offset?: number,
     ) {
-        if (this.provider === 'tonapi') {
-            const tonApi = new TonAPI()
-
-            return await tonApi.getNftItemsFromCollectionByAddress(collectionAddress, limit, offset)
-        }
+        return await this.client.getNftItems(collectionAddress, limit, offset)
     }
 
-    async getNftItemByAddress(
+    async getNftItem(
         itemAddress: string,
     ) {
-        if (this.provider === 'tonapi') {
-            const tonApi = new TonAPI()
-
-            return await tonApi.getNftItemByAddress(itemAddress)
-        }
+        return await this.client.getNftItem(itemAddress)
     }
 
     async getTransactionsByAddress(
         address: Address,
-        limit: number
+        limit?: number
     ) {
-        if (this.provider === 'tonapi') {
-            const tonApi = new TonAPI()
-
-            return await tonApi.getTransactionsByAddress(address, limit)
-        }
+        return await this.client.getTransactionsByAddress(address, limit)
     }
+}
+
+export interface ClientInterface {
+    getNftCollections: (limit?: number, offset?: number) => Promise<unknown>
+    getNftCollection: (collectionAddress: string) => Promise<unknown>
+    getNftItems: (collectionAddress: string, limit?: number, offset?: number) => Promise<unknown>
+    getNftItem: (itemAddress: string) => Promise<unknown>
+    getTransactionsByAddress: (address: Address, limit?: number) => Promise<unknown>
 }

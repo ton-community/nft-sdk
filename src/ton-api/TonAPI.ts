@@ -1,9 +1,10 @@
 import { Address, Transaction } from 'ton-core'
+import {ClientInterface} from './'
 
 /**
  * Class representing a TON API client.
  */
-export class TonAPI {
+export class TonAPI implements ClientInterface {
     private url: string
 
     /**
@@ -40,7 +41,7 @@ export class TonAPI {
      * Fetch an NFT collection by its address.
      * @param {string} collectionAddress - The address of the collection to fetch.
      */
-    async getNftCollectionByAddress(
+    async getNftCollection(
         collectionAddress: string,
     ) {
         const response = await request(
@@ -62,7 +63,7 @@ export class TonAPI {
      * @param {number} [limit] - The maximum number of items to fetch.
      * @param {number} [offset] - The offset to start fetching from.
      */
-    async getNftItemsFromCollectionByAddress(
+    async getNftItems(
         collectionAddress: string,
         limit?: number,
         offset?: number,
@@ -84,7 +85,7 @@ export class TonAPI {
      * Fetch an NFT item by its address.
      * @param {string} itemAddress - The address of the item to fetch.
      */
-    async getNftItemByAddress(
+    async getNftItem(
         itemAddress: string,
     ) {
         const response = await request(
@@ -108,9 +109,7 @@ export class TonAPI {
      */
     async getTransactionsByAddress(
         address: Address,
-        limit: number,
-        // maxLt?: number,
-        // minLt?: number
+        limit?: number
     ) {
         const response = await request(
             `${this.url}/v1/blockchain/getTransactions?account=${address.toString()}&limit=${limit}`,
