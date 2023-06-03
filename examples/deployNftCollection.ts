@@ -4,7 +4,8 @@ import {NftItem} from '../src/wrappers/getgems/NftItem/NftItem'
 import {randomAddress, importKeyPair, createSender} from '../src/utils'
 import {ENDPOINT} from '../src'
 import { TonClient4 } from 'ton'
-import { Pinata } from '../src'
+import { Storage } from '../src/storage'
+import { Pinata } from '../src/storage/Pinata'
 
 async function main() {
     // Config
@@ -18,7 +19,11 @@ async function main() {
 
     // Deploying Assets
     const pinata = new Pinata('<apiKey>', '<secretApiKey>')
-    const data: [string[], string[]] = await pinata.uploadBulk('./assets')
+    const storage = new Storage(pinata)
+
+    // String [0] - Images
+    // String [1] - Json
+    const data: [string[], string[]] = await storage.uploadBulk('./assets')
 
     // Creates NFT Collection
     const nftCollection = client.open(
@@ -26,7 +31,7 @@ async function main() {
             ownerAddress: ownerAddress,
             nextItemIndex: 1,
             collectionContent: data[1][0],
-            commonContent: data[1][0],
+            commonContent: '',
             nftItemCode: NftItem.code,
             royaltyParams: {
                 royaltyFactor: 10,

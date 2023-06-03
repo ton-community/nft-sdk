@@ -12,7 +12,7 @@ export async function createKeyPair() {
 
     writeFileSync(
         "./.env",
-        `SECRET_KEY=${keypair.secretKey}`
+        `SECRET_KEY=${keypair.secretKey.toString()}`
     )
 }
 

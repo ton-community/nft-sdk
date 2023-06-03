@@ -18,8 +18,7 @@ const helpers_1 = require("yargs/helpers");
 const Pinata_1 = require("../../src/storage/Pinata");
 const AmazonS3_1 = require("../../src/storage/AmazonS3");
 const ton_api_1 = require("../../src/ton-api");
-const FetchAndParseTransaction_1 = require("../../src/utils/FetchAndParseTransaction");
-const ton_core_1 = require("ton-core");
+const TonAPI_1 = require("../../src/ton-api/TonAPI");
 const nftSingle_1 = require("./nftSingle");
 const nftCollection_1 = require("./nftCollection");
 const ton_1 = require("ton");
@@ -74,6 +73,12 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
         type: 'string',
         demandOption: true,
     })
+        .option('bucketName', {
+        alias: 'b',
+        describe: 'Bucket Name',
+        type: 'string',
+        demandOption: true,
+    })
         .option('fileType', {
         alias: 'f',
         describe: 'File type of the image',
@@ -87,10 +92,9 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
         && typeof argv.secretApiKey == 'string') {
         console.log(`Using API key: ${argv.apiKey}`);
         console.log(`Using secret API key: ${argv.secretApiKey}`);
-        let s3 = new AmazonS3_1.AmazonS3(argv.apiKey, argv.secretApiKey);
-        let imagesUrls = yield s3.uploadBulk(argv.path, "nft_collection", {
-            type: `image/${argv.fileType}`
-        });
+        console.log(`Using bucket name: ${argv.bucketName}`);
+        let s3 = new AmazonS3_1.AmazonS3(argv.apiKey, argv.secretApiKey, argv.bucketName);
+        let imagesUrls = yield s3.uploadBulk(argv.path);
         console.log(`URLs: ${imagesUrls}`);
     }
 }))
@@ -108,7 +112,7 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
         default: 0,
     });
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
-    const tonClient = new ton_api_1.TonClient();
+    const tonClient = new ton_api_1.TonNftClient(new TonAPI_1.TonAPI());
     const collections = yield tonClient.getNftCollections(argv.limit, argv.offset);
     console.log(collections);
 }))
@@ -120,8 +124,8 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
     });
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
     if (typeof argv.address === 'string') {
-        const tonClient = new ton_api_1.TonClient();
-        const collection = yield tonClient.getNftCollectionByAddress(argv.address);
+        const tonClient = new ton_api_1.TonNftClient(new TonAPI_1.TonAPI());
+        const collection = yield tonClient.getNftCollection(argv.address);
         console.log(collection);
     }
 }))
@@ -144,8 +148,8 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
     });
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
     if (typeof argv.address === 'string') {
-        const tonClient = new ton_api_1.TonClient();
-        const items = yield tonClient.getNftItemsFromCollectionByAddress(argv.address, argv.limit, argv.offset);
+        const tonClient = new ton_api_1.TonNftClient(new TonAPI_1.TonAPI());
+        const items = yield tonClient.getNftItems(argv.address, argv.limit, argv.offset);
         console.log(items);
     }
 }))
@@ -157,31 +161,12 @@ const createKeyPair_1 = __importDefault(require("./utils/createKeyPair"));
     });
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
     if (typeof argv.address === 'string') {
-        const tonClient = new ton_api_1.TonClient();
-        const item = yield tonClient.getNftItemByAddress(argv.address);
+        const tonClient = new ton_api_1.TonNftClient(new TonAPI_1.TonAPI());
+        const item = yield tonClient.getNftItem(argv.address);
         console.log(item);
     }
 }))
-    // Command to fetch transactions and parse data
-    .command('transactions <address> [limit]', 'Fetch and parse transaction data', (yargs) => {
-    return yargs
-        .positional('address', {
-        describe: 'Address to fetch transactions from',
-        type: 'string',
-    })
-        .positional('limit', {
-        describe: 'Maximum number of transactions to return',
-        type: 'number',
-        default: 10,
-    });
-}, (argv) => __awaiter(void 0, void 0, void 0, function* () {
-    if (typeof argv.address === 'string') {
-        const parsedAddress = ton_core_1.Address.parse(argv.address);
-        const transactions = yield (0, FetchAndParseTransaction_1.fetchAndParseTransactionData)(parsedAddress, argv.limit);
-        console.log(transactions);
-    }
-}))
-    .command('create keypair', 'Creates Keypair', (yargs) => {
+    .command('keypair create', 'Creates Keypair', (yargs) => {
 }, (argv) => __awaiter(void 0, void 0, void 0, function* () {
     yield (0, createKeyPair_1.default)();
 }))

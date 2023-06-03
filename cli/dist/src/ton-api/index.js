@@ -9,77 +9,36 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TonClient = void 0;
-class TonClient {
-    constructor(url) {
-        this.url = url ? url : "https://TonClient.io";
+exports.TonNftClient = void 0;
+class TonNftClient {
+    constructor(client) {
+        this.client = client;
     }
-    // Get NFT collections - /v2/nfts/collections
     getNftCollections(limit, offset) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield request(`${this.url}/v2/nfts/collections?limit=${limit}&offset=${offset}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            return response;
+            return yield this.client.getNftCollections(limit, offset);
         });
     }
-    // Get NFT collection by collection address - /v2/nfts/collections/{account_id}
-    getNftCollectionByAddress(collectionAddress) {
+    getNftCollection(collectionAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield request(`${this.url}/v2/nfts/collections/${collectionAddress}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            return response;
+            return yield this.client.getNftCollection(collectionAddress);
         });
     }
-    // Get NFT items from collection by collection address - /v2/nfts/collections/{account_id}/items
-    getNftItemsFromCollectionByAddress(collectionAddress, limit, offset) {
+    getNftItems(collectionAddress, limit, offset) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield request(`${this.url}/v2/nfts/collections/${collectionAddress}/items?limit=${limit}&offset=${offset}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            return response;
+            return yield this.client.getNftItems(collectionAddress, limit, offset);
         });
     }
-    // Get NFT item by its address - /v2/nfts/{account_id}
-    getNftItemByAddress(itemAddress) {
+    getNftItem(itemAddress) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield request(`${this.url}/v2/nfts/${itemAddress}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            return response;
+            return yield this.client.getNftItem(itemAddress);
         });
     }
-    // Get Transactions By Address - /v1/blockchain/getTransactions
     getTransactionsByAddress(address, limit) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield request(`${this.url}/v1/blockchain/getTransactions?account=${address.toString()}&limit=${limit}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            return response;
+            return yield this.client.getTransactionsByAddress(address, limit);
         });
     }
 }
-exports.TonClient = TonClient;
-function request(url, config) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const response = yield fetch(url, config);
-        return yield response.json();
-    });
-}
+exports.TonNftClient = TonNftClient;
 //# sourceMappingURL=index.js.map

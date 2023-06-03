@@ -9,36 +9,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NftItemCodeCell = exports.NftItemCodeBoc = exports.NftItemSource = exports.buildNftItemDataCell = exports.NftItem = void 0;
+exports.NftItem = void 0;
 const ton_core_1 = require("ton-core");
-const combineFunc_1 = require("../../utils/combineFunc");
-const OffchainContent_1 = require("../../types/OffchainContent");
+const EligibleInternalTx_1 = require("../../utils/EligibleInternalTx");
+/**
+ * Represents an NFT item contract.
+ */
 class NftItem {
-    constructor(address, workchain, init) {
+    constructor(address, init) {
         this.address = address;
-        this.workchain = workchain;
         this.init = init;
     }
-    static createFromConfig(config, workchain = 0) {
-        const data = buildNftItemDataCell(config);
-        const init = {
-            code: exports.NftItemCodeCell,
-            data: data
-        };
-        return new NftItem((0, ton_core_1.contractAddress)(workchain, init), workchain, init);
-    }
-    static createFromAddress(address) {
-        return new NftItem(address);
-    }
-    // Deployment
-    sendDeploy(provider, via, value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield provider.internal(via, {
-                value,
-                body: (0, ton_core_1.beginCell)().endCell(),
-            });
-        });
-    }
+    /**
+     * Sends a transfer from the contract.
+     * @param provider - The ContractProvider to facilitate the transfer.
+     * @param via - The Sender initiating the transfer.
+     * @param params - The parameters for the transfer.
+     */
     sendTransfer(provider, via, params) {
         return __awaiter(this, void 0, void 0, function* () {
             yield provider.internal(via, {
@@ -56,7 +43,29 @@ class NftItem {
             });
         });
     }
-    // Getter Functio
+    /**
+     * Gets static data from the contract.
+     * @param provider - The ContractProvider to facilitate the data retrieval.
+     * @param via - The Sender initiating the data retrieval.
+     * @param params - The parameters for the data retrieval.
+     */
+    sendGetStaticData(provider, via, params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield provider.internal(via, {
+                value: params.value,
+                body: (0, ton_core_1.beginCell)()
+                    .storeUint(0x2fcb26a2, 32)
+                    .storeUint(params.queryId || 0, 64)
+                    .endCell(),
+                sendMode: ton_core_1.SendMode.PAY_GAS_SEPARATELY,
+            });
+        });
+    }
+    // Getter Functions
+    /**
+     * Retrieves the data of the NFT from the contract.
+     * @param provider - The ContractProvider to facilitate the data retrieval.
+     */
     getNftData(provider) {
         return __awaiter(this, void 0, void 0, function* () {
             const { stack } = yield provider.get('get_nft_data', []);
@@ -69,23 +78,39 @@ class NftItem {
             };
         });
     }
+    // Transaction Parsing
+    /**
+     * Parses a transfer transaction.
+     * @param tx - The Transaction to be parsed.
+     * @returns A NftTransfer object if the transaction is valid, undefined otherwise.
+     */
+    static parseTransfer(tx) {
+        var _a, _b, _c;
+        try {
+            const body = (_a = tx.inMessage) === null || _a === void 0 ? void 0 : _a.body.beginParse();
+            if (body === undefined)
+                return undefined;
+            const op = body.loadUint(32);
+            if (op !== 0x5fcc3d14)
+                return undefined;
+            if (!(0, EligibleInternalTx_1.isEligibleTransaction)(tx)) {
+                return undefined;
+            }
+            return {
+                queryId: body.loadUint(64),
+                from: (_c = (_b = tx.inMessage) === null || _b === void 0 ? void 0 : _b.info.src) !== null && _c !== void 0 ? _c : undefined,
+                to: body.loadAddress(),
+                responseTo: body.loadAddress(),
+                customPayload: body.loadMaybeRef(),
+                forwardAmount: body.loadCoins(),
+                forwardPayload: body.loadMaybeRef(),
+            };
+        }
+        catch (e) {
+            console.log(e);
+        }
+        return undefined;
+    }
 }
 exports.NftItem = NftItem;
-function buildNftItemDataCell(data) {
-    let dataCell = (0, ton_core_1.beginCell)();
-    let contentCell = (0, OffchainContent_1.encodeOffChainContent)(data.content);
-    dataCell.storeAddress(data.ownerAddress);
-    dataCell.storeAddress(data.editorAddress);
-    dataCell.storeRef(contentCell);
-    return dataCell.endCell();
-}
-exports.buildNftItemDataCell = buildNftItemDataCell;
-exports.NftItemSource = (0, combineFunc_1.combineFunc)(__dirname, [
-    '../../sources/stdlib.fc',
-    '../../sources/op-codes.fc',
-    '../../sources/params.fc',
-    '../../sources/nft-single.fc',
-]);
-exports.NftItemCodeBoc = 'te6ccgECFQEAAw4AART/APSkE/S88sgLAQIBYgIDAgLOBAUCASAREgIBIAYHAgEgDxAEvQyIccAkl8D4NDTAwFxsJJfA+D6QPpAMfoAMXHXIfoAMfoAMPACBtMf0z+CEF/MPRRSMLqOiTIQRxA2QBXbPOCCEC/LJqJSMLrjAoIQaT05UFIwuuMCghAcBEEqUjC6gCAkKCwARPpEMHC68uFNgAfZRN8cF8uGR+kAh8AH6QNIAMfoAggr68IAboSGUUxWgod4i1wsBwwAgkgahkTbiIMIA8uGSIY4+ghAFE42RyFALzxZQC88WcSRLFFRGwHCAEMjLBVAHzxZQBfoCFctqEssfyz8ibrOUWM8XAZEy4gHJAfsAEGeUECo5W+IMAIYWXwZsInDIywHJcIIQi3cXNSHIy/8D0BPPFhOAQHCAEMjLBVAHzxZQBfoCFctqEssfyz8ibrOUWM8XAZEy4gHJAfsAAFQWXwYzAdASghCoywCtcIAQyMsFUAXPFiT6AhTLahPLH8s/Ac8WyYBA+wABYI6JMhBHEDZAFds84DEyNDU1ghAaC51RErqfURPHBfLhmgHU1DAQI/AD4F8EhA/y8A0AggKONSbwAYIQ1TJ22xA3RgBtcXCAEMjLBVAHzxZQBfoCFctqEssfyz8ibrOUWM8XAZEy4gHJAfsAkzA0NOJVAvADAfZRNscF8uGR+kAh8AH6QNIAMfoAggr68IAboSGUUxWgod4i1wsBwwAgkgahkTbiIML/8uGSIY4+ghBRGkRjyFAKzxZQC88WcSRKFFRGsHCAEMjLBVAHzxZQBfoCFctqEssfyz8ibrOUWM8XAZEy4gHJAfsAEFeUECo4W+IOAIICjjUm8AGCENUydtsQN0UAbXFwgBDIywVQB88WUAX6AhXLahLLH8s/Im6zlFjPFwGRMuIByQH7AJMwMzTiVQLwAwAVO1E0PpA+kDU1DCAAGzIUATPFljPFszMye1UgAgFYExQAI7x+f4ARgYuGRlgOS/uAFoICHAAdtdr+AE2GOhph+mH/SAYQABG0Dp4AQgRr4HA=';
-exports.NftItemCodeCell = ton_core_1.Cell.fromBoc(Buffer.from(exports.NftItemCodeBoc, 'base64'))[0];
 //# sourceMappingURL=NftItem.js.map

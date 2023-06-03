@@ -1,9 +1,10 @@
-import {toNano} from 'ton-core'
+import {Address, toNano} from 'ton-core'
 import {NftCollection} from '../src/wrappers/getgems/NftCollection/NftCollection'
 import {randomAddress, importKeyPair, createSender} from '../src/utils'
 import {ENDPOINT} from '../src'
 import { TonClient4 } from 'ton'
-import { Pinata } from '../src'
+import { Storage } from '../src/storage'
+import { Pinata } from '../src/storage/Pinata'
 
 async function main() {
     // Config
@@ -14,11 +15,12 @@ async function main() {
 
     // Addresses
     const ownerAddress = address
-    const collectionAddress = randomAddress()
+    const collectionAddress = Address.parse('')
 
     // Deploying Assets
     const pinata = new Pinata('<apiKey>', '<secretApiKey>')
-    const data: [string[], string[]] = await pinata.uploadBulk('./assets')
+    const storage = new Storage(pinata)
+    const data: [string[], string[]] = await storage.uploadBulk('./assets')
 
     // Creates NFT Item
     const nftCollection = client.open(
