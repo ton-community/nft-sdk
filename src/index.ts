@@ -30,6 +30,8 @@ export {
     Pinata
 }
 
+export {Storage} from './storage'
+
 // TON API
 export * from './ton-api'
 
