@@ -1,332 +1,155 @@
-import { S3 } from 'aws-sdk';
-import { error } from 'console';
-import fs from 'fs';
-import path from 'path';
+import { S3 } from 'aws-sdk'
+import { error } from 'console'
+import fs from 'fs'
+import path from 'path'
+import {ProviderInterface} from './'
 
-export class AmazonS3 {
-    public s3: S3;
+/**
+ * AmazonS3 is a class that provides utility functions for interacting with Amazon S3.
+ */
+export class AmazonS3 implements ProviderInterface {
+    public s3: S3
 
+    /**
+     * Creates an instance of the AmazonS3 class.
+     * @param accessKeyId - The access key ID for your AWS account.
+     * @param secretAccessKey - The secret access key for your AWS account.
+     */
     constructor (
         accessKeyId: string,
-        secretAccessKey: string
+        secretAccessKey: string,
+        readonly bucketName: string
     ) {
         this.s3 = new S3(
             {
                 accessKeyId: accessKeyId,
-                secretAccessKey: secretAccessKey
+                secretAccessKey: secretAccessKey,
             }
-        );
+        )
     }
 
-    // Function to upload images in bulk to Amazon S3
-    async uploadImagesBulk(
-        assetsFolderPath: string, 
-        s3BucketName: string,
-        options?: {
-            type: string
+    /**
+     * Uploads an image file to an S3 bucket.
+     * @param imagePath - The path to the image file to be uploaded.
+     * @returns A Promise that resolves to the URL of the uploaded image.
+     */
+    async uploadImage(
+        imagePath: string
+    ): Promise<string> {
+        const fileContent = fs.readFileSync(imagePath)
+
+        const params = {
+            Bucket: this.bucketName, // Set the bucket name passed as an option or use the default bucket name
+            Key: path.basename(imagePath), // File name you want to save as in S3
+            Body: fileContent,
+            ContentType: 'image/jpeg', // adjust as needed
         }
-    ): Promise<String[]> {
+
+        await this.s3.upload(params).promise()
+
+        return `https://${this.bucketName}.s3.amazonaws.com/${params.Key}`
+    }
+
+    /**
+     * Uploads multiple image files from a folder to an S3 bucket.
+     * @param folderPath - The path to the folder containing the image files.
+     * @returns A Promise that resolves to an array of URLs of the uploaded images.
+     */
+    async uploadImages(
+        folderPath: string
+    ): Promise<string[]> {
+        const files = fs.readdirSync(folderPath)
+        const uploadPromises = files.map(file => this.uploadImage(path.join(folderPath, file)))
+        return Promise.all(uploadPromises)
+    }
+
+    /**
+     * Uploads a JSON file to an S3 bucket.
+     * @param jsonPath - The path to the JSON file to be uploaded.
+     * @returns A Promise that resolves to the URL of the uploaded JSON file.
+     */
+    async uploadJson(
+        jsonPath: string
+    ): Promise<string> {
+        const fileContent = fs.readFileSync(jsonPath)
+
+        const params = {
+            Bucket: this.bucketName,
+            Key: path.basename(jsonPath), // File name you want to save as in S3
+            Body: fileContent,
+            ContentType: 'application/json', // JSON file mimetype
+        }
+
+        await this.s3.upload(params).promise()
+
+        return `https://${this.bucketName}.s3.amazonaws.com/${params.Key}`
+    }
+
+    /**
+     * Uploads multiple JSON files from a folder to an S3 bucket.
+     * @param folderPath - The path to the folder containing the JSON files.
+     * @returns A Promise that resolves to an array of URLs of the uploaded JSON files.
+     */
+    async uploadJsonBulk(
+        folderPath: string
+    ): Promise<string[]> {
+        const files = fs.readdirSync(folderPath)
+        const uploadPromises = files.map(file => this.uploadJson(path.join(folderPath, file)))
+        return Promise.all(uploadPromises)
+    }
+
+    /**
+     * Uploads images in bulk to IPFS using Pinata SDK in ascending order of file names and returns their URLs.
+     * @param assetsFolderPath - The path to the folder containing the image and JSON files.
+     * @returns A Promise that resolves to an array of two arrays:
+     * - The first array contains the URLs of the uploaded images on IPFS.
+     * - The second array contains the URLs of the uploaded JSON files on IPFS.
+     */
+    async uploadBulk(
+        assetsFolderPath: string
+    ): Promise<[string[], string[]]> {
         try {
-            // Check if the S3 bucket exists, create it if it doesn't exist
-            const bucketExists = await this.s3.headBucket({ Bucket: s3BucketName }).promise().then(() => true).catch(() => false);
-            if (!bucketExists) {
-                await this.createBucket(s3BucketName);
-            }
-
             // Read the directory
-            const files = fs.readdirSync(assetsFolderPath);
-
+            const files = fs.readdirSync(assetsFolderPath)
+    
             // Filter and sort image files
-            const imageFiles = files.filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file)).sort((a, b) => parseInt(a) - parseInt(b));
-
+            const imageFiles = files
+                .filter((file) => /\.(jpg|jpeg|png|gif)$/i.test(file))
+                .sort((a, b) => parseInt(a) - parseInt(b))
+    
             // Process image uploads in ascending order and collect their URLs
-            const imageUrls: string[] = [];
-
+            const imageUrls: string[] = []
+            const jsonUrls: string[] = []
+    
             for (const imageFile of imageFiles) {
                 // Read image file
-                const imagePath = path.join(assetsFolderPath, imageFile);
-                const imageData = fs.readFileSync(imagePath);
-
-                // Prepare S3 upload parameters
-                const params: AWS.S3.PutObjectRequest = {
-                    Bucket: s3BucketName,
-                    Key: imageFile,
-                    Body: imageData,
-                    ContentType: options?.type ?? 'image/jpeg', // Adjust this if you are handling multiple image formats
-                };
-
+                const imagePath = path.join(assetsFolderPath, imageFile)
+    
                 // Upload the image to S3
-                await this.s3.upload(params).promise();
-
-                // Add the image URL to the array
-                imageUrls.push(`https://${s3BucketName}.s3.amazonaws.com/${imageFile}`);
-
+                const imageUrl = await this.uploadImage(imagePath)
+                imageUrls.push(imageUrl)
+    
                 // Read the JSON file with the same filename as the image
-                const jsonFilePath = path.join(assetsFolderPath, `${path.parse(imageFile).name}.json`);
-
+                const jsonFilePath = path.join(
+                    assetsFolderPath,
+                    `${path.parse(imageFile).name}.json`
+                )
+    
                 if (fs.existsSync(jsonFilePath)) {
-                    // Read the JSON file
-                    const jsonFile = fs.readFileSync(jsonFilePath, 'utf8');
-                    const jsonData = JSON.parse(jsonFile);
-
                     // Upload the JSON file to S3
-                    const jsonParams: AWS.S3.PutObjectRequest = {
-                        Bucket: s3BucketName,
-                        Key: `${path.parse(imageFile).name}.json`,
-                        Body: jsonFile,
-                        ContentType: 'application/json',
-                    };
-                    await this.s3.upload(jsonParams).promise();
+                    const jsonUrl = await this.uploadJson(jsonFilePath)
+                    jsonUrls.push(jsonUrl)
+                    console.log(`JSON file uploaded to S3: ${jsonUrl}`)
                 } else {
-                    error('Metadata not found for', path.parse(imageFile).name);
+                    error('Metadata not found for', path.parse(imageFile).name)
                 }
             }
-
-            console.log('All images uploaded successfully!');
-            return imageUrls;
+    
+            console.log('All images uploaded successfully!')
+            return [imageUrls, jsonUrls]
         } catch (error) {
-            console.error('Error uploading images to S3:', error);
-            throw error;
+            console.error('Error uploading images to S3:', error)
+            throw error
         }
-    }
-
-    async createBucket(
-        bucketName: string,
-        locationConstraint?: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            CreateBucketConfiguration: {
-                // Set your region here
-                LocationConstraint: !locationConstraint ? "eu-west-1" : locationConstraint
-            }
-        };
-        
-        this.s3.createBucket(params, (err, data) => {
-            if (err) console.log(err, err.stack);
-            else console.log('Bucket Created Successfully', data.Location);
-
-            return data.Location;
-        });
-    }
-
-    async uploadFile(
-        bucketName: string,
-        file: any
-    ) {
-        const params = {
-            Bucket: bucketName,
-            Key: file.name,
-            Body: file.data
-        };
-
-        this.s3.upload(params, (err: any, data: { Location: any; }) => {
-            if (err) {
-                throw err;
-            }
-            console.log(`File uploaded successfully. ${data.Location}`);
-
-            return data.Location;
-        });
-    }
-
-    async deleteFile(
-        bucketName: string,
-        fileName: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            Key: fileName
-        };
-
-        this.s3.deleteObject(params, (err: any, data: any) => {
-            if (err) {
-                throw err;
-            }
-            console.log('File deleted successfully');
-        });
-    }
-
-    async deleteBucket(
-        bucketName: string
-    ) {
-        const params = {
-            Bucket: bucketName
-        };
-
-        this.s3.deleteBucket(params, (err: any, data: any) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket deleted successfully');
-        });
-    }
-
-    async createBucketAndUpload(
-        bucketName: string,
-        file: any,
-        locationConstraint?: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            CreateBucketConfiguration: {
-                // Set your region here
-                LocationConstraint: !locationConstraint ? "eu-west-1" : locationConstraint
-            }
-        };
-
-        this.s3.createBucket(params, (err, data) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket Created Successfully', data.Location);
-            return data.Location;
-        });
-        return this.uploadFile(bucketName, file);
-    }
-
-    async createAndUploadMetadata(
-        bucketName: string,
-        name: string,
-        data: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            Key: `${name}.json`,
-            Body: data,
-            ContentType: 'application/json'
-        };
-
-        this.s3.upload(params, (err: any, data: { Location: any; }) => {
-            if (err) {
-                throw err;
-            }
-            console.log(`File uploaded successfully. ${data.Location}`);
-
-            return data.Location;
-        });
-    }
-
-    async listBuckets() {
-        this.s3.listBuckets((err, data) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket List', data.Buckets);
-
-            return data.Buckets;
-        });
-    }
-
-    async listObjects(
-        bucketName: string
-    ) {
-        const params = {
-            Bucket: bucketName
-        };
-
-        this.s3.listObjects(params, (err, data) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket Objects', data.Contents);
-
-            return data.Contents;
-        });
-    }
-
-    async getObject(
-        bucketName: string,
-        fileName: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            Key: fileName
-        };
-
-        this.s3.getObject(params, (err, data) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket Object', data.Body?.toString());
-
-            return data.Body?.toString();
-        });
-    }
-
-    async getSignedUrl(
-        bucketName: string,
-        fileName: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            Key: fileName,
-            Expires: 60
-        };
-
-        this.s3.getSignedUrl('getObject', params, (err, url) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket Object', url);
-
-            return url;
-        });
-    }
-
-    async getSignedUrlPutObject(
-        bucketName: string,
-        fileName: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            Key: fileName,
-            Expires: 60
-        };
-
-        this.s3.getSignedUrl('putObject', params, (err, url) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket Object', url);
-
-            return url;
-        });
-    }
-
-    async getSignedUrlDeleteObject(
-        bucketName: string,
-        fileName: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            Key: fileName,
-            Expires: 60
-        };
-
-        this.s3.getSignedUrl('deleteObject', params, (err, url) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket Object', url);
-        });
-    }
-
-    async getSignedUrlDeleteBucket(
-        bucketName: string
-    ) {
-        const params = {
-            Bucket: bucketName,
-            Expires: 60
-        };
-
-        this.s3.getSignedUrl('deleteBucket', params, (err, url) => {
-            if (err) {
-                throw err;
-            }
-            console.log('Bucket Object', url);
-
-            return url;
-        });
-    }
+    }    
 }

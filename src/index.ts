@@ -24,7 +24,6 @@ export * from './types/Content'
 
 // Transaction Parsing
 export * as TransactionParsing from './transaction-parsing/'
-export * from './utils/FetchAndParseTransaction'
 
 export {
     AmazonS3, 

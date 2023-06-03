@@ -123,7 +123,7 @@ export async function mint(
         {
             value: toNano("0.05"),
             passAmount: toNano("0"),
-            itemIndex: Number(collectionData.next_item_index),
+            itemIndex: Number(collectionData.nextItemIndex),
             itemOwnerAddress: itemOwner,
             itemContent: itemContent
         }
