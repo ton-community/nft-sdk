@@ -11,41 +11,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NftItemRoyalty = void 0;
 const ton_core_1 = require("ton-core");
-class NftItemRoyalty {
-    constructor(address, workchain, init) {
-        this.address = address;
-        this.workchain = workchain;
-        this.init = init;
-    }
+const NftItem_1 = require("./NftItem");
+/**
+ * Represents an NFT item contract with royalty features.
+ * Inherits from the NftItem class.
+ */
+class NftItemRoyalty extends NftItem_1.NftItem {
+    /**
+     * Constructs an instance of the NftItemRoyalty contract from an address.
+     * @param address - The address of the contract.
+     * @returns An instance of NftItemRoyalty.
+     */
     static createFromAddress(address) {
         return new NftItemRoyalty(address);
     }
-    // Deployment
-    sendDeploy(provider, via, value) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield provider.internal(via, {
-                value,
-                body: (0, ton_core_1.beginCell)().endCell(),
-            });
-        });
-    }
-    sendTransfer(provider, via, params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield provider.internal(via, {
-                value: params.value,
-                body: (0, ton_core_1.beginCell)()
-                    .storeUint(0x5fcc3d14, 32)
-                    .storeUint(params.queryId, 64)
-                    .storeAddress(params.newOwner)
-                    .storeAddress(params.responseDestination)
-                    .storeMaybeRef(params.customPayload)
-                    .storeCoins(params.forwardAmount)
-                    .storeMaybeRef(params.forwardPayload)
-                    .endCell(),
-                sendMode: ton_core_1.SendMode.PAY_GAS_SEPARATELY,
-            });
-        });
-    }
+    /**
+     * Sends a request to get the royalty parameters from the contract.
+     * @param provider - The ContractProvider to facilitate the data retrieval.
+     * @param via - The Sender initiating the data retrieval.
+     * @param params - The parameters for the data retrieval.
+     */
     sendGetRoyaltyParams(provider, via, params) {
         return __awaiter(this, void 0, void 0, function* () {
             yield provider.internal(via, {
@@ -58,21 +43,11 @@ class NftItemRoyalty {
             });
         });
     }
-    // const { stack } = await provider.get('get_nft_address_by_index', [
-    //     { type: 'int', value: index }
-    // ])
-    getNftData(provider) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { stack } = yield provider.get('get_nft_data', []);
-            return {
-                init: stack.readBoolean(),
-                index: stack.readBigNumber(),
-                collectionAddress: stack.readAddressOpt(),
-                ownerAddress: stack.readAddressOpt(),
-                individualContent: stack.readCellOpt(),
-            };
-        });
-    }
+    /**
+     * Retrieves the royalty parameters of the NFT from the contract.
+     * @param provider - The ContractProvider to facilitate the data retrieval.
+     * @returns An object with the royalty parameters.
+     */
     getRoyaltyParams(provider) {
         return __awaiter(this, void 0, void 0, function* () {
             const { stack } = yield provider.get('royalty_params', []);

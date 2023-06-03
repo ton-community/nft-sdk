@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.transfer = exports.importExistingNftSingle = exports.createNftSingle = void 0;
 const ton_core_1 = require("ton-core");
-const NftSingle_1 = require("../../src/wrappers/getgems/NftSingle");
+const NftSingle_1 = require("../../src/wrappers/getgems/NftSingle/NftSingle");
 const importKeyPair_1 = __importDefault(require("./utils/importKeyPair"));
 const fs_1 = require("fs");
 const process_1 = require("process");
@@ -66,7 +66,6 @@ function transfer(client, destination, options) {
             forwardAmount: (0, ton_core_1.toNano)('0')
         });
         console.log(`Transferred NFT from ${(_a = sender.address) === null || _a === void 0 ? void 0 : _a.toString()} to ${destination}`);
-        return nftSingle;
     });
 }
 exports.transfer = transfer;

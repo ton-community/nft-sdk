@@ -196,7 +196,7 @@ yargs(hideBin(process.argv))
   )
 
   .command(
-    'create keypair',
+    'keypair create',
     'Creates Keypair',
     (yargs) => {
       
@@ -206,7 +206,7 @@ yargs(hideBin(process.argv))
   })
 
   .command(
-    'create nft-single <configPath> [secretKey]',
+    'nft-single create <configPath> [secretKey]',
     'Create a single NFT',
     (yargs) => {
       return yargs
@@ -265,7 +265,7 @@ yargs(hideBin(process.argv))
   )
 
   .command(
-    'create nft-collection <configPath> [secretKey]',
+    'nft-collection create <configPath> [secretKey]',
     'Create a NFT Collection',
     (yargs) => {
       return yargs

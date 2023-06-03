@@ -17,12 +17,74 @@ const sdk_1 = __importDefault(require("@pinata/sdk"));
 const console_1 = require("console");
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-// Pinata - For IPFS Integration
+/**
+ * Pinata is a class that provides utility functions for interacting with Pinata for IPFS integration.
+ */
 class Pinata {
+    /**
+     * Creates an instance of the Pinata class.
+     * @param apiKey - The API key for Pinata.
+     * @param secretApiKey - The secret API key for Pinata.
+     */
     constructor(apiKey, secretApiKey) {
         this.pinata = new sdk_1.default(apiKey, secretApiKey);
     }
-    // Function to upload images in bulk to IPFS using Pinata SDK in ascending order of file names and return their URLs
+    /**
+     * Uploads an image file to IPFS using Pinata SDK.
+     * @param imagePath - The path to the image file to be uploaded.
+     * @returns A Promise that resolves to the URL of the uploaded image on IPFS.
+     */
+    uploadImage(imagePath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const fileContent = fs_1.default.createReadStream(imagePath);
+            const response = yield this.pinata.pinFileToIPFS(fileContent);
+            return `https://gateway.pinata.cloud/ipfs/${response.IpfsHash}`;
+        });
+    }
+    /**
+     * Uploads multiple image files from a folder to IPFS using Pinata SDK.
+     * @param folderPath - The path to the folder containing the image files.
+     * @returns A Promise that resolves to an array of URLs of the uploaded images on IPFS.
+     */
+    uploadImages(folderPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const files = fs_1.default.readdirSync(folderPath);
+            const uploadPromises = files.map(file => this.uploadImage(path_1.default.join(folderPath, file)));
+            return Promise.all(uploadPromises);
+        });
+    }
+    /**
+     * Uploads a JSON file to IPFS using Pinata SDK.
+     * @param jsonPath - The path to the JSON file to be uploaded.
+     * @returns A Promise that resolves to the URL of the uploaded JSON file on IPFS.
+     */
+    uploadJson(jsonPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const fileContent = fs_1.default.readFileSync(jsonPath);
+            const jsonData = JSON.parse(fileContent.toString());
+            const response = yield this.pinata.pinJSONToIPFS(jsonData);
+            return `https://gateway.pinata.cloud/ipfs/${response.IpfsHash}`;
+        });
+    }
+    /**
+     * Uploads multiple JSON files from a folder to IPFS using Pinata SDK.
+     * @param folderPath - The path to the folder containing the JSON files.
+     * @returns A Promise that resolves to an array of URLs of the uploaded JSON files on IPFS.
+     */
+    uploadJsonBulk(folderPath) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const files = fs_1.default.readdirSync(folderPath);
+            const uploadPromises = files.map(file => this.uploadJson(path_1.default.join(folderPath, file)));
+            return Promise.all(uploadPromises);
+        });
+    }
+    /**
+     * Uploads images in bulk to IPFS using Pinata SDK in ascending order of file names and returns their URLs.
+     * @param assetsFolderPath - The path to the folder containing the image and JSON files.
+     * @returns A Promise that resolves to an array of two arrays:
+     * - The first array contains the URLs of the uploaded images on IPFS.
+     * - The second array contains the URLs of the uploaded JSON files on IPFS.
+     */
     uploadBulk(assetsFolderPath) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -69,7 +131,7 @@ class Pinata {
                         console.log(`JSON file uploaded to IPFS: ${jsonUrl}`);
                     }
                     else {
-                        (0, console_1.error)("Metadata not found for", path_1.default.parse(imageFile).name);
+                        (0, console_1.error)('Metadata not found for', path_1.default.parse(imageFile).name);
                     }
                 }
                 console.log('All images uploaded successfully!');
@@ -79,36 +141,6 @@ class Pinata {
                 console.error('Error uploading images to IPFS:', error);
                 throw error;
             }
-        });
-    }
-    pinByHash(hashToPin) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.pinata.pinByHash(hashToPin);
-        });
-    }
-    pinFileToIPFS(readableStream) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.pinata.pinFileToIPFS(readableStream);
-        });
-    }
-    pinFromFS(path) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.pinata.pinFromFS(path);
-        });
-    }
-    pinJSONToIPFS(body) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.pinata.pinJSONToIPFS(body);
-        });
-    }
-    pinJobs() {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.pinata.pinJobs();
-        });
-    }
-    unpin(hashToUnpin) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield this.pinata.unpin(hashToUnpin);
         });
     }
 }

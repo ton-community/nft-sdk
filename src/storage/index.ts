@@ -1,42 +1,41 @@
 export class Storage {
+    constructor(
+        readonly provider: ProviderInterface
+    ) {}
+
     // Function to upload images
     async uploadImage(
-        provider: ProviderInterface,
         imagePath: string
     ): Promise<string> {
-        return await provider.uploadImage(imagePath)
+        return await this.provider.uploadImage(imagePath)
     }
 
     // Function to upload multiple images
     async uploadImages(
-        provider: ProviderInterface,
         folderPath: string
     ): Promise<string[]> {
-        return await provider.uploadImages(folderPath)
+        return await this.provider.uploadImages(folderPath)
     }
 
     // Function to upload json file
     async uploadJson(
-        provider: ProviderInterface,
         jsonPath: string
     ): Promise<string> {
-        return await provider.uploadJson(jsonPath)
+        return await this.provider.uploadJson(jsonPath)
     }
 
     // Function to upload multiple json files
     async uploadJsonBulk(
-        provider: ProviderInterface,
         folderPath: string
     ): Promise<string[]> {
-        return await provider.uploadJsonBulk(folderPath)
+        return await this.provider.uploadJsonBulk(folderPath)
     }
 
     // Function to upload multiple json files
     async uploadBulk(
-        provider: ProviderInterface,
         assetsFolderPath: string
     ): Promise<[string[], string[]]> {
-        return await provider.uploadBulk(assetsFolderPath)
+        return await this.provider.uploadBulk(assetsFolderPath)
     }
 }
 

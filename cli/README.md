@@ -18,141 +18,62 @@ A command line tool for interacting with Non-Fungible Tokens (NFTs) on the TON b
 
 ## Usage
 
-### Uploading an NFT via Pinata
-
+### Upload NFT via Pinata:
 ```
-$ ton-nft-cli upload [path] --apiKey <apiKey> --secretApiKey <secretApiKey>
+ton-nft-cli upload pinata [path] --apiKey [API Key] --secretApiKey [Secret API Key]
 ```
+This command is used to upload a file to Pinata, which is an IPFS pinning service. You need to replace `[path]` with the path of the file you want to upload, and `[API Key]` and `[Secret API Key]` with your Pinata API keys. 
 
-This command uploads a file or folder to Pinata and returns the URLs of the uploaded files.
-
-### Get NFT collections
-
+### Upload NFT via Amazon S3:
 ```
-$ ton-nft-cli collections [limit] [offset]
+ton-nft-cli upload s3 [path] --accessKey [Access Key] --secretAccessKey [Secret Access Key] --bucketName [Bucket Name] --fileType [File Type]
 ```
+This command is used to upload a file to Amazon S3. You need to replace `[path]` with the path of the file you want to upload, `[Access Key]` and `[Secret Access Key]` with your Amazon S3 credentials, `[Bucket Name]` with the name of your S3 bucket, and `[File Type]` with the type of the file you are uploading. 
 
-This command retrieves the available NFT collections.
-
-### Get NFT collection by address
-
+### Get NFT collections:
 ```
-$ ton-nft-cli collection <address>
+ton-nft-cli collections [limit] [offset]
 ```
+This command is used to get a list of NFT collections. You can optionally specify a `[limit]` to limit the number of collections returned, and an `[offset]` to skip a certain number of collections.
 
-This command retrieves an NFT collection by its address.
-
-### Get NFT items from a collection by address
-
+### Get NFT collection by address:
 ```
-$ ton-nft-cli collection-items <address> [limit] [offset]
+ton-nft-cli collection [Address]
 ```
+This command is used to get an NFT collection by its address. You need to replace `[Address]` with the address of the NFT collection.
 
-This command retrieves NFT items from a collection by its address.
-
-### Get NFT item by address
-
+### Get NFT items from collection by address:
 ```
-$ ton-nft-cli item <address>
+ton-nft-cli collection-items [Address] [limit] [offset]
 ```
+This command is used to get NFT items from a collection by its address. You need to replace `[Address]` with the address of the NFT collection. You can optionally specify a `[limit]` to limit the number of items returned, and an `[offset]` to skip a certain number of items.
 
-This command retrieves an NFT item by its address.
-
-### Fetch and parse transaction data
-
+### Get NFT item by its address:
 ```
-$ ton-nft-cli transactions <address> [limit]
+ton-nft-cli item [Address]
 ```
+This command is used to get an NFT item by its address. You need to replace `[Address]` with the address of the NFT item.
 
-This command fetches and parses transaction data for a given address.
-
-### Create a keypair
-
+### Create a keypair:
 ```
-$ ton-nft-cli create keypair
+ton-nft-cli keypair create
 ```
+This command is used to create a new keypair.
 
-This command generates a new keypair.
-
-### Create a single NFT
-
+### Create a single NFT:
 ```
-$ ton-nft-cli create nft-single <configPath> [secretKey]
+ton-nft-cli nft-single create [configPath] [secretKey]
 ```
+This command is used to create a single NFT. You need to replace `[configPath]` with the path of the NFT single data config JSON file, and optionally `[secretKey]` with your secret key.
 
-This command creates a single NFT using the configuration provided in the JSON file at the specified path.
-
-### Transfer an NFT Single
-
+### Transfer an NFT:
 ```
-$ ton-nft-cli nft-single transfer <destination> [configPath] [secretKey]
+ton-nft-cli nft-single transfer [destination] [configPath] [secretKey]
 ```
+This command is used to transfer an NFT single. You need to replace `[destination]` with the destination address, `[configPath]` with the path of the transfer configuration JSON file, and `[secretKey]` with the secret key of the sender.
 
-This command transfers an NFT single to a destination address.
-
-### Create an NFT Collection
-
+### Create a NFT Collection:
 ```
-$ ton-nft-cli create nft-collection <configPath> [secretKey]
+ton-nft-cli nft-collection create [configPath] [secretKey]
 ```
-
-This command creates an NFT collection using the configuration provided in the JSON file at the specified path.
-
-## Configuration
-
-The NFT single and NFT collection commands require a JSON file with the following structure:
-
-### NFT Single
-
-```json
-{
-  "name": "My NFT",
-  "description": "This is an example NFT",
-  "image": "https://example.com/image.png",
-  "attributes": [
-    {
-      "trait_type": "Rarity",
-      "value": "Rare"
-    }
-  ]
-}
-```
-
-### NFT Collection
-
-```json
-{
-  "name": "My NFT Collection",
-  "description": "This is an example NFT collection",
-  "image": "https://example.com/image.png",
-  "attributes": [
-    {
-      "trait_type": "Rarity",
-      "value": "Rare"
-    }
-  ],
-  "items": [
-    {
-      "name": "Item 1",
-      "description": "This is item 1",
-      "image": "https://example.com/item1.png",
-      "attributes": [
-        {
-          "trait_type": "Rarity",
-          "value": "Common"
-        }
-      ]
-    },
-    {
-      "name": "Item 2",
-      "description": "This is item 2",
-      "image": "https://example.com/item2.png",
-      "attributes": [
-        {
-          "trait_type": "Rarity",
-          "value": "Rare"
-        }
-      ]
-    }
-}
-```
+This command is used to create a NFT Collection. You need to replace `[configPath]` with the path of the NFT collection data config JSON file, and optionally `[secretKey]` with your secret key.
