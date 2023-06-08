@@ -77,6 +77,7 @@ export class Pinata implements ProviderInterface {
     async uploadBulk(
         assetsFolderPath: string
     ): Promise<[string[], string[]]> {
+        // eslint-disable-next-line no-useless-catch
         try {
             // Read the directory
             const files = fs.readdirSync(assetsFolderPath)
@@ -136,16 +137,12 @@ export class Pinata implements ProviderInterface {
                 
                     const jsonUrl = `https://gateway.pinata.cloud/ipfs/${jsonResult.IpfsHash}`
                     jsonUrls.push(jsonUrl)
-                    console.log(`JSON file uploaded to IPFS: ${jsonUrl}`)
-                } else {
-                    error('Metadata not found for', path.parse(imageFile).name)
                 }
             }
         
-            console.log('All images uploaded successfully!')
             return [imageUrls, jsonUrls]
         } catch (error) {
-            console.error('Error uploading images to IPFS:', error)
+            
             throw error
         }            
     }

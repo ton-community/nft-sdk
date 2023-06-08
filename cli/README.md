@@ -1,6 +1,6 @@
 # NFT CLI Tool
 
-A command line tool for interacting with Non-Fungible Tokens (NFTs) on the TON blockchain.
+A command line tool for interacting with Non-Fungible Tokens (NFTs) on the TON blockchain. Designed for Non-Devs.
 
 ## Requirements
 

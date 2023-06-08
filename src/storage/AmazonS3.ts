@@ -139,16 +139,13 @@ export class AmazonS3 implements ProviderInterface {
                     // Upload the JSON file to S3
                     const jsonUrl = await this.uploadJson(jsonFilePath)
                     jsonUrls.push(jsonUrl)
-                    console.log(`JSON file uploaded to S3: ${jsonUrl}`)
                 } else {
-                    error('Metadata not found for', path.parse(imageFile).name)
+
                 }
             }
-    
-            console.log('All images uploaded successfully!')
+
             return [imageUrls, jsonUrls]
         } catch (error) {
-            console.error('Error uploading images to S3:', error)
             throw error
         }
     }    

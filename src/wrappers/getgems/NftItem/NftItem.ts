@@ -17,13 +17,12 @@ export class NftItem extends NftItemRoyalty {
         const dataCell = beginCell()
     
         const contentCell = beginCell()
-        // contentCell.bits.writeString(data.content)
-        contentCell.storeBuffer(Buffer.from(data.content))
+            .storeBuffer(Buffer.from(data.content))
     
         dataCell.storeUint(data.index, 64)
-        dataCell.storeAddress(data.collectionAddress)
-        dataCell.storeAddress(data.ownerAddress)
-        dataCell.storeRef(contentCell)
+            .storeAddress(data.collectionAddress)
+            .storeAddress(data.ownerAddress)
+            .storeRef(contentCell)
     
         return dataCell.endCell()
     }
